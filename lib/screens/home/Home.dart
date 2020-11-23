@@ -389,6 +389,7 @@ writeOnPdf() async {
                     errorCorrectLevel: pw.BarcodeQRCorrectionLevel.high,
                   ),
                   data: "name",
+
                   height: 100.0,
                   width: 100.0,
 
