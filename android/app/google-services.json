@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "87549519273",
+    "firebase_url": "https://qrmanage-bd34f.firebaseio.com",
+    "project_id": "qrmanage-bd34f",
+    "storage_bucket": "qrmanage-bd34f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:87549519273:android:e5218cc218acbe801b10b8",
+        "android_client_info": {
+          "package_name": "com.fordevelop.qr_management"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "87549519273-6kv12hlnaij8k0eoiuhamagougnkdqa9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fordevelop.qr_management",
+            "certificate_hash": "f7dafaf4cde82568c46ffd673c3452625dddda53"
+          }
+        },
+        {
+          "client_id": "87549519273-u0smri7eo6cc34maf4s69purfrasl84c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9sCmi6ZjyWJMTg0rvrAk8zbOui1kxytM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "87549519273-u0smri7eo6cc34maf4s69purfrasl84c.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "87549519273-rvsqlrdcklq44ejh2apdrbqgk0s4s7pr.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.fordevelop.qrmanage"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

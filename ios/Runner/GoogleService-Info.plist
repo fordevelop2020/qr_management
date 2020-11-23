@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>87549519273-rvsqlrdcklq44ejh2apdrbqgk0s4s7pr.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.87549519273-rvsqlrdcklq44ejh2apdrbqgk0s4s7pr</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>87549519273-6kv12hlnaij8k0eoiuhamagougnkdqa9.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCSD5vmFN879V8NyLEtaMmxYtNxG0JVqx8</string>
+	<key>GCM_SENDER_ID</key>
+	<string>87549519273</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.fordevelop.qrmanage</string>
+	<key>PROJECT_ID</key>
+	<string>qrmanage-bd34f</string>
+	<key>STORAGE_BUCKET</key>
+	<string>qrmanage-bd34f.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:87549519273:ios:c1ef7b59ceab77721b10b8</string>
+	<key>DATABASE_URL</key>
+	<string>https://qrmanage-bd34f.firebaseio.com</string>
+</dict>
+</plist>
