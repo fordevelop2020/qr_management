@@ -1,11 +1,14 @@
 
+
+
 // ignore: avoid_web_libraries_in_flutter
 
+import 'dart:convert';
 import 'dart:io';
-
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:folding_cell/folding_cell.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -361,54 +364,7 @@ class _HomeState extends State<Home> {
 //}
 final pdf = pw.Document();
 
-writeOnPdf() async {
 
-  StreamBuilder(stream: Firestore.instance.collection('Projet').snapshots(),
-      // ignore: missing_return
-      builder: (context, snapshot) {
-        if (!snapshot.hasData)
-          return const Text('loading data... Please wait ..');
-//        return Column(
-//          children: <Widget>[
-        pdf.addPage(
-        pw.MultiPage(
-            pageFormat: PdfPageFormat.a4,
-            margin: pw.EdgeInsets.all(32),
-            build: (pw.Context context){
-              return <pw.Widget> [
-                pw.Header(
-                  level: 0,
-                  child: pw.Text(snapshot.data.documents[2].data['name']),
-//              child: pw.Text("test"),
-                ),
-                pw.Paragraph(
-                    text: "lojnvkjsdbvhjkdsbkebfeqljfhlqejhfkljdflkajfdlahfjsdgkhsajsfhadlfaskfj"
-                ),
-                pw.BarcodeWidget(
-                  barcode: pw.Barcode.qrCode(
-                    errorCorrectLevel: pw.BarcodeQRCorrectionLevel.high,
-                  ),
-                  data: "name",
-
-                  height: 100.0,
-                  width: 100.0,
-
-                ),
-
-              ];
-            }
-        )
-
-
-        );
-
-
-},
-//return Text("loading ...");
-//}
-//);
-  );
-}
 
 Future savePdf() async{
   Directory documentDirectory = await getApplicationDocumentsDirectory();
@@ -600,7 +556,82 @@ Widget _buildFrontWidget(BuildContext context,DocumentSnapshot document) {
                                     icon: Icon(Icons.print),
                                     color: Color(0xff0f4c75),
                                     onPressed: () async {
-                                      writeOnPdf();
+//                                      final doc = pw.Document;
+//                                      var imageProvider = MemoryImage(base64Decode("assets/oyalogo.png"));
+                                      final PdfImage image = await pdfImageFromImageProvider(
+                                          pdf: pdf.document, image: const AssetImage('assets/oyalogo.png'));
+
+                                        pdf.addPage(
+                                                pw.MultiPage(
+                                                    pageFormat: PdfPageFormat.a4,
+                                                    margin: pw.EdgeInsets.all(32),
+                                                    build: (pw.Context context) {
+                                                      return <pw.Widget>[
+                                                        pw.Row(
+                                                          mainAxisAlignment: pw.MainAxisAlignment.center,
+                                                          children: [
+                                                            pw.Image(image),
+                                                          ]
+                                                        ),
+
+                                                        pw.SizedBox(
+                                                            height: 30.0
+                                                        ),
+                                                        pw.Header(
+                                                        level: 0,
+                                                          child: pw.Text("project identifiers"),
+                                                        ),
+
+                                                        pw.Text("Name of the project: "+document['name']),
+                                                        pw.Text("Reference: "+document['reference']),
+                                                        pw.Text("Details: "+document['details']),
+                                                        pw.Text("Date of creation: "+document['date']),
+                                                        pw.SizedBox(
+                                                            height: 30.0
+                                                        ),
+
+                                                        pw.Header(
+                                                          level: 0,
+                                                          child: pw.Text("Project information"),
+                                                        ),
+                                                        pw.Text("Type: "+document['typeP']),
+                                                        pw.Text("Customer: "+document['customer']),
+                                                        pw.Text("Location: "+document['location']),
+                                                        pw.Text("Phase: "+document['phase']),
+                                                        pw.Text("Project owner: "+document['mo']),
+                                                        pw.Text("Project owner delegate: "+document['moDelegate']),
+                                                        pw.Text("Clues: "+document['clues']),
+                                                        pw.Text("Comments: "+document['comments']),
+
+                                                        pw.SizedBox(
+                                                            height: 30.0
+                                                        ),
+
+                                                        pw.Header(
+                                                          level: 0,
+                                                          child: pw.Text("Project members"),
+                                                        ),
+                                                        pw.Text("Manager: "+document['responsible']),
+                                                        pw.Text("Bureau d'études technique: "+document['bet']),
+                                                        pw.Text("Topographer: "+document['topo']),
+
+                                                        pw.SizedBox(
+                                                            height: 60.0
+                                                        ),
+
+                                                        pw.BarcodeWidget(
+                                                          barcode: pw.Barcode.qrCode(
+                                                            errorCorrectLevel: pw.BarcodeQRCorrectionLevel.high,
+                                                          ),
+                                                          data: document['name'],
+                                                          height: 100.0,
+                                                          width: 100.0,
+                                                        ),
+                                                      ];
+                                                    }
+                                                ));
+//                                      writeOnPdf();
+
                                       await savePdf();
                                       Directory documentDirectory = await getApplicationDocumentsDirectory();
                                       String documentPath = documentDirectory.path;

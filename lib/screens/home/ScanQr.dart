@@ -72,7 +72,7 @@ class _ScanQrState extends State<ScanQr> {
               },
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.0),
-                side: BorderSide(color: Colors.blue, width: 3.0)),
+                side: BorderSide(color: Color(0xff3282b8), width: 3.0)),
               ),
           ],
         ),
