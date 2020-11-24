@@ -16,7 +16,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 // ignore: unused_import
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
-import 'package:qr_management/screens/home/ScanQr.dart';
+import 'package:qr_management/screens/home/ScanQrCode.dart';
 import 'package:qr_management/screens/home/pdfPreviewScreen.dart';
 import '../../main.dart';
 import 'addProjet.dart';
@@ -28,8 +28,9 @@ class Home extends StatefulWidget {
 final FirebaseUser user;
 Future _data;
 final GoogleSignIn googleSignIn;
+final String qrResult;
 
-Home({this.user, this.googleSignIn});
+Home({this.user, this.googleSignIn, this.qrResult});
  @override
   _HomeState createState() => _HomeState();
 }
@@ -38,6 +39,7 @@ class _HomeState extends State<Home> {
   List<NetworkImage> _listOfImages = <NetworkImage>[];
   final pdf = pw.Document();
   String qrData = "projectTest";
+
 
 
   @override
@@ -167,7 +169,7 @@ class _HomeState extends State<Home> {
                 children: [
                   IconButton(icon: Icon(FontAwesomeIcons.qrcode,color: Color(0xff3282b8),), onPressed: () {
                     Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context)=>
-                    ScanQr()));
+                    ScanQrCode()));
 
                   }),
                   Spacer(),
@@ -624,12 +626,13 @@ Widget _buildFrontWidget(BuildContext context,DocumentSnapshot document) {
                                                             errorCorrectLevel: pw.BarcodeQRCorrectionLevel.high,
                                                           ),
                                                           data: document['name'],
+
                                                           height: 100.0,
                                                           width: 100.0,
                                                         ),
                                                       ];
                                                     }
-                                                ));
+                                                ));print(pw.Barcode.qrCode());
 //                                      writeOnPdf();
 
                                       await savePdf();
@@ -683,7 +686,7 @@ Widget _buildInnerWidget(BuildContext context,DocumentSnapshot document) {
                         color: Colors.white,
                         offset: Offset(-4.0, -4.0),
                         blurRadius: 15.0,
-                        spreadRadius: 1.0 ),
+                        spreadRadius: 1.0),
                   ]),
               child: Column(children: <Widget>[
                 Container(child: Padding(

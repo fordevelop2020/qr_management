@@ -4,16 +4,21 @@
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:qr_management/screens/home/Home.dart';
+import 'package:qr_management/screens/home/proj_tile.dart';
+
+class ScanQrCode extends StatefulWidget {
 
 
-class ScanQr extends StatefulWidget {
   @override
-  _ScanQrState createState() => _ScanQrState();
+  _ScanQrCodeState createState() => _ScanQrCodeState();
 
 }
 
-class _ScanQrState extends State<ScanQr> {
-  String qrResult = "Not Yet Scanned!";
+class _ScanQrCodeState extends State<ScanQrCode> {
+ String qrResult = "Not Yet Scanned!";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,12 +38,31 @@ class _ScanQrState extends State<ScanQr> {
               style: TextStyle(fontSize: 25.0,fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-            Text(
-              qrResult,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18.0),
+            SizedBox(height: 100),
+            Row(
+              children: <Widget>[
+                Container(
+                  width: 300,
+                  child: Text(
+                   qrResult,
+                    textAlign: TextAlign.center,
+                    maxLines: 5,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 18.0),
 
+                  ),),
+
+                IconButton(
+                  icon: Icon(Icons.remove_red_eye,color: Color(0xff3282b8),), onPressed: () {
+                  Navigator.of(context).push( MaterialPageRoute(
+                      builder: (context) => ProjTile(qrResult : 'gig'),
+                  ));
+                },
+                ),
+              ],
             ),
+
+
             SizedBox(
               height: 20.0,
             ),
@@ -49,7 +73,7 @@ class _ScanQrState extends State<ScanQr> {
                 try {
                   String scanning = await BarcodeScanner.scan();
                   setState(() {
-                    qrResult = scanning;
+                    qrResult = "Project name: "+scanning;
                   });
                 } on PlatformException catch(ex){
                   if(ex.code == BarcodeScanner.CameraAccessDenied){

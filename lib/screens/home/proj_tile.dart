@@ -1,34 +1,26 @@
- import 'package:firebase_database/firebase_database.dart';
+ import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:qr_management/models/project.dart';
+import 'package:qr_management/screens/home/ScanQrCode.dart';
 
 
-class ProjTile extends StatefulWidget {
-  final Project project;
-  ProjTile(this.project);
 
 
-  @override
-  _ProjTileState createState() => _ProjTileState();
-}
 
-final projectReference = FirebaseDatabase.instance.reference().child('project');
+class ProjTile extends StatelessWidget {
 
-class _ProjTileState extends State<ProjTile> {
-  List<Project> items;
+  String qrResult;
+  ProjTile({this.qrResult});
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
+
+final projectReference = Firestore.instance.collection('Projet');
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Project Tile'),
-        backgroundColor: Colors.green,
+        backgroundColor: Color(0xff0f4c75),
       ),
       body: Container(
         height: 400.0,
@@ -37,21 +29,21 @@ class _ProjTileState extends State<ProjTile> {
           child: Center(
             child: Column(
               children: <Widget>[
-                new Text("Name : ${widget.project.name}", style: TextStyle(fontSize: 18.0),),
+                new Text(qrResult, style: TextStyle(fontSize: 18.0),),
                 Padding(padding: EdgeInsets.only(top: 8.0),),
                 Divider(),
-                new Text("Reference : ${widget.project.reference}", style: TextStyle(fontSize: 18.0),),
-                Padding(padding: EdgeInsets.only(top: 8.0),),
-                Divider(),
-                new Text("Details : ${widget.project.details}", style: TextStyle(fontSize: 18.0),),
-                Padding(padding: EdgeInsets.only(top: 8.0),),
-                Divider(),
-                new Text("Date : ${widget.project.date}", style: TextStyle(fontSize: 18.0),),
-                Padding(padding: EdgeInsets.only(top: 8.0),),
-                Divider(),
-                new Text("Customer : ${widget.project.customer}", style: TextStyle(fontSize: 18.0),),
-                Padding(padding: EdgeInsets.only(top: 8.0),),
-                Divider(),
+//                new Text("Reference : ${widget.project.reference}", style: TextStyle(fontSize: 18.0),),
+//                Padding(padding: EdgeInsets.only(top: 8.0),),
+//                Divider(),
+//                new Text("Details : ${widget.project.details}", style: TextStyle(fontSize: 18.0),),
+//                Padding(padding: EdgeInsets.only(top: 8.0),),
+//                Divider(),
+//                new Text("Date : ${widget.project.date}", style: TextStyle(fontSize: 18.0),),
+//                Padding(padding: EdgeInsets.only(top: 8.0),),
+//                Divider(),
+//                new Text("Customer : ${widget.project.customer}", style: TextStyle(fontSize: 18.0),),
+//                Padding(padding: EdgeInsets.only(top: 8.0),),
+//                Divider(),
               ],
             ),
           ),
