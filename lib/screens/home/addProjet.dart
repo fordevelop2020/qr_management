@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // ignore: implementation_imports
 import 'package:flutter/src/material/stepper.dart';
-
+import 'package:http/http.dart' as http;
 import 'package:multi_image_picker/multi_image_picker.dart';
-
 import 'dart:io';
 import 'package:qr_management/screens/home/utils.dart';
+import 'package:file_picker/file_picker.dart';
 
 class AddProjet extends StatelessWidget {
   @override
@@ -27,8 +27,6 @@ class AddProjet extends StatelessWidget {
 class CommonThings {
   static Size size;
 }
-
-
 class MyAddPage extends StatefulWidget {
 
 //  final GlobalKey<ScaffoldState> globalKey;
@@ -46,12 +44,14 @@ _MyAddPageState createState() =>  _MyAddPageState();
 
 class _MyAddPageState extends State<MyAddPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<GlobalKey<FormState>> formKeys = [GlobalKey<FormState>(), GlobalKey<FormState>(), GlobalKey<FormState>()];
   TextEditingController _searchController = new TextEditingController();
   final _controller = TextEditingController();
   final db = Firestore.instance;
   static var _focusNode= FocusNode();
+
+  //déclaration des variables
 
   String value = 'public';
   int _currentStep = 0;
@@ -82,12 +82,98 @@ class _MyAddPageState extends State<MyAddPage> {
   String comments ='';
 
   List<Asset> imagePlans = List<Asset>();
+  List<Asset> documents = List<Asset>();
   List<Asset> image3d = List<Asset>();
   List<String> imageUrls = <String>[];
   List<String> imageUrls3d = <String>[];
   String _error = 'No Error Dectected';
   bool isUploading = false;
   VoidCallback listener;
+
+
+  String _fileName;
+  String _path;
+  Map<String, String> _paths;
+  String _extension;
+  bool _loadingPath = false;
+  bool _multiPick = false;
+  bool _hasValidMime = false;
+  FileType _pickingType ;
+  List<StorageUploadTask> _tasks = <StorageUploadTask>[];
+//
+  void _openFileExplorer() async {
+    try {
+      _path = null;
+//      if(_multiPick){
+        _paths = await FilePicker.getMultiFilePath(
+          type: FileType.custom, allowedExtensions: [_extension]);
+//      }else {
+//        _path = await FilePicker.getFilePath(
+//          type: FileType.custom, allowedExtensions: [_extension]);
+//      }
+//      uploadToFirebase();
+    } on PlatformException catch(e){
+      print("Unsupported operation" +e.toString());
+    }
+      if (!mounted){ return;}
+  }
+    uploadToFirebase(){
+//      if (_multiPick) {
+        _paths.forEach((fileName, filePath) => {
+          upload(fileName, filePath)});
+//      } else {
+//        String fileName = _path.split('/').last;
+//        String filePath = _path;
+//        upload(fileName, filePath);
+//      }
+    }
+
+  upload(fileName, filePath) {
+    _extension = fileName.toString().split('.').last;
+    StorageReference storageRef =
+    FirebaseStorage.instance.ref().child(fileName);
+    final StorageUploadTask uploadTask = storageRef.putFile(
+      File(filePath),
+      StorageMetadata(
+        contentType: '$FileType.custom/$_extension',
+      ),
+    );
+    setState(() {
+      _tasks.add(uploadTask);
+    });
+  }
+//
+//dropDown() {
+//  return DropdownButton(
+//    hint: new Text('Select'),
+//    value: _pickingType,
+//    items: <DropdownMenuItem>[
+//      new DropdownMenuItem(
+//        child: new Text('Audio'),
+//        value: FileType.audio,
+//      ),
+//      new DropdownMenuItem(
+//        child: new Text('Image'),
+//        value: FileType.image,
+//      ),
+//      new DropdownMenuItem(
+//        child: new Text('Video'),
+//        value: FileType.video,
+//      ),
+//      new DropdownMenuItem(
+//        child: new Text('Any'),
+//        value: FileType.custom,
+//      ),
+//    ],
+//    onChanged: (value) => setState(() {
+//      _pickingType = value;
+//    }),
+//  );
+//}
+
+String _bytesTransferred(StorageTaskSnapshot snapshot) {
+  return '${snapshot.bytesTransferred}/${snapshot.totalByteCount}';
+}
 
 
   Widget buildGridView() {
@@ -133,12 +219,6 @@ class _MyAddPageState extends State<MyAddPage> {
         children: List.generate(image3d.length, (index)
         {
           Asset asset = image3d[index];
-//        return AssetThumb(
-//          asset: asset,
-//          width: 100,
-//          height: 100,
-//        );
-          // print(asset.getByteData(quality: 100));
           return Padding(
             padding: EdgeInsets.all(2.0),
             child: ThreeDContainer(
@@ -162,132 +242,6 @@ class _MyAddPageState extends State<MyAddPage> {
 //      }),
     //  );
   }
-
-//  onImageGalleryPressed() async {
-//    imagePlans= (await ImagePicker.pickImage(source: ImageSource.gallery)) as List<File>;
-//    if(imagePlans != null){
-//      image = imagePlans as File;
-//      setState(() {
-//        imagePlans = image as List<File>;
-//      });
-//    }
-//
-//  }
-
-//  onImageCameraPressed2() async {
-//    image3d = await ImagePicker.pickImage(source: ImageSource.camera);
-//    if(image3d != null){
-//      image = image3d;
-//      setState(() {
-//        image3d = image;
-//      });
-//    }
-//  }
-//
-//  onImageGalleryPressed2() async {
-//    image3d= await ImagePicker.pickImage(source: ImageSource.gallery);
-//    if(image3d != null){
-//      image = image3d;
-//      setState(() {
-//        image3d = image;
-//      });
-//    }
-//
-//  }
-//  void _onImageButtonPressed(ImageSource source) {
-//    setState(() {
-//      imagePlans = ImagePicker.pickImage(source: source, maxHeight: 50.0 , maxWidth: 50.0);
-//    });
-//  }
-
-
-//   void createData() async {
-//     DateTime now = DateTime.now();
-//     String nf = DateFormat('kk:mm:ss:MMMMd').format(now);
-//     var imageP = 'nomfoto-$nf' + '.jpg';
-//     var image3 = 'nomfoto-$nf' + '.jpg';
-//     final StorageReference ref = FirebaseStorage.instance.ref().child(imageP);
-//     final StorageUploadTask task = ref.putFile(imagePlans);
-//     var part1 = 'https://firebasestorage.googleapis.com/v0/b/qrmanage-bd34f.appspot.com/o/';
-//     var fullPathImg = part1 + image3;
-//     print(fullPathImg);
-//   }
-
-//    void _onImageButtonPressed2(ImageSource source) {
-//      setState(() {
-//        image3d = ImagePicker.pickImage(source: source, maxHeight: 50.0 , maxWidth: 50.0);
-//
-//      });
-//  }
-
-//  Future getImage() async {
-//    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-//
-//    setState(() {
-//      imagePlans = image;
-//    });
-//  }
-
-
-//   uploadFile() async {
-//     final _storage = FirebaseStorage.instance;
-//     final _picker = ImagePicker();
-//     PickedFile image;
-//
-//     imagePlans = (await _picker.getImage(source: ImageSource.gallery)) as File;
-//     var file= File(imagePlans.path);
-//     if(imagePlans != null){
-//       var snapshot = await _storage.ref()
-//           .child('folderName/imageName')
-//           .putFile(file)
-//           .onComplete;
-////       var downloadUrl = await snapshot.ref.getDownloadURL();
-////       setState(() {
-////         imagePlans = downloadUrl;
-////       });
-//
-//     }else {
-//       print('no path received');
-//     }}
-//    String imageFileName = DateTime.now().millisecondsSinceEpoch.toString();
-//    StorageReference storageReference = FirebaseStorage.instance
-//        .ref()
-//        .child(imageFileName);
-//    StorageUploadTask uploadTask = storageReference.putFile(imagePlans);
-//    await uploadTask.onComplete;
-//    print('File Uploaded');
-//    storageReference.getDownloadURL().then((fileURL) {
-//      setState(() {
-//        imagePlans = fileURL;
-//      });
-//    });
-      // }
-
-//  void _showaddphoto(){
-//    AlertDialog dialog = new AlertDialog(
-//      actions: <Widget>[
-//        new IconButton(icon: new Icon(Icons.camera_alt), onPressed: () => _onImageButtonPressed(ImageSource.camera),
-//            tooltip: 'Take a Photo'),
-//        new IconButton(icon: new Icon(Icons.sd_storage), onPressed:  () => _onImageButtonPressed(ImageSource.gallery),
-//            tooltip: 'Pick Image from gallery')
-//      ],
-//    );
-//    showDialog(context: context,child: dialog);
-//  }
-//
-//    void _showaddphoto2(){
-//      AlertDialog dialog = new AlertDialog(
-//        actions: <Widget>[
-//          new IconButton(icon: new Icon(Icons.camera_alt), onPressed: () => _onImageButtonPressed2(ImageSource.camera),
-//              tooltip: 'Take a Photo'),
-//          new IconButton(icon: new Icon(Icons.sd_storage), onPressed:  () => _onImageButtonPressed2(ImageSource.gallery),
-//              tooltip: 'Pick Image from gallery')
-//        ],
-//      );
-//      showDialog(context: context,child: dialog);
-//    }
-
-
       Future<Null> _selectDatePrj(BuildContext context) async {
         final picked = await showDatePicker(context: context,
             initialDate: _datePrj,
@@ -302,29 +256,7 @@ class _MyAddPageState extends State<MyAddPage> {
         }
       }
 
-//  void uploadImages(){
-//    for ( var imageFile in imagePlans) {
-//      postImage(imageFile).then((downloadUrl) {
-//        imageUrls.add(downloadUrl.toString());
-//        if(imageUrls.length==imagePlans.length){
-//          String documnetID = DateTime.now().millisecondsSinceEpoch.toString();
-//          Firestore.instance.collection('images').document(documnetID).setData({
-//            'urls':imageUrls
-//          }).then((_){
-//            SnackBar snackbar = SnackBar(content: Text('Uploaded Successfully'));
-//            widget.globalKey.currentState.showSnackBar(snackbar);
-//            setState(() {
-//              imagePlans = [];
-//              imageUrls = [];
-//            });
-//          });
-//        }
-//      }).catchError((err) {
-//        print(err);
-//      });
-//    }
 
-      // }
   Future<void> loadAssets() async {
     setState(() {
       imagePlans = List<Asset>();
@@ -402,22 +334,47 @@ class _MyAddPageState extends State<MyAddPage> {
   }
 
 
+  Future<void> downloadFile(StorageReference ref) async {
+    final String url = await ref.getDownloadURL();
+    final http.Response downloadData = await http.get(url);
+    final Directory systemTempDir = Directory.systemTemp;
+    final File tempFile = File('${systemTempDir.path}/tmp.jpg');
+    if (tempFile.existsSync()) {
+      await tempFile.delete();
+    }
+    await tempFile.create();
+    final StorageFileDownloadTask task = ref.writeToFile(tempFile);
+    final int byteCount = (await task.future).totalByteCount;
+    var bodyBytes = downloadData.bodyBytes;
+    final String name = await ref.getName();
+    final String path = await ref.getPath();
+    print(
+      'Success!\nDownloaded $name \nUrl: $url'
+          '\npath: $path \nBytes Count :: $byteCount',
+    );
+    _scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.white,
+        content: Image.memory(
+          bodyBytes,
+          fit: BoxFit.fill,
+        ),
+      ),
+    );
+  }
+
+
 
       @override
       void initState() {
         // TODO: implement initState
         super.initState();
-//    _focusNode.addListener(() {
-//      setState(() {});
-//      print('Has focus $_focusNode.hasFocus');
-//    });
         _dateText = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
       }
 
       @override
       void dispose() {
         _controller.dispose();
-        // _focusNode.dispose();
         super.dispose();
       }
       switchStepType() {
@@ -429,6 +386,24 @@ class _MyAddPageState extends State<MyAddPage> {
 
       @override
       Widget build(BuildContext context) {
+
+        //////////////////////////////////////////////////////
+        final List<Widget> children = <Widget>[];
+        _tasks.forEach((StorageUploadTask task) {
+          final Widget tile = UploadTaskListTile(task: task,
+            onDismissed: (){
+              setState(() {
+                _tasks.remove(task);
+              });
+            },
+            onDownload: (){
+              downloadFile(task.lastSnapshot.ref);
+            },
+          );  children.add(tile);
+        });
+
+
+        //////////////////////////////////////////////////////
         void showSnackBarMessage(String message,
             [MaterialColor color = Colors.red]) {
           Scaffold
@@ -441,63 +416,6 @@ class _MyAddPageState extends State<MyAddPage> {
           for (var imageFile in imagePlans) {
             postImage(imageFile).then((downloadUrl) {
               imageUrls.add(downloadUrl.toString());
-//         if(imageUrls.length==imagePlans.length){
-//           String documnetID = DateTime.now().millisecondsSinceEpoch.toString();
-//           Firestore.instance.collection('Projet').document(documnetID).setData({
-//             'urls':imageUrls
-//           }).then((_){
-//             SnackBar snackbar = SnackBar(content: Text('Uploaded Successfully'));
-//             widget.globalKey.currentState.showSnackBar(snackbar);
-//             setState(() {
-//               imagePlans = [];
-//               imageUrls = [];
-//             });
-//           });
-//         }
-//       }).catchError((err) {
-//         print(err);
-//       });
-//     }
-//      int randomNumber = Random().nextInt(100000);
-//     // int uploadCount = 0;
-//      String imageLocation = 'images/image${randomNumber}.jpg';
-//      String imageLocation2 = 'images/image${randomNumber}.jpg';
-//
-////      DateTime now = DateTime.now();
-//////      String nf = DateFormat('kk:mm:ss:MMMMd').format(now);
-////      var imageP = 'nomfoto-$nf' + '.jpg';
-////      var image3 = 'nomfoto-$nf' + '.jpg';
-//      final StorageReference ref = FirebaseStorage.instance.ref().child(imageLocation);
-//    // final StorageReference ref2 = FirebaseStorage.instance.ref().child(imageLocation2);
-////     final StorageUploadTask task = ref.putFile(imagee);
-////     final StorageUploadTask task2 = ref2.putFile(imagee);
-//     final StorageMetadata metaData = StorageMetadata(contentType: 'image/png');
-//    // final StorageUploadTask task2 = ref2.putFile(imagee);
-////     images.forEach((image) {
-////       ref.putFile(image, metaData).onComplete.then((snapshot){
-////
-////       }
-////      await  task.onComplete;
-////      await task2.onComplete;
-////   })
-////      var part1 = 'https://firebasestorage.googleapis.com/v0/b/qrmanage-bd34f.appspot.com/o/';
-////      var fullPathImg = part1 + image3;
-////      var fullPathImg2 = part1 + image3;
-//      //imagePlans = fullPathImg as File;
-//
-//      print(imageLocation);
-//     print(imageLocation2);
-//      final FormState formState = _formKey.currentState;
-//      if(!formState.validate()){
-//        showSnackBarMessage('Please enter correct data');
-//      } else{
-//        formState.save();
-//        final ref = FirebaseStorage().ref().child(imageLocation);
-//        var imageString = await ref.getDownloadURL();
-//        final ref2 = FirebaseStorage().ref().child(imageLocation2);
-//        var imageString2 = await ref2.getDownloadURL();
-
-//        Firestore.instance.runTransaction((Transaction transaction) async{
               for(var imageFile2 in image3d) {
                 postImage(imageFile2).then((downloadUrl2){
                   imageUrls3d.add(downloadUrl2.toString());
@@ -505,17 +423,15 @@ class _MyAddPageState extends State<MyAddPage> {
               if (imageUrls.length == imagePlans.length) {
                 if (imageUrls3d.length == image3d.length) {
 
-                String documnetID = DateTime
+                String documentID = DateTime
                     .now()
                     .millisecondsSinceEpoch
                     .toString();
                 Firestore.instance.collection('Projet')
-                    .document(documnetID)
+                    .document(documentID)
                     .setData({
-//          CollectionReference reference1 = Firestore.instance.collection('Projet');
-//          await reference1.add({
+
                   "email": widget.email,
-                  // "projId" = snapshot.key;
                   "typeP": _typeP,
                   "name": _name,
                   "reference": reference,
@@ -533,6 +449,7 @@ class _MyAddPageState extends State<MyAddPage> {
                   "details": details,
                   "image3d" : imageUrls3d,
                   "comments": comments,
+                  "documents" : uploadToFirebase(),
                 })
                     .then((_) {
                   setState(() {
@@ -551,8 +468,21 @@ class _MyAddPageState extends State<MyAddPage> {
               print(err);
               });
           }}
-
+        final List<Widget> childr = <Widget>[];
+        _tasks.forEach((StorageUploadTask task) {
+          final Widget tile = UploadTaskListTile(task: task,
+            onDismissed: (){
+            setState(() {
+              _tasks.remove(task);
+            });
+          },
+            onDownload: (){
+              downloadFile(task.lastSnapshot.ref);
+            },
+          );  children.add(tile);
+        });
         return Scaffold(
+          key: _scaffoldKey,
           backgroundColor: Colors.white,
           appBar: AppBar(
             centerTitle: true,
@@ -599,19 +529,6 @@ class _MyAddPageState extends State<MyAddPage> {
                                 _currentStep = 0;
                               }
                             }
-
-//                    if (this._currentStep < this
-//                        ._stepper()
-//                        .length - 1) {
-//                      _addData();
-//                      this._currentStep = this._currentStep + 1;
-//
-//                    } else {
-//                      _addData();
-//                      print('complete!');
-//                      //retour a home
-//                    }
-//                      }
                           });
                         },
 
@@ -634,14 +551,6 @@ class _MyAddPageState extends State<MyAddPage> {
 
                   ),
                 ),
-//            RaisedButton(
-//              child:  Text(
-//                'Save details',
-//                style:  TextStyle(color: Colors.white),
-//              ),
-//              onPressed: _addData,
-//              color: Colors.blue,
-//            ),
               ]),
 
           floatingActionButton: FloatingActionButton(onPressed: switchStepType,
@@ -660,7 +569,7 @@ class _MyAddPageState extends State<MyAddPage> {
 
                   children: <Widget>[
                     DropdownButton(
-                      // value: value,
+//                      value: _typeP,
                       items: [
                         DropdownMenuItem(
                           child: Text('Public'),
@@ -741,30 +650,6 @@ class _MyAddPageState extends State<MyAddPage> {
                     ),
 
 
-//              onTap: () async {
-//                Prediction p = await PlacesAutocomplete.show(
-//                    context: context,
-//                    apiKey: "AIzaSyDLnjy6ICK27e1ifFQ1UTJvlgpNVGFjlPo",
-//                    mode : Mode.fullscreen,
-//                    language: "fr" ,
-//                    components: [
-//                     new Component(Component.country, "fr")
-//                    ]);
-//              },
-////              cursorColor: Colors.blue,
-////              textInputAction: TextInputAction.go,
-////              controller: ,
-//                 onChanged : (value){
-//                setState(() {
-//
-//                });
-
-//             },
-//
-//              decoration: InputDecoration(labelText: 'Location', prefixIcon: Icon(Icons.location_on)),
-                    // ),
-
-
                     TextFormField(
                       decoration: InputDecoration(labelText: 'MO',
                           icon: Icon(Icons.blur_on)),
@@ -835,9 +720,6 @@ class _MyAddPageState extends State<MyAddPage> {
 
                         ),
 
-
-//                    decoration: InputDecoration(labelText: 'Date',
-//                        icon:Icon(Icons.blur_on)),),
                         new IconButton(
                           icon: Icon(Icons.date_range),
                           onPressed: () => _selectDatePrj(context),
@@ -871,6 +753,31 @@ class _MyAddPageState extends State<MyAddPage> {
                         });
                       },
                     ),
+//                    dropDown(),
+//                 SwitchListTile.adaptive(
+//                     title: Text('Pick Multiple Files', textAlign: TextAlign.left,),
+//                     onChanged: (bool value){
+//                       setState(() {
+//                         _multiPick = value;
+//                       });
+//                     },
+//                   value: _multiPick,
+//                 ),
+                  OutlineButton(
+                    child: Text('Open File Explorer'),
+                    onPressed: (){
+                      _openFileExplorer();
+                    },
+                  ),
+                  SizedBox(
+                    height: 20.0,
+                  ),
+//                  Flexible(
+//                    child: ListView(
+////                      children: childr,
+//                    ),
+//                  ),
+//
                   ],
                 ),
               ),
@@ -884,10 +791,7 @@ class _MyAddPageState extends State<MyAddPage> {
                 key: formKeys[2],
                 child: Stack(
                     children: <Widget>[
-
-                      //
-
-                      Container(
+                        Container(
 
                         child: Stack(
                             children: <Widget>[
@@ -909,8 +813,6 @@ class _MyAddPageState extends State<MyAddPage> {
                                     },
                                   ),
 
-                                  // SizedBox(height: 20.0,),
-
                                   TextFormField(
                                     decoration: InputDecoration(
                                         labelText: 'Comments',
@@ -926,26 +828,25 @@ class _MyAddPageState extends State<MyAddPage> {
                                    SizedBox(
                                        height: 200.0,
                                   child: Column(
-//
-//
-//                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                     children: <Widget>[
-
-                                      // Divider(height: 10.0),
                                     Expanded(
-//
                                       child: SizedBox(
                                         height: 25.0,
-                                        child: Text(
-                                          'Image Plans:  ',
+                                        child: Wrap(
+                                         crossAxisAlignment: WrapCrossAlignment.start,
+                                                children: <Widget>[
+                                                  Icon(Icons.blur_on),
+                                                  Text('Image Plans:', style: new TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 14.0,
+                                                    letterSpacing: 2.0,
+//
+                                                  ),),
 
-                                        ),
-                                      ),
-                                    ),
+                                                ],
+                                        ))),
                                     Row(
-//                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                         children: <Widget>[
-
                                           new IconButton(icon: new Icon(Icons.add_photo_alternate), onPressed: loadAssets),
                                         ],
                                       ),
@@ -961,14 +862,13 @@ class _MyAddPageState extends State<MyAddPage> {
                                       children: <Widget>[
                                         Expanded(
                                           child: SizedBox(
-                                            height: 25.0,
+                                            height: 10.0,
                                             child: Text(
                                               'Image 3D:  ',
                                             ),
                                           ),
                                         ),
                                         Row(
-//                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                           children: <Widget>[
 
                                             new IconButton(icon: new Icon(Icons.add_photo_alternate), onPressed: loadAssets3D),
@@ -993,3 +893,99 @@ class _MyAddPageState extends State<MyAddPage> {
         return _steps;
       }
     }
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    throw UnimplementedError();
+  }
+class UploadTaskListTile extends StatelessWidget {
+  const UploadTaskListTile(
+      {Key key, this.task, this.onDismissed, this.onDownload})
+      : super(key: key);
+
+  final StorageUploadTask task;
+  final VoidCallback onDismissed;
+  final VoidCallback onDownload;
+
+  String get status {
+    String result;
+    if (task.isComplete) {
+      if (task.isSuccessful) {
+        result = 'Complete';
+      } else if (task.isCanceled) {
+        result = 'Canceled';
+      } else {
+        result = 'Failed ERROR: ${task.lastSnapshot.error}';
+      }
+    } else if (task.isInProgress) {
+      result = 'Uploading';
+    } else if (task.isPaused) {
+      result = 'Paused';
+    }
+    return result;
+  }
+
+  String _bytesTransferred(StorageTaskSnapshot snapshot) {
+    return '${snapshot.bytesTransferred}/${snapshot.totalByteCount}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<StorageTaskEvent>(
+      stream: task.events,
+      builder: (BuildContext context,
+          AsyncSnapshot<StorageTaskEvent> asyncSnapshot) {
+        Widget subtitle;
+        if (asyncSnapshot.hasData) {
+          final StorageTaskEvent event = asyncSnapshot.data;
+          final StorageTaskSnapshot snapshot = event.snapshot;
+          subtitle = Text('$status: ${_bytesTransferred(snapshot)} bytes sent');
+        } else {
+          subtitle = const Text('Starting...');
+        }
+        return Dismissible(
+          key: Key(task.hashCode.toString()),
+          onDismissed: (_) => onDismissed(),
+          child: ListTile(
+            title: Text('Upload Task #${task.hashCode}'),
+            subtitle: subtitle,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Offstage(
+                  offstage: !task.isInProgress,
+                  child: IconButton(
+                    icon: const Icon(Icons.pause),
+                    onPressed: () => task.pause(),
+                  ),
+                ),
+                Offstage(
+                  offstage: !task.isPaused,
+                  child: IconButton(
+                    icon: const Icon(Icons.file_upload),
+                    onPressed: () => task.resume(),
+                  ),
+                ),
+                Offstage(
+                  offstage: task.isComplete,
+                  child: IconButton(
+                    icon: const Icon(Icons.cancel),
+                    onPressed: () => task.cancel(),
+                  ),
+                ),
+                Offstage(
+                  offstage: !(task.isComplete && task.isSuccessful),
+                  child: IconButton(
+                    icon: const Icon(Icons.file_download),
+                    onPressed: onDownload,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
