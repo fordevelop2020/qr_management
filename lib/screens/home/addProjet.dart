@@ -33,6 +33,7 @@ class MyAddPage extends StatefulWidget {
 //  const UploadImages({Key key, this.globalKey}) : super(key: key);
   MyAddPage({Key key, this.title, this.email}) : super(key: key);
   final String email;
+  static GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final String title;
 
@@ -45,6 +46,9 @@ _MyAddPageState createState() =>  _MyAddPageState();
 class _MyAddPageState extends State<MyAddPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+//  final GlobalKey<ScaffoldState> _scaffoldKey1 = GlobalKey<ScaffoldState>();
+//  final GlobalKey<ScaffoldState> _scaffoldKey2 = GlobalKey<ScaffoldState>();
+//  List<GlobalKey<ScaffoldState>> scaffoldKeys = [GlobalKey<ScaffoldState>(), GlobalKey<ScaffoldState>(), GlobalKey<ScaffoldState>()];
   List<GlobalKey<FormState>> formKeys = [GlobalKey<FormState>(), GlobalKey<FormState>(), GlobalKey<FormState>()];
   TextEditingController _searchController = new TextEditingController();
   final _controller = TextEditingController();
@@ -111,7 +115,7 @@ class _MyAddPageState extends State<MyAddPage> {
 //        _path = await FilePicker.getFilePath(
 //          type: FileType.custom, allowedExtensions: [_extension]);
 //      }
-//      uploadToFirebase();
+      uploadToFirebase();
     } on PlatformException catch(e){
       print("Unsupported operation" +e.toString());
     }
@@ -183,12 +187,6 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
       children: List.generate(imagePlans.length, (index)
     {
       Asset asset = imagePlans[index];
-//        return AssetThumb(
-//          asset: asset,
-//          width: 100,
-//          height: 100,
-//        );
-      // print(asset.getByteData(quality: 100));
       return Padding(
         padding: EdgeInsets.all(2.0),
         child: ThreeDContainer(
@@ -212,6 +210,9 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
 //      }),
   //  );
   }
+
+
+
   Widget buildGridView3D() {
     return GridView.count(
         crossAxisCount: 6,
@@ -289,7 +290,6 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
       _error = error;
     });
   }
-
   Future<void> loadAssets3D() async {
     setState(() {
       image3d = List<Asset>();
@@ -352,15 +352,15 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
       'Success!\nDownloaded $name \nUrl: $url'
           '\npath: $path \nBytes Count :: $byteCount',
     );
-    _scaffoldKey.currentState.showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.white,
-        content: Image.memory(
-          bodyBytes,
-          fit: BoxFit.fill,
-        ),
-      ),
-    );
+//    _formKey.currentState.showSnackBar(
+//      SnackBar(
+//        backgroundColor: Colors.white,
+//        content: Image.memory(
+//          bodyBytes,
+//          fit: BoxFit.fill,
+//        ),
+//      ),
+//    );
   }
 
 
@@ -369,6 +369,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
       void initState() {
         // TODO: implement initState
         super.initState();
+//        MyAddPage._scaffoldKey = _scaffoldKey;
         _dateText = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
       }
 
@@ -387,23 +388,6 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
       @override
       Widget build(BuildContext context) {
 
-        //////////////////////////////////////////////////////
-        final List<Widget> children = <Widget>[];
-        _tasks.forEach((StorageUploadTask task) {
-          final Widget tile = UploadTaskListTile(task: task,
-            onDismissed: (){
-              setState(() {
-                _tasks.remove(task);
-              });
-            },
-            onDownload: (){
-              downloadFile(task.lastSnapshot.ref);
-            },
-          );  children.add(tile);
-        });
-
-
-        //////////////////////////////////////////////////////
         void showSnackBarMessage(String message,
             [MaterialColor color = Colors.red]) {
           Scaffold
@@ -413,6 +397,16 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
 
 
         Future<void> _addData() async {
+          try {
+            _path = null;
+            _paths = await FilePicker.getMultiFilePath(
+                type: FileType.custom, allowedExtensions: [_extension]);
+            uploadToFirebase();
+          } on PlatformException catch(e){
+            print("Unsupported operation" +e.toString());
+          }
+          if (!mounted){ return;}
+
           for (var imageFile in imagePlans) {
             postImage(imageFile).then((downloadUrl) {
               imageUrls.add(downloadUrl.toString());
@@ -449,7 +443,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                   "details": details,
                   "image3d" : imageUrls3d,
                   "comments": comments,
-                  "documents" : uploadToFirebase(),
+                  "documents" : _paths,
                 })
                     .then((_) {
                   setState(() {
@@ -468,19 +462,24 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
               print(err);
               });
           }}
-        final List<Widget> childr = <Widget>[];
+
+
+
+        final List<Widget> children = <Widget>[];
         _tasks.forEach((StorageUploadTask task) {
           final Widget tile = UploadTaskListTile(task: task,
             onDismissed: (){
-            setState(() {
-              _tasks.remove(task);
-            });
-          },
+              setState(() {
+                _tasks.remove(task);
+              });
+            },
             onDownload: (){
               downloadFile(task.lastSnapshot.ref);
             },
           );  children.add(tile);
         });
+
+
         return Scaffold(
           key: _scaffoldKey,
           backgroundColor: Colors.white,
@@ -505,6 +504,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                   child: Form(
 
                     key: _formKey,
+//                  key: _scaffoldKey,
                     child: Expanded(
                       child: Stepper(
                         steps: _stepper(),
@@ -561,10 +561,25 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
       }
 
       List<Step> _stepper() {
+
+        final List<Widget> children = <Widget>[];
+        _tasks.forEach((StorageUploadTask task) {
+          final Widget tile = UploadTaskListTile(task: task,
+            onDismissed: (){
+              setState(() {
+                _tasks.remove(task);
+              });
+            },
+            onDownload: (){
+              downloadFile(task.lastSnapshot.ref);
+            },
+          );  children.add(tile);
+        });
         List<Step> _steps = [
           Step(title: const Text('Phase A'),
               content: Form(
                 key: formKeys[0],
+//              key: _scaffoldKey,
                 child: Column(
 
                   children: <Widget>[
@@ -700,6 +715,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
               title: const Text('Phase B'),
               content: Form(
                 key: formKeys[1],
+//              key: _scaffoldKey,
                 child: Column(
                   children: <Widget>[
                     Row(
@@ -753,16 +769,6 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                         });
                       },
                     ),
-//                    dropDown(),
-//                 SwitchListTile.adaptive(
-//                     title: Text('Pick Multiple Files', textAlign: TextAlign.left,),
-//                     onChanged: (bool value){
-//                       setState(() {
-//                         _multiPick = value;
-//                       });
-//                     },
-//                   value: _multiPick,
-//                 ),
                   OutlineButton(
                     child: Text('Open File Explorer'),
                     onPressed: (){
@@ -770,14 +776,16 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                     },
                   ),
                   SizedBox(
-                    height: 20.0,
+                    height: 10.0,
                   ),
-//                  Flexible(
-//                    child: ListView(
-////                      children: childr,
-//                    ),
-//                  ),
-//
+                   SizedBox(
+                     height: 200,
+                     child: Flexible(
+                       child: ListView(
+                       children: children,
+                          ),
+                     ),
+                   ),
                   ],
                 ),
               ),
@@ -789,6 +797,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
               title: const Text('Phase C'),
               content: Form(
                 key: formKeys[2],
+//              key: _scaffoldKey,
                 child: Stack(
                     children: <Widget>[
                         Container(
@@ -894,11 +903,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
       }
     }
 
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
-  }
+
 class UploadTaskListTile extends StatelessWidget {
   const UploadTaskListTile(
       {Key key, this.task, this.onDismissed, this.onDownload})
