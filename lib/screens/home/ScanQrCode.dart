@@ -21,6 +21,7 @@ class _ScanQrCodeState extends State<ScanQrCode> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff0f4c75),
@@ -55,7 +56,7 @@ class _ScanQrCodeState extends State<ScanQrCode> {
                 IconButton(
                   icon: Icon(Icons.remove_red_eye,color: Color(0xff3282b8),), onPressed: () {
                   Navigator.of(context).push( MaterialPageRoute(
-                      builder: (context) => ProjTile(qrResult : 'gig'),
+                      builder: (context) => ProjTile(qrResult : 'kharabi9o'),
                   ));
                 },
                 ),

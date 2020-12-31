@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/material/stepper.dart';
 import 'package:http/http.dart' as http;
 import 'package:multi_image_picker/multi_image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:qr_management/screens/home/utils.dart';
 import 'package:file_picker/file_picker.dart';
@@ -34,7 +36,6 @@ class MyAddPage extends StatefulWidget {
   MyAddPage({Key key, this.title, this.email}) : super(key: key);
   final String email;
   static GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
   final String title;
 
 
@@ -46,9 +47,6 @@ _MyAddPageState createState() =>  _MyAddPageState();
 class _MyAddPageState extends State<MyAddPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-//  final GlobalKey<ScaffoldState> _scaffoldKey1 = GlobalKey<ScaffoldState>();
-//  final GlobalKey<ScaffoldState> _scaffoldKey2 = GlobalKey<ScaffoldState>();
-//  List<GlobalKey<ScaffoldState>> scaffoldKeys = [GlobalKey<ScaffoldState>(), GlobalKey<ScaffoldState>(), GlobalKey<ScaffoldState>()];
   List<GlobalKey<FormState>> formKeys = [GlobalKey<FormState>(), GlobalKey<FormState>(), GlobalKey<FormState>()];
   TextEditingController _searchController = new TextEditingController();
   final _controller = TextEditingController();
@@ -86,36 +84,38 @@ class _MyAddPageState extends State<MyAddPage> {
   String comments ='';
 
   List<Asset> imagePlans = List<Asset>();
-  List<Asset> documents = List<Asset>();
+//  List<String> documents = List<String>();
   List<Asset> image3d = List<Asset>();
   List<String> imageUrls = <String>[];
+  List<String> fileUrls = <String>[];
   List<String> imageUrls3d = <String>[];
   String _error = 'No Error Dectected';
   bool isUploading = false;
   VoidCallback listener;
 
 
-  String _fileName;
+  String fileName;
   String _path;
   Map<String, String> _paths;
+  Map<String,String> documents;
   String _extension;
-  bool _loadingPath = false;
-  bool _multiPick = false;
-  bool _hasValidMime = false;
   FileType _pickingType ;
   List<StorageUploadTask> _tasks = <StorageUploadTask>[];
+  StorageUploadTask _uploadTask2;
+
 //
   void _openFileExplorer() async {
     try {
-      _path = null;
+//      _path = null;
 //      if(_multiPick){
         _paths = await FilePicker.getMultiFilePath(
+          // ignore: missing_return
           type: FileType.custom, allowedExtensions: [_extension]);
-//      }else {
-//        _path = await FilePicker.getFilePath(
-//          type: FileType.custom, allowedExtensions: [_extension]);
-//      }
-      uploadToFirebase();
+        setState(() {
+          documents = _paths;
+        });
+
+//      uploadToFirebase();
     } on PlatformException catch(e){
       print("Unsupported operation" +e.toString());
     }
@@ -132,48 +132,23 @@ class _MyAddPageState extends State<MyAddPage> {
 //      }
     }
 
+
+
   upload(fileName, filePath) {
     _extension = fileName.toString().split('.').last;
     StorageReference storageRef =
     FirebaseStorage.instance.ref().child(fileName);
-    final StorageUploadTask uploadTask = storageRef.putFile(
+     _uploadTask2 = storageRef.putFile(
       File(filePath),
       StorageMetadata(
         contentType: '$FileType.custom/$_extension',
       ),
     );
     setState(() {
-      _tasks.add(uploadTask);
+      _tasks.add(_uploadTask2);
+
     });
   }
-//
-//dropDown() {
-//  return DropdownButton(
-//    hint: new Text('Select'),
-//    value: _pickingType,
-//    items: <DropdownMenuItem>[
-//      new DropdownMenuItem(
-//        child: new Text('Audio'),
-//        value: FileType.audio,
-//      ),
-//      new DropdownMenuItem(
-//        child: new Text('Image'),
-//        value: FileType.image,
-//      ),
-//      new DropdownMenuItem(
-//        child: new Text('Video'),
-//        value: FileType.video,
-//      ),
-//      new DropdownMenuItem(
-//        child: new Text('Any'),
-//        value: FileType.custom,
-//      ),
-//    ],
-//    onChanged: (value) => setState(() {
-//      _pickingType = value;
-//    }),
-//  );
-//}
 
 String _bytesTransferred(StorageTaskSnapshot snapshot) {
   return '${snapshot.bytesTransferred}/${snapshot.totalByteCount}';
@@ -333,6 +308,16 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
 
   }
 
+  Future<dynamic> postFile(String dwnlFile) async {
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
+    StorageUploadTask uploadTask = reference.putFile(File(dwnlFile),StorageMetadata(contentType: _typeP +'/'+ _extension),);
+    StorageTaskSnapshot downloadUrl = await uploadTask.onComplete;
+    final String url =(await downloadUrl.ref.getDownloadURL());
+    return url;
+
+  }
+
 
   Future<void> downloadFile(StorageReference ref) async {
     final String url = await ref.getDownloadURL();
@@ -397,16 +382,9 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
 
 
         Future<void> _addData() async {
-          try {
-            _path = null;
-            _paths = await FilePicker.getMultiFilePath(
-                type: FileType.custom, allowedExtensions: [_extension]);
-            uploadToFirebase();
-          } on PlatformException catch(e){
-            print("Unsupported operation" +e.toString());
-          }
-          if (!mounted){ return;}
-
+          for(String dwnlfile in documents.values){
+            postFile(dwnlfile).then((downloadUrl){
+              fileUrls.add(downloadUrl.toString());
           for (var imageFile in imagePlans) {
             postImage(imageFile).then((downloadUrl) {
               imageUrls.add(downloadUrl.toString());
@@ -416,6 +394,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
 
               if (imageUrls.length == imagePlans.length) {
                 if (imageUrls3d.length == image3d.length) {
+                  if (fileUrls.length == documents.length) {
 
                 String documentID = DateTime
                     .now()
@@ -443,7 +422,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                   "details": details,
                   "image3d" : imageUrls3d,
                   "comments": comments,
-                  "documents" : _paths,
+                  "documents" : fileUrls,
                 })
                     .then((_) {
                   setState(() {
@@ -451,16 +430,21 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                     imageUrls = [];
                     image3d = [];
                     imageUrls3d = [];
+                    fileUrls = [];
+
                   });
                   //uploadImages();
                 });
-              }}
+              }}}
             }).catchError((err) {
               print(err);
             });
           } }).catchError((err) {
               print(err);
               });
+          } }).catchError((err) {
+              print(err);
+            });
           }}
 
 
@@ -481,7 +465,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
 
 
         return Scaffold(
-          key: _scaffoldKey,
+//          key: _scaffoldKey,
           backgroundColor: Colors.white,
           appBar: AppBar(
             centerTitle: true,
@@ -502,9 +486,8 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                       primaryColor: Color(0xff3282b8)
                   ),
                   child: Form(
-
-                    key: _formKey,
-//                  key: _scaffoldKey,
+//                    key: _formKey,
+                  key: _scaffoldKey,
                     child: Expanded(
                       child: Stepper(
                         steps: _stepper(),
@@ -531,8 +514,6 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                             }
                           });
                         },
-
-
                         onStepCancel: () {
                           setState(() {
                             if (this._currentStep > 0) {
