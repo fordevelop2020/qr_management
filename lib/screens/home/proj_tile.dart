@@ -1,8 +1,10 @@
 
 import 'dart:io';
-
+import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
@@ -18,14 +20,14 @@ class ProjTile extends StatefulWidget {
 class _ProjTileState extends State<ProjTile> {
   int _current = 0;
   CarouselSlider carouselSlider;
-  List imgList = [] ;
-//  List docList = [];
-  String _path;
-//  String fileT;
+  List imgList = [];
+
+  List docFile = [];
   var pathFile;
-  List<T> map<T>(List list, Function handler){
+
+  List<T> map<T>(List list, Function handler) {
     List<T> result = [];
-    for(var i = 0; i < list.length; i++){
+    for (var i = 0; i < list.length; i++) {
       result.add(handler(i, list[i]));
     }
   }
@@ -33,6 +35,14 @@ class _ProjTileState extends State<ProjTile> {
 
   @override
   Widget build(BuildContext context) {
+    Future<void> _onOpen(LinkableElement link) async {
+      if (await canLaunch(link.url)) {
+        await launch(link.url);
+      } else {
+        throw 'Could not launch $link';
+      }
+    }
+
 
       return Scaffold(
         appBar: AppBar(
@@ -51,20 +61,7 @@ class _ProjTileState extends State<ProjTile> {
                     DocumentSnapshot dataQr = snapshot.data.documents[index1];
                     // ignore: unnecessary_statements
                     imgList = dataQr['imagePlans'];
-                   List docFile = dataQr['documents'];
-
-                    String downloadURL =  firebase_storage.FirebaseStorage.instance.ref().getDownloadURL() as String;
-
-                    final http.Response downloadData =  http.get(downloadURL) as http.Response;
-                  final File tempFile = File('gs://qrmanage-bd34f.appspot.com/2-Support Web Services REST.pdf');
-//                  final StorageFileDownloadTask task = url.writeToFile(tempFile);
-//                  final int byteCount = ( task.future).totalByteCount;
-//                  var bodyBytes = downloadData.bodyBytes;
-//                  final String name =  ref.getName();
-//                  final String path =  ref.getPath();
-//              print('imagePLANS : $imgList');
-
-
+                    docFile = dataQr['documents'];
                     return Container(
                       height: 700.0,
                       padding: const EdgeInsets.all(15.0),
@@ -93,14 +90,24 @@ class _ProjTileState extends State<ProjTile> {
                                 style: TextStyle(fontSize: 18.0),),
                               Padding(padding: EdgeInsets.only(top: 8.0),),
                               Divider(),
-//                           SizedBox(
-//                             height: 100,
-//                             child: ListTile(
-//                               title: Text(name),
-//                               leading: Text(path),
-//                             ),
-//                           ),
-//                              Image.network(downUrl),
+                              SizedBox(
+                                height: 150,
+//                                child: new Text(docFile.toString()),
+                                child: ListView(
+
+                                  children: docFile.map((fifi) {
+                                    return Builder(
+                                      builder: (BuildContext context) {
+                                        return Linkify(
+                                          onOpen: _onOpen,
+                                            text: fifi,
+                                           );
+                                        }
+                                        );
+
+                                  }).toList(),
+                                ),
+                              ),
 
 
                               carouselSlider = CarouselSlider(
