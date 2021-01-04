@@ -4,20 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_management/screens/home/Home.dart';
-import 'package:qr_management/screens/home/addProjet.dart';
 import 'package:qr_management/shared/globals.dart';
 import 'package:qr_management/widgets/button_widget.dart';
 import 'package:qr_management/widgets/textfield_widget.dart';
 import 'package:qr_management/widgets/wave_widget.dart';
+import 'ForgotScreen.dart';
 import 'models/home_model.dart';
 import 'models/user.dart';
-import 'package:qr_management/shared/loading.dart';
-
-
-
-
-
-
 
 void main() => runApp(MyApp());
 
@@ -150,6 +143,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
 
+//  Future<void> resetPassword(String email) async {
+//    await firebaseAuth.sendPasswordResetEmail(email: email);
+//  }
+
   Future<FirebaseUser> signInWithMail(String emailT , String passwordT) async
   {
 
@@ -279,16 +276,13 @@ class _MyHomePageState extends State<MyHomePage> {
                       children: <Widget>[
                         Align(
                           alignment: Alignment.topRight,
-                          child: Container(
-                            child: Text(
-                              'Forgot password?',
-//                              textAlign: TextAlign.right,
-                              style: TextStyle(
-                                color: Color(0xff3282b8),
-                              ),
+                          child: InkWell(
+                            onTap: (){
+                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context)=> ForgotScreen()));
+                            },
+                          child :Text('Forgot password?', style: TextStyle(color: Color(0xff3282b8)),
                             ),
-                          ),
-                        ),
+                          )),
                       ],
                     ),
                 //  ],

@@ -39,6 +39,10 @@ class _HomeState extends State<Home> {
   List<NetworkImage> _listOfImages = <NetworkImage>[];
   final pdf = pw.Document();
   String qrData = "projectTest";
+  String name;
+  String email;
+  String imageUrl;
+
 
 
 
@@ -77,18 +81,35 @@ class _HomeState extends State<Home> {
     double size  = (_offset.dy > limits[x] && _offset.dy < limits[x + 1]) ? 20 : 14;
     return size;
   }
+
+  Future<String> signInPhoto() async{
+    if( widget.user != null){
+      assert(widget.user.photoUrl != null);
+      imageUrl= widget.user.photoUrl;
+    } else {
+      imageUrl = Image.asset("assets/dp_default.png").toString();
+    }
+    return imageUrl;
+  }
   
   void _signOut() {
     AlertDialog alertDialog = new AlertDialog(
       content: Container(
         height: 215.0,
+
         child: Column(
           children: <Widget>[
-            ClipOval(
-              child: new Image.network(widget.user.photoUrl),
+            CircleAvatar(
+              backgroundImage: widget.user.photoUrl != null? NetworkImage(widget.user.photoUrl): null,
+              child: widget.user.photoUrl  == null? Icon(Icons.account_circle,size: 40): Container(),
+              radius: 40.0,
+              backgroundColor: Colors.transparent,
             ),
+//            ClipOval(
+//              child: new Image.network(widget.user.photoUrl),
+//            ),
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(10.0),
               child: Text("Sign out?", style: new TextStyle(fontSize: 16.0),),
             ),
             //new Divider(),
@@ -146,7 +167,9 @@ class _HomeState extends State<Home> {
     double sidebarSize = mediaQuery.width * 0.65;
     double menuContainerHeight = mediaQuery.height/2;
 
-
+    imageUrl = widget.user.photoUrl;
+    name = widget.user.displayName;
+    email = widget.user.email;
 
 
     return SafeArea(
@@ -186,8 +209,7 @@ class _HomeState extends State<Home> {
 
             floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
             body: Container(
-              decoration: BoxDecoration(
-            ),
+
                 width: mediaQuery.width,
                 child: Stack(
                     children: <Widget>[
@@ -215,8 +237,8 @@ class _HomeState extends State<Home> {
 
                                                 cellSize: Size(MediaQuery
                                                     .of(context)
-                                                    .size.width, 190),
-                                                padding: EdgeInsets.all(10),
+                                                    .size.width, 220),
+                                                padding: EdgeInsets.all(0),
                                                 animationDuration: Duration(
                                                     milliseconds: 300),
                                                 borderRadius: 10,
@@ -289,7 +311,9 @@ class _HomeState extends State<Home> {
                                                 });
                                               },),
                                              Divider(),
+                                               SizedBox(width: 150.0),
                                                new IconButton(
+
                                                      icon: Icon(Icons.exit_to_app, color: Colors.white,size: 20.0,),
                                                      onPressed: (){
                                                        _signOut();
@@ -298,10 +322,18 @@ class _HomeState extends State<Home> {
 
                                              ],),
                                           ),
-                                          Image.asset("assets/dp_default.png",width: sidebarSize/2,),
-                                          Text("RetroPortal Studio",style: TextStyle(color: Colors.white),),
+                                          CircleAvatar(
+                                            backgroundImage: imageUrl != null? NetworkImage(imageUrl): null,
+                                              child: imageUrl == null? Icon(Icons.account_circle,size: 40): Container(),
+
+//                                              child: Image.network(widget.user.photoUrl,width: sidebarSize/2,),
+                                            radius: 40.0,
+                                            backgroundColor: Colors.transparent,
+                                          ),
+                                          Text(name ?? email,style: TextStyle(color: Colors.white),),
                                           ],
                                       ),
+
                                     ),
                                   ),
                                   Divider(thickness: 1,),
@@ -352,18 +384,6 @@ class _HomeState extends State<Home> {
   }
 }
 
-//dynamic data2;
-//
-//Future<dynamic> getData() async {
-//
-//  final DocumentReference document =   Firestore.instance.collection('Projet').document('ac1');
-//
-//  await document.get().then<dynamic>(( DocumentSnapshot snapshot) async{
-//   // setState(() {
-//      data2 =snapshot.data;
-//   // });
-//  });
-//}
 final pdf = pw.Document();
 
 
@@ -382,17 +402,18 @@ Widget _buildFrontWidget(BuildContext context,DocumentSnapshot document) {
 
   return Builder(
     builder: (BuildContext context) {
+
       return Container(
 
-          //color: Color(0xffffffff),
+          color: Color(0xffffffff),
           alignment: Alignment.center,
           child: Row(
 
               children: <Widget>[
 
-
                 Expanded(
                   flex: 1,
+
                   child: Container(
 
                     width: 150.0,
@@ -415,6 +436,7 @@ Widget _buildFrontWidget(BuildContext context,DocumentSnapshot document) {
                         ]),
 //
                     child: Container(
+
 
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -527,7 +549,7 @@ Widget _buildFrontWidget(BuildContext context,DocumentSnapshot document) {
                                   child: Image.network(
                                     document['imagePlans'][0],
                                     height: 45,
-                                    width: 60,
+                                    width: 55,
                                     fit: BoxFit.fill,
                                   ),
                                 ),),
@@ -558,8 +580,6 @@ Widget _buildFrontWidget(BuildContext context,DocumentSnapshot document) {
                                     icon: Icon(Icons.print),
                                     color: Color(0xff0f4c75),
                                     onPressed: () async {
-//                                      final doc = pw.Document;
-//                                      var imageProvider = MemoryImage(base64Decode("assets/oyalogo.png"));
                                       final PdfImage image = await pdfImageFromImageProvider(
                                           pdf: pdf.document, image: const AssetImage('assets/oyalogo.png'));
 
