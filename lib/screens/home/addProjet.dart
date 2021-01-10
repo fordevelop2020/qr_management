@@ -12,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:qr_management/screens/home/utils.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:qr_management/widgets/button_widget.dart';
 
 class AddProjet extends StatelessWidget {
   @override
@@ -82,6 +83,8 @@ class _MyAddPageState extends State<MyAddPage> {
   String details ='';
 //  String image3d;
   String comments ='';
+  var _typesProjet=['Select project type','Public','Private','Deco','Other'];
+  var _selectedTypeProjet ='Select project type';
 
   List<Asset> imagePlans = List<Asset>();
 //  List<String> documents = List<String>();
@@ -405,7 +408,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                     .setData({
 
                   "email": widget.email,
-                  "typeP": _typeP,
+                  "typeP": _selectedTypeProjet,
                   "name": _name,
                   "reference": reference,
                   "customer": customer,
@@ -564,38 +567,36 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                 child: Column(
 
                   children: <Widget>[
-                    DropdownButton(
-//                      value: _typeP,
-                      items: [
-                        DropdownMenuItem(
-                          child: Text('Public'),
 
-                          value: 'public',
+                    Row(
+                      children: <Widget>[
+                     Icon(Icons.blur_on,color:Colors.grey[600]),
+                        SizedBox(width: 20,),
+                        DropdownButton<String>(
+
+
+                         items: _typesProjet.map((String dropDownStringItem){
+
+                           return DropdownMenuItem<String>(
+
+                             value: dropDownStringItem,
+                             child: (Text(dropDownStringItem,style:TextStyle(color:Colors.grey[600],fontSize: 16))),
+                           );
+                          }).toList(),
+
+                          onChanged:(String newValueSelected){
+                            setState(() {
+                              this._selectedTypeProjet = newValueSelected;
+                              print(_selectedTypeProjet);
+                            });
+
+                          },
+                          value: _selectedTypeProjet,
+                          icon: Icon(Icons.arrow_drop_down),
                         ),
-                        DropdownMenuItem(
-                          child: Text('Private'),
-                          value: 'private',
-                        ),
-                        DropdownMenuItem(
-                          child: Text('Deco'),
-                          value: 'deco',
-                        )
                       ],
-                      onChanged: (newValue) {
-                        print(newValue);
-
-                        setState(() {
-                          _typeP = newValue;
-                        });
-                        DropdownMenuItem(child: Text(_typeP));
-                      },
-
-                      isExpanded: true,
-                      icon: Icon(Icons.arrow_drop_down),
-                      hint: Text("Select type project",
-                        style: TextStyle(color: Colors.black),),
-
                     ),
+
 
                     TextFormField(
                       //focusNode: _focusNode,
@@ -701,24 +702,15 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                   children: <Widget>[
                     Row(
                       children: <Widget>[
-                        //TextFormField(
+                        Icon(Icons.blur_on,color:Colors.grey[600]),
+                        SizedBox(width: 20,),
                         new Expanded(
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                                labelText: 'Date',
-                                hintText: _dateText,
-                                icon: Icon(Icons.blur_on)),
-                            onChanged: (String nv) {
-                              setState(() {
-                                date = nv;
-                              });
-                            },
-                          ),
+                         child: Text(_dateText, style: TextStyle(color: Colors.grey[600],fontSize: 16)),
 
                         ),
 
                         new IconButton(
-                          icon: Icon(Icons.date_range),
+                          icon: Icon(Icons.date_range,color: Color(0xff3282b8)),
                           onPressed: () => _selectDatePrj(context),
                         ),
                       ],
@@ -742,7 +734,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                       },
                     ),
                     TextFormField(
-                      decoration: InputDecoration(labelText: 'Responsible',
+                      decoration: InputDecoration(labelText: 'Manager',
                           icon: Icon(Icons.blur_on)),
                       onChanged: (String nv) {
                         setState(() {
@@ -750,17 +742,30 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                         });
                       },
                     ),
-                  OutlineButton(
-                    child: Text('Open File Explorer'),
-                    onPressed: (){
-                      _openFileExplorer();
-                    },
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                  Row(
+                    children: <Widget>[
+                      Icon(Icons.blur_on,color:Colors.grey[600]),
+                      SizedBox(width: 20),
+                      ButtonWidget(
+                        title: ('Add documents'),
+                        hasBorder: true,
+
+
+//                         Text('Open File Explorer',style: TextStyle(color: Colors.grey[600])),
+                        onPressed: (){
+                          _openFileExplorer();
+                        },
+                      ),
+                    ],
                   ),
                   SizedBox(
                     height: 10.0,
                   ),
                    SizedBox(
-                     height: 200,
+                     height: 180,
                      child: Flexible(
                        child: ListView(
                        children: children,
@@ -813,50 +818,65 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                                       });
                                     },
                                   ),
+                                   SizedBox(
+                                     height: 15,
+                                   ),
 
 
                                    SizedBox(
-                                       height: 200.0,
+                                       height: 180.0,
                                   child: Column(
                                     children: <Widget>[
-                                    Expanded(
-                                      child: SizedBox(
-                                        height: 25.0,
-                                        child: Wrap(
+//                                    Expanded(
+//                                      child: SizedBox(
+//                                        height: 25.0,
+                                        Wrap(
                                          crossAxisAlignment: WrapCrossAlignment.start,
                                                 children: <Widget>[
-                                                  Icon(Icons.blur_on),
-                                                  Text('Image Plans:', style: new TextStyle(
-                                                    color: Colors.grey,
-                                                    fontSize: 14.0,
-                                                    letterSpacing: 2.0,
+                                                  Row(
+                                                    children: <Widget>[
+                                                      Icon(Icons.blur_on,color: Colors.grey[600],),
+                                                      SizedBox(width: 20),
+                                                      Text('Images Plans:', style: new TextStyle(
+                                                        color: Colors.grey[600],
+                                                        fontSize: 16.0,
+//                                                        letterSpacing: 2.0,
 //
-                                                  ),),
+                                                      ),),
+                                                    ],
+                                                  ),
 
                                                 ],
-                                        ))),
+                                        ),
+//                                      )
+//                                    ),
                                     Row(
                                         children: <Widget>[
                                           new IconButton(icon: new Icon(Icons.add_photo_alternate), onPressed: loadAssets),
                                         ],
                                       ),
-                                      Expanded(
+                                      SizedBox(
+                                        height: 100,
+                                        child: Expanded(
 
-                                        child: buildGridView(),
+                                          child: buildGridView(),
+                                        ),
                                       ),
                                       ],),
                                      ),
                                   SizedBox(
-                                    height: 200.0,
+                                    height: 170.0,
                                     child: Column(
                                       children: <Widget>[
-                                        Expanded(
-                                          child: SizedBox(
-                                            height: 10.0,
-                                            child: Text(
-                                              'Image 3D:  ',
-                                            ),
-                                          ),
+                                        Row(
+                                          children: <Widget>[
+                                            Icon(Icons.blur_on,color: Colors.grey[600],),
+                                            SizedBox(width: 20),
+                                            Text('Images 3D:', style: new TextStyle(
+                                              color: Colors.grey[600],
+                                              fontSize: 16.0,
+                                            ),),
+                                          ],
                                         ),
                                         Row(
                                           children: <Widget>[

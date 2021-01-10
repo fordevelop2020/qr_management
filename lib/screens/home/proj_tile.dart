@@ -35,6 +35,7 @@ class _ProjTileState extends State<ProjTile> {
 
   @override
   Widget build(BuildContext context) {
+   Size size = MediaQuery.of(context).size;
     Future<void> _onOpen(LinkableElement link) async {
       if (await canLaunch(link.url)) {
         await launch(link.url);
@@ -45,10 +46,12 @@ class _ProjTileState extends State<ProjTile> {
 
 
       return Scaffold(
+//        backgroundColor: Color(0xff0f4c75),
         appBar: AppBar(
           title: Text('Project Tile'),
           backgroundColor: Color(0xff0f4c75),
         ),
+
         body: StreamBuilder<QuerySnapshot>(
             stream: Firestore.instance.collection('Projet').where(
                 "name", isEqualTo: widget.qrResult).snapshots(),
@@ -62,115 +65,138 @@ class _ProjTileState extends State<ProjTile> {
                     // ignore: unnecessary_statements
                     imgList = dataQr['imagePlans'];
                     docFile = dataQr['documents'];
+
                     return Container(
-                      height: 700.0,
-                      padding: const EdgeInsets.all(15.0),
-                      child: Card(
+                      height: 900,
+                      padding: const EdgeInsets.all(10.0),
                         child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              new Text("Project :  ${widget.qrResult}",
-                                style: TextStyle(fontSize: 18.0,
-                                    fontWeight: FontWeight.bold),),
-                              Padding(padding: EdgeInsets.all(8.0),),
-                              Divider(),
-                              new Text("Reference : ${dataQr['reference']}",
-                                style: TextStyle(fontSize: 18.0),),
-                              Padding(padding: EdgeInsets.only(top: 8.0),),
-                              Divider(),
-                              new Text("Details : ${dataQr['details']}",
-                                style: TextStyle(fontSize: 18.0),),
-                              Padding(padding: EdgeInsets.only(top: 8.0),),
-                              Divider(),
-                              new Text("Date : ${dataQr['date']}",
-                                style: TextStyle(fontSize: 18.0),),
-                              Padding(padding: EdgeInsets.only(top: 8.0),),
-                              Divider(),
-                              new Text("Customer : ${dataQr['customer']}",
-                                style: TextStyle(fontSize: 18.0),),
-                              Padding(padding: EdgeInsets.only(top: 8.0),),
-                              Divider(),
-                              SizedBox(
-                                height: 150,
-//                                child: new Text(docFile.toString()),
-                                child: ListView(
-
-                                  children: docFile.map((fifi) {
-                                    return Builder(
-                                      builder: (BuildContext context) {
-                                        return Linkify(
-                                          onOpen: _onOpen,
-                                            text: fifi,
-                                           );
-                                        }
-                                        );
-
-                                  }).toList(),
+                          children: <Widget>[
+                            Image.asset('assets/building.png',height: 200,width: 400,),
+                            Expanded(
+                              child: Container(
+                                padding: EdgeInsets.all(20),
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(30),
+                                    topRight: Radius.circular(30),
+                                  )
                                 ),
-                              ),
+//     ],
+
+//                                    child: Card(
+                                     child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+
+                                        new Text("Project :  ${widget.qrResult}",
+                                          style: TextStyle(fontSize: 18.0,
+                                              fontWeight: FontWeight.bold),),
+                                        Padding(padding: EdgeInsets.all(5.0),),
+                                        Divider(),
+                                        new Text("Reference : ${dataQr['reference']}",
+                                          style: TextStyle(fontSize: 16.0),),
+                                        Padding(padding: EdgeInsets.all(5.0),),
+                                        Divider(),
+                                        new Text("Details : ${dataQr['details']}",
+                                          style: TextStyle(fontSize: 16.0),),
+                                        Padding(padding: EdgeInsets.all(5.0),),
+                                        Divider(),
+                                        new Text("Date project : ${dataQr['date']}",
+                                          style: TextStyle(fontSize: 16.0),),
+                                        Padding(padding: EdgeInsets.all(5.0),),
+                                        Divider(),
+                                        new Text("Customer : ${dataQr['customer']}",
+                                          style: TextStyle(fontSize: 16.0),),
+                                        Padding(padding: EdgeInsets.all(5.0),),
+                                        Divider(),
+                                        SizedBox(
+                                            height: 100,
+            //                                child: new Text(docFile.toString()),
+                                            child: ListView(
+
+                                              children: docFile?.map((fifi) {
+                                                return Builder(
+                                                  builder: (BuildContext context) {
+                                                    return Linkify(
+                                                      onOpen: _onOpen,
+                                                        text: "Documents:  "+fifi,style: TextStyle(fontSize: 16.0),
+                                                       );
+                                                    }
+                                                    );
+
+                                              })?.toList() ?? [Text("no document found")],
+                                            ),
+                                          ),
 
 
-                              carouselSlider = CarouselSlider(
-                                height: 200.0,
-                                initialPage: 0,
-                                enlargeCenterPage: true,
-                                autoPlay: true,
-                                reverse: false,
-                                autoPlayInterval: Duration(seconds: 2),
-                                autoPlayAnimationDuration: Duration(
-                                    milliseconds: 2000),
-                                pauseAutoPlayOnTouch: Duration(seconds: 10),
-                                scrollDirection: Axis.horizontal,
-                                onPageChanged: (index) {
-                                  setState(() {
-                                    _current = index;
-                                  });
-                                },
+                                          carouselSlider = CarouselSlider(
+                                            height: 200.0,
+                                            initialPage: 0,
+                                            enlargeCenterPage: true,
+                                            autoPlay: true,
+                                            reverse: false,
+                                            autoPlayInterval: Duration(seconds: 2),
+                                            autoPlayAnimationDuration: Duration(
+                                                milliseconds: 2000),
+                                            pauseAutoPlayOnTouch: Duration(seconds: 10),
+                                            scrollDirection: Axis.horizontal,
+                                            onPageChanged: (index) {
+                                              setState(() {
+                                                _current = index;
+                                              });
+                                            },
 
-                                items: imgList.map((item) {
-                                  return Builder(
-                                    builder: (BuildContext context) {
-                                      return Container(
-                                        width: MediaQuery
-                                            .of(context)
-                                            .size
-                                            .width,
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 10.0),
-                                        decoration: BoxDecoration(
-                                          color: Colors.blue,
-                                        ),
-                                        child: Image.network(
-                                          item,
-                                          fit: BoxFit.fill,
-                                        ),
-                                      );
-                                    },
-                                  );
-                                }).toList(),
+                                            items: imgList.map((item) {
+                                              return Builder(
+                                                builder: (BuildContext context) {
+                                                  return Container(
+                                                    width: MediaQuery
+                                                        .of(context)
+                                                        .size
+                                                        .width,
+                                                    margin: EdgeInsets.symmetric(
+                                                        horizontal: 10.0),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.blue,
+                                                    ),
+                                                    child: Image.network(
+                                                      item,
+                                                      fit: BoxFit.fill,
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                            }).toList(),
+                                          ),
+                                          Divider(),
+                                          SizedBox(
+                                            height: 20,
+                                          ),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: imgList.map((url) {
+                                              int index = imgList.indexOf(url);
+                                              return Container(
+                                                width: 8.0,
+                                                height: 8.0,
+                                                margin: EdgeInsets.symmetric(
+                                                    vertical: 10.0, horizontal: 2.0),
+                                                decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: _current == index ? Colors
+                                                        .blueAccent : Colors.grey),
+                                              );
+                                            }).toList(),
+                                          ),
+                                        ]),
+//                                  ),
                               ),
-                              Divider(),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: imgList.map((url) {
-                                  int index = imgList.indexOf(url);
-                                  return Container(
-                                    width: 8.0,
-                                    height: 8.0,
-                                    margin: EdgeInsets.symmetric(
-                                        vertical: 10.0, horizontal: 2.0),
-                                    decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: _current == index ? Colors
-                                            .blueAccent : Colors.grey),
-                                  );
-                                }).toList(),
-                              ),
-                            ]),
-                      ),
+                            )
+                          ],
+                        ),
+
 
                       decoration: new BoxDecoration(
                         boxShadow: [

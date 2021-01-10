@@ -17,10 +17,11 @@ class _ForgotScreenState extends State<ForgotScreen> {
   @override
   Widget build(BuildContext context) {
     final model = Provider.of<HomeModel>(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff0f4c75),
-        title: Text("Forgot password"),
+        title: Text('Forgot password'),
         centerTitle: true,
       ),
       backgroundColor: Colors.white,
@@ -30,7 +31,7 @@ class _ForgotScreenState extends State<ForgotScreen> {
           key: _formkey,
           child: Column(
             children: <Widget>[
-              Text("We will mail you a link ... Please click on that link to reset your password", style: TextStyle(color: Colors.blueAccent, fontSize: 15),),
+              Text("We will mail you a link ... Please click on that link to reset your password", style: TextStyle(color: Color(0xff3282b8), fontSize: 15),),
               SizedBox(
                 height: 30.0,
               ),

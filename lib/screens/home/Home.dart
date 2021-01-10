@@ -18,6 +18,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
 import 'package:qr_management/screens/home/ScanQrCode.dart';
 import 'package:qr_management/screens/home/pdfPreviewScreen.dart';
+import 'package:qr_management/screens/home/proj_tile.dart';
 import '../../main.dart';
 import 'addProjet.dart';
 import 'package:pdf/pdf.dart';
@@ -42,6 +43,7 @@ class _HomeState extends State<Home> {
   String name;
   String email;
   String imageUrl;
+  String projectDet = "";
 
 
 
@@ -82,15 +84,6 @@ class _HomeState extends State<Home> {
     return size;
   }
 
-  Future<String> signInPhoto() async{
-    if( widget.user != null){
-      assert(widget.user.photoUrl != null);
-      imageUrl= widget.user.photoUrl;
-    } else {
-      imageUrl = Image.asset("assets/dp_default.png").toString();
-    }
-    return imageUrl;
-  }
   
   void _signOut() {
     AlertDialog alertDialog = new AlertDialog(
@@ -165,7 +158,7 @@ class _HomeState extends State<Home> {
 
     Size mediaQuery = MediaQuery.of(context).size;
     double sidebarSize = mediaQuery.width * 0.65;
-    double menuContainerHeight = mediaQuery.height/2;
+    double menuContainerHeight = mediaQuery.height/1.4;
 
     imageUrl = widget.user.photoUrl;
     name = widget.user.displayName;
@@ -314,7 +307,7 @@ class _HomeState extends State<Home> {
                                                SizedBox(width: 150.0),
                                                new IconButton(
 
-                                                     icon: Icon(Icons.exit_to_app, color: Colors.white,size: 20.0,),
+                                                     icon: Icon(Icons.directions_run, color: Colors.white,size: 20.0,),
                                                      onPressed: (){
                                                        _signOut();
                                                      },
@@ -330,6 +323,7 @@ class _HomeState extends State<Home> {
                                             radius: 40.0,
                                             backgroundColor: Colors.transparent,
                                           ),
+                                          SizedBox(height: 20.0,),
                                           Text(name ?? email,style: TextStyle(color: Colors.white),),
                                           ],
                                       ),
@@ -347,23 +341,23 @@ class _HomeState extends State<Home> {
                                           text: "Profile",
                                           iconData: Icons.person,
                                           textSize: getSize(0),
-                                          height: (menuContainerHeight)/5,
+                                          height: (menuContainerHeight)/6,
                                         ),
                                         MyButton(
                                           text: "Payments",
                                           iconData: Icons.payment,
                                           textSize: getSize(1),
-                                          height: (menuContainerHeight)/5,),
+                                          height: (menuContainerHeight)/6,),
                                         MyButton(
                                           text: "Notifications",
                                           iconData: Icons.notifications,
                                           textSize: getSize(2),
-                                          height: (mediaQuery.height/2)/5,),
+                                          height: (menuContainerHeight)/6,),
                                         MyButton(
                                           text: "Settings",
                                           iconData: Icons.settings,
                                           textSize: getSize(3),
-                                          height: (menuContainerHeight)/5,),
+                                          height: (menuContainerHeight)/6,),
 
                                       ],
                                     ),
@@ -399,281 +393,310 @@ Future savePdf() async{
 
 Widget _buildFrontWidget(BuildContext context,DocumentSnapshot document) {
 
-
+String dataProj = document['name'].toString();
+print(dataProj);
   return Builder(
     builder: (BuildContext context) {
 
-      return Container(
+      return new Dismissible(
+        key: new Key(document.documentID),
+        onDismissed: (direction){
+          Firestore.instance.runTransaction((transaction) async{
+            DocumentSnapshot snapshot = await transaction.get(document.reference);
+            await transaction.delete(snapshot.reference);
+          });
+          Scaffold.of(context).showSnackBar(
+            new SnackBar(content: new Text("Data Deleted!"),)
+          );
+        },
+        child: Container(
 
-          color: Color(0xffffffff),
-          alignment: Alignment.center,
-          child: Row(
+            color: Color(0xffffffff),
+            alignment: Alignment.center,
+            child: Row(
 
-              children: <Widget>[
+                children: <Widget>[
 
-                Expanded(
-                  flex: 1,
+                  Expanded(
+                    flex: 1,
 
-                  child: Container(
-
-                    width: 150.0,
-                    height: 180.0,
-                    decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.all(Radius.circular(40)),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.grey[500],
-                              offset: Offset(4.0, 4.0),
-                              blurRadius: 15.0,
-                              spreadRadius: 1.0 ),
-
-                          BoxShadow(
-                              color: Colors.white,
-                              offset: Offset(-4.0, -4.0),
-                              blurRadius: 15.0,
-                              spreadRadius: 1.0 ),
-                        ]),
-//
                     child: Container(
 
+                      width: 150.0,
+                      height: 180.0,
+                      decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.all(Radius.circular(40)),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.grey[500],
+                                offset: Offset(4.0, 4.0),
+                                blurRadius: 15.0,
+                                spreadRadius: 1.0 ),
 
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Column(
+                            BoxShadow(
+                                color: Colors.white,
+                                offset: Offset(-4.0, -4.0),
+                                blurRadius: 15.0,
+                                spreadRadius: 1.0 ),
+                          ]),
+//
+                      child: Container(
+
+
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Container(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        dataProj,
+//                                      document['name'].toString(),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 5,
+                                        style: TextStyle(
+                                          color: Color(0xFF1b262c),
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.bold,
+                                          // fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    )
+                                ),
+                                Container(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        document['date'].toString(),
+                                        style: TextStyle(
+                                          color: Color(0xFF1b262c),
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.bold,
+                                          // fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    )
+                                ),
+                              ],
+                            )
+                          ],),
+                      ),
+
+                    ),
+                  ),
+
+                  Expanded(
+                      flex: 2,
+                      child: Container(
+                          height: 180.0,
+                          width: 150.0,
+                          decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.all(Radius.circular(40)),
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Colors.grey[500],
+                                    offset: Offset(4.0, 4.0),
+                                    blurRadius: 15.0,
+                                    spreadRadius: 1.0 ),
+
+                                BoxShadow(
+                                    color: Colors.white,
+                                    offset: Offset(-4.0, -4.0),
+                                    blurRadius: 15.0,
+                                    spreadRadius: 1.0 ),
+                              ]),
+
+                          child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Container(
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Text(
-                                      document['name'].toString(),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 5,
-                                      style: TextStyle(
-                                        color: Color(0xFF1b262c),
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.bold,
-                                        // fontWeight: FontWeight.bold,
-                                      ),
+                                        document['reference'].toString(),
+                                        style: TextStyle(
+                                          color: Color(0xff0f4c75),
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.bold,
+                                        )
                                     ),
                                   )
                               ),
                               Container(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      document['date'].toString(),
-                                      style: TextStyle(
-                                        color: Color(0xFF1b262c),
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.bold,
-                                        // fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  )
+                                  child: Row(children: <Widget>[
+                                    Container(child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Icon(
+                                        FontAwesomeIcons.mapMarkerAlt,
+                                        color: new Color(0xffF7B928),
+                                        size: 20.0,),
+                                    ),),
+                                    Container(child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                          document['location'].toString(),
+                                          style: TextStyle(
+                                            color: Color(0xff0f4c75),
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.bold,
+                                          )),
+                                    ),),
+                                  ],)
                               ),
-                            ],
-                          )
-                        ],),
-                    ),
 
-                  ),
-                ),
-
-                Expanded(
-                    flex: 2,
-                    child: Container(
-                        height: 180.0,
-                        width: 150.0,
-                        decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.all(Radius.circular(40)),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.grey[500],
-                                  offset: Offset(4.0, 4.0),
-                                  blurRadius: 15.0,
-                                  spreadRadius: 1.0 ),
-
-                              BoxShadow(
-                                  color: Colors.white,
-                                  offset: Offset(-4.0, -4.0),
-                                  blurRadius: 15.0,
-                                  spreadRadius: 1.0 ),
-                            ]),
-
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Container(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                      document['reference'].toString(),
-                                      style: TextStyle(
-                                        color: Color(0xff0f4c75),
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.bold,
-                                      )
-                                  ),
-                                )
-                            ),
-                            Container(
+                              Container(
                                 child: Row(children: <Widget>[
                                   Container(child: Padding(
                                     padding: const EdgeInsets.all(8.0),
-                                    child: Icon(
-                                      FontAwesomeIcons.mapMarkerAlt,
-                                      color: new Color(0xffF7B928),
-                                      size: 20.0,),
+                                    child: Image.network(
+                                      document['imagePlans'][0],
+                                      height: 45,
+                                      width: 55,
+                                      fit: BoxFit.fill,
+                                    ),
                                   ),),
-                                  Container(child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                        document['location'].toString(),
-                                        style: TextStyle(
-                                          color: Color(0xff0f4c75),
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.bold,
-                                        )),
-                                  ),),
-                                ],)
-                            ),
+                                ],),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: <Widget>[
 
-                            Container(
-                              child: Row(children: <Widget>[
-                                Container(child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Image.network(
-                                    document['imagePlans'][0],
-                                    height: 45,
-                                    width: 55,
-                                    fit: BoxFit.fill,
-                                  ),
-                                ),),
-                              ],),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: <Widget>[
-
-                                Positioned(
-                                        right: 50,
-                                        bottom: 0,
-                                        child: IconButton(
-                                          icon: Icon(Icons.list),
-                                          color: Color(0xff0f4c75),
-                                          onPressed: () {
-                                            final foldingCellState = context
-                                                .findAncestorStateOfType<SimpleFoldingCellState>();
-                                            foldingCellState?.toggleFold();
-                                          },
+                                  Positioned(
+                                          right: 50,
+                                          bottom: 0,
+                                          child: IconButton(
+                                            icon: Icon(Icons.list),
+                                            color: Color(0xff0f4c75),
+                                            onPressed: () {
+                                              final foldingCellState = context
+                                                  .findAncestorStateOfType<SimpleFoldingCellState>();
+                                              foldingCellState?.toggleFold();
+                                            },
 //
+                                          ),
                                         ),
-                                      ),
-                                Positioned(
-                                  right: 70,
-                                  bottom: 0,
-                                  child: IconButton(
-                                    icon: Icon(Icons.print),
-                                    color: Color(0xff0f4c75),
-                                    onPressed: () async {
-                                      final PdfImage image = await pdfImageFromImageProvider(
-                                          pdf: pdf.document, image: const AssetImage('assets/oyalogo.png'));
+                                  Positioned(
+                                    right: 50,
+                                    bottom: 0,
+                                    child: IconButton(
+                                      icon: Icon(Icons.remove_red_eye),
+                                      color: Color(0xff0f4c75),
 
-                                        pdf.addPage(
-                                                pw.MultiPage(
-                                                    pageFormat: PdfPageFormat.a4,
-                                                    margin: pw.EdgeInsets.all(32),
-                                                    build: (pw.Context context) {
-                                                      return <pw.Widget>[
-                                                        pw.Row(
-                                                          mainAxisAlignment: pw.MainAxisAlignment.center,
-                                                          children: [
-                                                            pw.Image(image),
-                                                          ]
-                                                        ),
+                                      onPressed: () {
+                                        Navigator.of(context).push(MaterialPageRoute(
+                                          builder: (context) => ProjTile(qrResult : dataProj),
+                                        ));
+                                      },
+//
+                                    ),
+                                  ),
+                                  Positioned(
+                                    right: 70,
+                                    bottom: 0,
+                                    child: IconButton(
+                                      icon: Icon(Icons.print),
+                                      color: Color(0xff0f4c75),
+                                      onPressed: () async {
+                                        final PdfImage image = await pdfImageFromImageProvider(
+                                            pdf: pdf.document, image: const AssetImage('assets/oyalogo.png'));
 
-                                                        pw.SizedBox(
-                                                            height: 30.0
-                                                        ),
-                                                        pw.Header(
-                                                        level: 0,
-                                                          child: pw.Text("project identifiers"),
-                                                        ),
-
-                                                        pw.Text("Name of the project: "+document['name']),
-                                                        pw.Text("Reference: "+document['reference']),
-                                                        pw.Text("Details: "+document['details']),
-                                                        pw.Text("Date of creation: "+document['date']),
-                                                        pw.SizedBox(
-                                                            height: 30.0
-                                                        ),
-
-                                                        pw.Header(
-                                                          level: 0,
-                                                          child: pw.Text("Project information"),
-                                                        ),
-                                                        pw.Text("Type: "+document['typeP']),
-                                                        pw.Text("Customer: "+document['customer']),
-                                                        pw.Text("Location: "+document['location']),
-                                                        pw.Text("Phase: "+document['phase']),
-                                                        pw.Text("Project owner: "+document['mo']),
-                                                        pw.Text("Project owner delegate: "+document['moDelegate']),
-                                                        pw.Text("Clues: "+document['clues']),
-                                                        pw.Text("Comments: "+document['comments']),
-
-                                                        pw.SizedBox(
-                                                            height: 30.0
-                                                        ),
-
-                                                        pw.Header(
-                                                          level: 0,
-                                                          child: pw.Text("Project members"),
-                                                        ),
-                                                        pw.Text("Manager: "+document['responsible']),
-                                                        pw.Text("Bureau d'études technique: "+document['bet']),
-                                                        pw.Text("Topographer: "+document['topo']),
-
-                                                        pw.SizedBox(
-                                                            height: 60.0
-                                                        ),
-
-                                                        pw.BarcodeWidget(
-                                                          barcode: pw.Barcode.qrCode(
-                                                            errorCorrectLevel: pw.BarcodeQRCorrectionLevel.high,
+                                          pdf.addPage(
+                                                  pw.MultiPage(
+                                                      pageFormat: PdfPageFormat.a4,
+                                                      margin: pw.EdgeInsets.all(32),
+                                                      build: (pw.Context context) {
+                                                        return <pw.Widget>[
+                                                          pw.Row(
+                                                            mainAxisAlignment: pw.MainAxisAlignment.center,
+                                                            children: [
+                                                              pw.Image(image),
+                                                            ]
                                                           ),
-                                                          data: document['name'],
 
-                                                          height: 100.0,
-                                                          width: 100.0,
-                                                        ),
-                                                      ];
-                                                    }
-                                                ));print(pw.Barcode.qrCode());
+                                                          pw.SizedBox(
+                                                              height: 30.0
+                                                          ),
+                                                          pw.Header(
+                                                          level: 0,
+                                                            child: pw.Text("project identifiers"),
+                                                          ),
+
+                                                          pw.Text("Name of the project: "+document['name']),
+                                                          pw.Text("Reference: "+document['reference']),
+                                                          pw.Text("Details: "+document['details']),
+                                                          pw.Text("Date of creation: "+document['date']),
+                                                          pw.SizedBox(
+                                                              height: 30.0
+                                                          ),
+
+                                                          pw.Header(
+                                                            level: 0,
+                                                            child: pw.Text("Project information"),
+                                                          ),
+                                                          pw.Text("Type: "+document['typeP']),
+                                                          pw.Text("Customer: "+document['customer']),
+                                                          pw.Text("Location: "+document['location']),
+                                                          pw.Text("Phase: "+document['phase']),
+                                                          pw.Text("Project owner: "+document['mo']),
+                                                          pw.Text("Project owner delegate: "+document['moDelegate']),
+                                                          pw.Text("Clues: "+document['clues']),
+                                                          pw.Text("Comments: "+document['comments']),
+
+                                                          pw.SizedBox(
+                                                              height: 30.0
+                                                          ),
+
+                                                          pw.Header(
+                                                            level: 0,
+                                                            child: pw.Text("Project members"),
+                                                          ),
+                                                          pw.Text("Manager: "+document['responsible']),
+                                                          pw.Text("Bureau d'études technique: "+document['bet']),
+                                                          pw.Text("Topographer: "+document['topo']),
+
+                                                          pw.SizedBox(
+                                                              height: 60.0
+                                                          ),
+
+                                                          pw.BarcodeWidget(
+                                                            barcode: pw.Barcode.qrCode(
+                                                              errorCorrectLevel: pw.BarcodeQRCorrectionLevel.high,
+                                                            ),
+                                                            data: document['name'],
+
+                                                            height: 100.0,
+                                                            width: 100.0,
+                                                          ),
+                                                        ];
+                                                      }
+                                                  ));print(pw.Barcode.qrCode());
 //                                      writeOnPdf();
 
-                                      await savePdf();
-                                      Directory documentDirectory = await getApplicationDocumentsDirectory();
-                                      String documentPath = documentDirectory.path;
-                                      String fullPath = "$documentPath/example.pdf";
-                                      String name = document['name'];
-                                      Navigator.push(context, MaterialPageRoute(
-                                        builder: (context) => pdfPreviewScreen(path: fullPath, name: name)
-                                      ));
+                                        await savePdf();
+                                        Directory documentDirectory = await getApplicationDocumentsDirectory();
+                                        String documentPath = documentDirectory.path;
+                                        String fullPath = "$documentPath/example.pdf";
+                                        String name = document['name'];
+                                        Navigator.push(context, MaterialPageRoute(
+                                          builder: (context) => pdfPreviewScreen(path: fullPath, name: name)
+                                        ));
 
-                                    },
-                                  ),
-                                )
-                              ],
-                            )
-                          ],
-                        )
+                                      },
+                                    ),
+                                  )
+                                ],
+                              )
+                            ],
+                          )
 
-                    )),
-              ]));
+                      )),
+                ])),
+      );
 
     });
 }

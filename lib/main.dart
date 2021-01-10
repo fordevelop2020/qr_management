@@ -123,6 +123,12 @@ class _MyHomePageState extends State<MyHomePage> {
       FirebaseUser userData;
       try{
       userData = (await firebaseAuth.createUserWithEmailAndPassword(email: emailT, password: passwordT)).user;
+      Navigator.of(context).push(
+          new MaterialPageRoute(
+              builder: (BuildContext context) =>
+              new Home(user: userData, googleSignIn: googleSignIn,)
+          )
+      );
       print(emailT);
       print(passwordT);
 
@@ -156,6 +162,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
     try{
       userData = (await firebaseAuth.signInWithEmailAndPassword(email: emailT, password: passwordT)).user;
+      Navigator.of(context).push(
+          new MaterialPageRoute(
+              builder: (BuildContext context) =>
+              new Home(user: userData, googleSignIn: googleSignIn,)
+          )
+      );
       print(emailT);
       print(passwordT);
 
@@ -278,7 +290,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           alignment: Alignment.topRight,
                           child: InkWell(
                             onTap: (){
-                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context)=> ForgotScreen()));
+                              Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context)=> ForgotScreen()));
                             },
                           child :Text('Forgot password?', style: TextStyle(color: Color(0xff3282b8)),
                             ),
@@ -328,18 +340,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     if (formKey.currentState.validate()) {
                        formKey.currentState.save();
                       signInWithMail(_email,_password);
-                        if(userData != null){
-                          loading = true;
-                          Navigator.of(context).push(
-                              new MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                  new Home(user: userData, googleSignIn: googleSignIn,)
-                              )
-                          );
-//                          Route route = MaterialPageRoute(builder: (context) => MyAddPage());
-//                             Navigator.push(context, route);
-                        //  return AddProjet();
-                        } else {}
+//                        if(userData != null){
+//                          loading = true;
+//                          Navigator.of(context).push(
+//                              new MaterialPageRoute(
+//                                  builder: (BuildContext context) =>
+//                                  new Home(user: userData, googleSignIn: googleSignIn,)
+//                              )
+//                          );
+////                          Route route = MaterialPageRoute(builder: (context) => MyAddPage());
+////                             Navigator.push(context, route);
+//                        //  return AddProjet();
+//                        } else {}
                     }},
     ),
                 SizedBox(
