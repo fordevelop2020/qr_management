@@ -16,6 +16,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 // ignore: unused_import
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
+import 'package:provider/provider.dart';
+import 'package:qr_management/models/project.dart';
 import 'package:qr_management/screens/home/ScanQrCode.dart';
 import 'package:qr_management/screens/home/pdfPreviewScreen.dart';
 import 'package:qr_management/screens/home/proj_tile.dart';
@@ -44,6 +46,10 @@ class _HomeState extends State<Home> {
   String email;
   String imageUrl;
   String projectDet = "";
+  TextEditingController _searchController = TextEditingController();
+  List _allResults = [];
+  List _resultsList = [];
+  Future resultsLoaded;
 
 
 
@@ -53,6 +59,64 @@ class _HomeState extends State<Home> {
     limits= [0, 0, 0, 0, 0, 0];
     WidgetsBinding.instance.addPostFrameCallback(getPosition);
     super.initState();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose(){
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies(){
+    super.didChangeDependencies();
+    resultsLoaded = getDataProjectsStreamsSnapshots();
+  }
+
+  _onSearchChanged(){
+    searchResultsList();
+    print(_searchController.text);
+  }
+
+  searchResultsList(){
+    var showResults = [];
+    if(_searchController.text != ""){
+      for(var projSnapshot in _allResults){
+        var name = Project.fromSnapShot(projSnapshot).name.toLowerCase();
+        print("name proj"+name);
+        if(name.contains(_searchController.text.toLowerCase())){
+          showResults.add(projSnapshot);
+        }
+      }
+
+    }else {
+      showResults = List.from(_allResults);
+    }
+
+    setState(() {
+      _resultsList = showResults;
+    });
+  }
+
+  getDataProjectsStreamsSnapshots() async{
+//    final uid = await Provider.of(context).auth.getCurrentUID();
+    var data = await Firestore.instance
+    .collection('Projet')
+//    .document(uid)
+//    .collection('name')
+//    .where("date", isLessThanOrEqualTo: DateTime.now())
+    .where("email", isEqualTo: widget.user.email)
+//    .orderBy('date')
+    .getDocuments();
+
+    setState(() {
+      _allResults = data.documents;
+    });
+    searchResultsList();
+
+    return "complete";
   }
 
   getPosition(duration){
@@ -150,6 +214,8 @@ class _HomeState extends State<Home> {
 
     showDialog(context: context, child: alertDialog);
   }
+  Icon cusIcon = Icon(Icons.search);
+  Widget cusSearchBar = Text("My Projects");
 
 
   @override
@@ -164,17 +230,56 @@ class _HomeState extends State<Home> {
     name = widget.user.displayName;
     email = widget.user.email;
 
-
     return SafeArea(
         child: Scaffold(
           appBar: AppBar(
             centerTitle: true,
-             title: Text('My projects'),
+
+             title: cusSearchBar,
              actions: <Widget>[
-               IconButton(icon: Icon(Icons.search), onPressed: (){
+               IconButton(icon: cusIcon, onPressed: (){
+                 setState(() {
+                   if(this.cusIcon.icon == Icons.search){
+                     this.cusIcon = Icon(Icons.cancel);
+                     this.cusSearchBar = TextField(
+                       controller: _searchController,
+                       textInputAction: TextInputAction.go,
+                       decoration: InputDecoration(
+                         border: InputBorder.none,
+                         hintText: "Search Project",
+                         suffixIcon: _searchController.text.isNotEmpty
+                             ? GestureDetector(
+                           onTap: () {
+                             WidgetsBinding.instance.addPostFrameCallback(
+                                     (_) => _searchController.clear());
+                           },
+//                           child: Icon(
+//                             Icons.clear,
+//                             color: Colors.white,
+//                           ),
+                         )
+                             : null,
+                       ),
+//                       ),
+                       style: TextStyle(
+                         color: Colors.white,
+                         fontSize: 16.0,
+                       ),
+                     );
+//                     _searchController.clear();
+                   } else{
+                     this.cusIcon = Icon(Icons.search);
+                   this.cusSearchBar = Text("My Projects");
+                   }
+                 });
 
                },)
              ],
+//             bottom: PreferredSize(
+//               preferredSize: Size(50,50),
+//               child: Container(),
+//             ),
+             elevation: 20.0,
 
              backgroundColor: Color(0xff0f4c75),
            ),
@@ -203,30 +308,71 @@ class _HomeState extends State<Home> {
             floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
             body: Container(
 
+
                 width: mediaQuery.width,
+//              child: Row(
+//                children: <Widget>[
+////                            Padding(
+////                              padding: const EdgeInsets.only(left: 30.0, right: 30.0, bottom: 30.0),
+//                  new Flexible(
+//                    child: new TextField(
+//                      controller: _searchController,
+//                      decoration: InputDecoration(
+//                          prefixIcon: Icon(Icons.search)
+//                      ),
+//                    ),
+//                  ),
+////                            ),
+//                ],
+//              ),
+
                 child: Stack(
                     children: <Widget>[
-                       StreamBuilder(
-                          stream: Firestore.instance
-                    .collection('Projet')
-                    .where("email", isEqualTo: widget.user.email)
-                    .snapshots(),
-                          builder: (_, snapshot) {
-                            if (!snapshot.hasData) return const Text('loading ...');
-                                          return ListView.builder(
-                                            itemCount: snapshot.data.documents.length,
-                                            itemBuilder: (_, index) {
+//                      SizedBox(
+////                        height: 50.0,
+////                        width: 150.0,
+//                        new Row(
+//                          children: <Widget>[
+////                            Padding(
+////                              padding: const EdgeInsets.only(left: 30.0, right: 30.0, bottom: 30.0),
+//                              new Flexible(
+//                                child: new TextField(
+//                                  controller: _searchController,
+//                                  decoration: const InputDecoration(
+//                                    helperText: "Search ...",
+//                                      prefixIcon: Icon(Icons.search)
+//                                  ),style: Theme.of(context).textTheme.body1,
+//                                ),
+//                              ),
+////                            ),
+//                          ],
+//                        ),
+//                      ),
+
+                      ListView.builder(
+                       itemCount: _resultsList.length,
+//                      StreamBuilder(
+//                          stream: getDataProjectsStreamsSnapshots(context),
+////                          Firestore.instance
+////                    .collection('Projet')
+////                    .where("email", isEqualTo: widget.user.email)
+////                    .snapshots(),
+//                          builder: (context, snapshot) {
+//                            if (!snapshot.hasData) return const Text('loading ...');
+//                                          return ListView.builder(
+//                                            itemCount: snapshot.data.documents.length,
+                                            itemBuilder: (context, index) {
                                                 _listOfImages = [];
                                                 for (int i = 0;
                                                 i <
-                                                snapshot.data.documents[index].data['imagePlans']
+                                                _resultsList[index].data['imagePlans']
                                                     .length;
                                                 i++) {
-                                                _listOfImages.add(NetworkImage(snapshot
-                                                    .data.documents[index].data['imagePlans'][i]));}
+                                                _listOfImages.add(NetworkImage(_resultsList[index].data['imagePlans'][i]));}
+
                                               return SimpleFoldingCell.create(
-                                                frontWidget: _buildFrontWidget(_,snapshot.data.documents[index]),
-                                                innerWidget: _buildInnerWidget(_,snapshot.data.documents[index]),
+                                                frontWidget: _buildFrontWidget(context,_resultsList[index]),
+                                                innerWidget: _buildInnerWidget(context,_resultsList[index]),
 
                                                 cellSize: Size(MediaQuery
                                                     .of(context)
@@ -241,9 +387,9 @@ class _HomeState extends State<Home> {
                                                     print('$index cell closed'),
                                               );
                                             },
-                                          );
+                                          ),
 
-                                          }),
+//                                          }),
 
 
 
@@ -394,7 +540,7 @@ Future savePdf() async{
 Widget _buildFrontWidget(BuildContext context,DocumentSnapshot document) {
 
 String dataProj = document['name'].toString();
-print(dataProj);
+//print(dataProj);
   return Builder(
     builder: (BuildContext context) {
 
