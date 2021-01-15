@@ -60,7 +60,7 @@ class _MyAddPageState extends State<MyAddPage> {
   int _currentStep = 0;
 
   StepperType _stepperType = StepperType.vertical;
-  DateTime _datePrj = new DateTime.now();
+  DateTime _datePrj;
   String _dateText ='';
   String projId ='';
   String _typeP ='';
@@ -118,7 +118,7 @@ class _MyAddPageState extends State<MyAddPage> {
           documents = _paths;
         });
 
-//      uploadToFirebase();
+      uploadToFirebase();
     } on PlatformException catch(e){
       print("Unsupported operation" +e.toString());
     }
@@ -312,10 +312,10 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
   }
 
   Future<dynamic> postFile(String dwnlFile) async {
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
-    StorageUploadTask uploadTask = reference.putFile(File(dwnlFile),StorageMetadata(contentType: _typeP +'/'+ _extension),);
-    StorageTaskSnapshot downloadUrl = await uploadTask.onComplete;
+    String fileName2 = DateTime.now().millisecondsSinceEpoch.toString();
+    StorageReference reference = FirebaseStorage.instance.ref().child(fileName2);
+    StorageUploadTask uploadTask2 = reference.putFile(File(dwnlFile),StorageMetadata(contentType: _typeP +'/'+ _extension),);
+    StorageTaskSnapshot downloadUrl = await uploadTask2.onComplete;
     final String url =(await downloadUrl.ref.getDownloadURL());
     return url;
 
@@ -417,7 +417,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                   "moDelegate": moDelegate,
                   "bet": bet,
                   "topo": topo,
-                  "date": _dateText,
+                  "date": _datePrj,
                   "phase": phase,
                   "clues": clues,
                   "responsible": responsible,
@@ -450,21 +450,21 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
             });
           }}
 
-
-
-        final List<Widget> children = <Widget>[];
-        _tasks.forEach((StorageUploadTask task) {
-          final Widget tile = UploadTaskListTile(task: task,
-            onDismissed: (){
-              setState(() {
-                _tasks.remove(task);
-              });
-            },
-            onDownload: (){
-              downloadFile(task.lastSnapshot.ref);
-            },
-          );  children.add(tile);
-        });
+//
+//
+//        final List<Widget> children = <Widget>[];
+//        _tasks.forEach((StorageUploadTask task) {
+//          final Widget tile = UploadTaskListTile(task: task,
+//            onDismissed: (){
+//              setState(() {
+//                _tasks.remove(task);
+//              });
+//            },
+//            onDownload: (){
+//              downloadFile(task.lastSnapshot.ref);
+//            },
+//          );  children.add(tile);
+//        });
 
 
         return Scaffold(
@@ -752,9 +752,6 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                       ButtonWidget(
                         title: ('Add documents'),
                         hasBorder: true,
-
-
-//                         Text('Open File Explorer',style: TextStyle(color: Colors.grey[600])),
                         onPressed: (){
                           _openFileExplorer();
                         },
@@ -766,7 +763,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                   ),
                    SizedBox(
                      height: 180,
-                     child: Flexible(
+                     child: Expanded(
                        child: ListView(
                        children: children,
                           ),

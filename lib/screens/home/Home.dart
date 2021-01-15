@@ -328,26 +328,6 @@ class _HomeState extends State<Home> {
 
                 child: Stack(
                     children: <Widget>[
-//                      SizedBox(
-////                        height: 50.0,
-////                        width: 150.0,
-//                        new Row(
-//                          children: <Widget>[
-////                            Padding(
-////                              padding: const EdgeInsets.only(left: 30.0, right: 30.0, bottom: 30.0),
-//                              new Flexible(
-//                                child: new TextField(
-//                                  controller: _searchController,
-//                                  decoration: const InputDecoration(
-//                                    helperText: "Search ...",
-//                                      prefixIcon: Icon(Icons.search)
-//                                  ),style: Theme.of(context).textTheme.body1,
-//                                ),
-//                              ),
-////                            ),
-//                          ],
-//                        ),
-//                      ),
 
                       ListView.builder(
                        itemCount: _resultsList.length,
@@ -540,6 +520,8 @@ Future savePdf() async{
 Widget _buildFrontWidget(BuildContext context,DocumentSnapshot document) {
 
 String dataProj = document['name'].toString();
+DateTime _datePrj = document['date'].toDate();
+String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
 //print(dataProj);
   return Builder(
     builder: (BuildContext context) {
@@ -617,7 +599,8 @@ String dataProj = document['name'].toString();
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Text(
-                                        document['date'].toString(),
+//                                        document['date'].toString(),
+                                        dueDate,
                                         style: TextStyle(
                                           color: Color(0xFF1b262c),
                                           fontSize: 14.0,
