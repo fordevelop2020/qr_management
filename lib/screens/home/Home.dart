@@ -575,42 +575,45 @@ String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Container(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        dataProj,
+                            Flexible(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Container(
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(21.0, 8.0, 8.0, 8.0),
+                                        child: Text(
+                                          dataProj,
 //                                      document['name'].toString(),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 5,
-                                        style: TextStyle(
-                                          color: Color(0xFF1b262c),
-                                          fontSize: 14.0,
-                                          fontWeight: FontWeight.bold,
-                                          // fontWeight: FontWeight.bold,
+                                          overflow: TextOverflow.ellipsis,
+
+                                          maxLines: 5,
+                                          style: TextStyle(
+                                            color: Color(0xFF1b262c),
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.bold,
+                                            // fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                    )
-                                ),
-                                Container(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
+                                      )
+                                  ),
+                                  Container(
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(21.0, 8.0, 8.0, 8.0),
+                                        child: Text(
 //                                        document['date'].toString(),
-                                        dueDate,
-                                        style: TextStyle(
-                                          color: Color(0xFF1b262c),
-                                          fontSize: 14.0,
-                                          fontWeight: FontWeight.bold,
-                                          // fontWeight: FontWeight.bold,
+                                          dueDate,
+                                          style: TextStyle(
+                                            color: Color(0xFF1b262c),
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.bold,
+                                            // fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                    )
-                                ),
-                              ],
+                                      )
+                                  ),
+                                ],
+                              ),
                             )
                           ],),
                       ),

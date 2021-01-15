@@ -1,6 +1,8 @@
 
 import 'dart:io';
+import 'package:path/path.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:intl/intl.dart';
 import 'package:qr_management/screens/home/settings_form.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -37,14 +39,13 @@ class _ProjTileState extends State<ProjTile> {
   @override
   Widget build(BuildContext context) {
    Size size = MediaQuery.of(context).size;
-    Future<void> _onOpen(LinkableElement link) async {
-      if (await canLaunch(link.url)) {
-        await launch(link.url);
+    Future<void> _onOpen(String link) async {
+      if (await canLaunch(link)) {
+        await launch(link);
       } else {
         throw 'Could not launch $link';
       }
     }
-
 
       return Scaffold(
 //        backgroundColor: Color(0xff0f4c75),
@@ -67,6 +68,9 @@ class _ProjTileState extends State<ProjTile> {
                     imgList = dataQr['imagePlans'];
                     docFile = dataQr['documents'];
 
+                    DateTime dateProject = dataQr['date'].toDate();
+
+
                     return Container(
                       height: 900,
                       padding: const EdgeInsets.all(10.0),
@@ -75,7 +79,7 @@ class _ProjTileState extends State<ProjTile> {
                             Image.asset('assets/building.png',height: 200,width: 400,),
                             Expanded(
                               child: Container(
-                                padding: EdgeInsets.all(20),
+                                padding: EdgeInsets.all(10),
                                 width: double.infinity,
                                 decoration: BoxDecoration(
                                   color: Colors.white,
@@ -95,7 +99,7 @@ class _ProjTileState extends State<ProjTile> {
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: <Widget>[
                                         Padding(
-                                          padding: const EdgeInsets.only(right: 0.0),
+                                          padding: const EdgeInsets.all(0.0),
                                           child: IconButton(icon: Icon(Icons.edit),color: Color(0xff0f4c75),onPressed: (){
                                             Navigator.of(context).push(new MaterialPageRoute(
                                                 builder: (BuildContext context) => new SettingsForm(
@@ -144,7 +148,7 @@ class _ProjTileState extends State<ProjTile> {
                                               ),
 
                                           Divider(),
-                                          new Text("Date project : ${dataQr['date'].toDate()}",
+                                          new Text("Date project : ${dateProject.day}/${dateProject.month}/${dateProject.year}",
                                             style: TextStyle(fontSize: 16.0),),],
                                        ),
                                           Row(
@@ -168,20 +172,40 @@ class _ProjTileState extends State<ProjTile> {
                                               child: ListView(
 
                                                 children: docFile?.map((fifi) {
-                                                  Icon(Icons.attach_file, color: Color(0xff0f4c75),);
                                                   return Builder(
 
                                                     builder: (BuildContext context) {
-//                                                    Icon(Icons.attach_file, color: Color(0xff0f4c75),);
-                                                      return Linkify(
+                                                      String fileName = fifi.toString().substring(fifi.lastIndexOf('/')+1, fifi.length);
+                                                      String nameWithoutEx = fileName.substring(0, fileName.lastIndexOf('?'));
+                                                    return InkWell(
+                                                            child: Row(
+                                                              children: <Widget>[
+                                                                Padding(padding: EdgeInsets.all(8.0),
+                                                                  child: Icon(Icons.attach_file, color: Color(0xff0f4c75),),
+                                                                ),
+//                                                                SizedBox(width: 20.0,),
+                                                                Divider(),
+                                                                Text(
+                                                                 "Document: "+ nameWithoutEx,
+                                                                  style: TextStyle(
+                                                                    color: Colors.blueAccent,
+                                                                    decoration: TextDecoration.underline,
+                                                                    fontSize: 16.0,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            onTap: () => _onOpen(fifi),
+                                                          );
 
-                                                        onOpen: _onOpen,
-                                                          text: "Documents: "+fifi,style:TextStyle(fontSize: 16.0),
-                                                        textAlign: TextAlign.justify,
-                                                        overflow: TextOverflow.ellipsis,
-                                                        maxLines: 2,
-
-                                                         );
+//                                                      return Linkify(
+//                                                        onOpen: _onOpen,
+//                                                        text: "Documents: "+nameWithoutEx+","+fifi,style:TextStyle(fontSize: 16.0),
+//                                                        textAlign: TextAlign.justify,
+//                                                        overflow: TextOverflow.ellipsis,
+//                                                        maxLines: 2,
+//
+//                                                         );
                                                       }
                                                       );
 

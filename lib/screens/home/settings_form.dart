@@ -69,13 +69,6 @@ TextEditingController ctrRef;
 
   @override
   Widget build(BuildContext context) {
-//    final user = Provider.of<User>(context);
-//    return StreamBuilder<QuerySnapshot>(
-//        stream: Firestore.instance.collection('Projet').snapshots(),
-//      builder: (context, snapshot) {
-//        if(snapshot.hasData){
-////          UserData userData = snapshot.data;
-//          DocumentSnapshot dataQr = snapshot.data as DocumentSnapshot;
           return Scaffold(
             body: Form(
               key: _formKey,
