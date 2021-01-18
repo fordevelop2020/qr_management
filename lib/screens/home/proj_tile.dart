@@ -72,7 +72,7 @@ class _ProjTileState extends State<ProjTile> {
 
 
                     return Container(
-                      height: 900,
+                      height: 1500,
                       padding: const EdgeInsets.all(10.0),
                         child: Column(
                           children: <Widget>[
@@ -107,6 +107,19 @@ class _ProjTileState extends State<ProjTile> {
                                                   reference: dataQr['reference'],
                                                   date: dataQr['date'].toDate(),
                                                   index: dataQr.reference,
+                                                  localisation: dataQr['location'],
+                                                  mo: dataQr['mo'],
+                                                  moDelegate: dataQr['moDelegate'],
+                                                  bet: dataQr['bet'],
+                                                  topograph: dataQr['topo'],
+                                                  customer: dataQr['customer'],
+                                                  phase: dataQr['phase'],
+                                                  clues: dataQr['clues'],
+                                                  comments: dataQr['comments'],
+                                                  manager: dataQr['responsible'],
+                                                  details: dataQr['details'],
+
+
                                                 )
                                             ));
                                           },),
@@ -126,21 +139,66 @@ class _ProjTileState extends State<ProjTile> {
                                           Row(
                                             children: <Widget>[
                                               Padding(padding: EdgeInsets.all(8.0),
+                                                child: Icon(Icons.title, color: Color(0xff0f4c75),),
+                                              ),
+                                              Divider(),
+                                              new Text("Type : ${dataQr['typeP']}",
+                                                style: TextStyle(fontSize: 14.0),),],
+                                          ),
+                                          Row(
+                                            children: <Widget>[
+                                              Padding(padding: EdgeInsets.all(8.0),
                                               child: Icon(Icons.comment, color: Color(0xff0f4c75),),
                                               ),
                                           Divider(),
                                           new Text("Reference : ${dataQr['reference']}",
-                                            style: TextStyle(fontSize: 18.0),),],
+                                            style: TextStyle(fontSize: 14.0),),],
                                        ),
                                           Row(
                                             children: <Widget>[
                                               Padding(padding: EdgeInsets.all(8.0),
-                                                child: Icon(Icons.details, color: Color(0xff0f4c75),),
+                                                child: Icon(Icons.location_on, color: Color(0xff0f4c75),),
+                                              ),
+                                              Divider(),
+                                              new Text("Localisation : ${dataQr['location']}",
+                                                style: TextStyle(fontSize: 14.0),),],
+                                          ),
+                                          Row(
+                                            children: <Widget>[
+                                              Padding(padding: EdgeInsets.all(8.0),
+                                                child: Icon(Icons.person, color: Color(0xff0f4c75),),
                                               ),
                                           Divider(),
-                                          new Text("Details : ${dataQr['details']}",
-                                            style: TextStyle(fontSize: 16.0),),],
-                                       ),
+                                          new Text("Mo : ${dataQr['mo']}",
+                                            style: TextStyle(fontSize: 14.0),),],
+                                          ),
+                                          Row(
+                                            children: <Widget>[
+                                              Padding(padding: EdgeInsets.all(8.0),
+                                                child: Icon(Icons.person_pin, color: Color(0xff0f4c75),),
+                                              ),
+                                              Divider(),
+                                              new Text("Mo Delegate : ${dataQr['moDelegate']}",
+                                                style: TextStyle(fontSize: 14.0),),],
+                                          ),
+                                          Row(
+                                            children: <Widget>[
+                                              Padding(padding: EdgeInsets.all(8.0),
+                                                child: Icon(Icons.group, color: Color(0xff0f4c75),),
+                                              ),
+                                              Divider(),
+                                              new Text("BET : ${dataQr['bet']}",
+                                                style: TextStyle(fontSize: 14.0),),],
+                                          ),
+                                          Row(
+                                            children: <Widget>[
+                                              Padding(padding: EdgeInsets.all(8.0),
+                                                child: Icon(Icons.gps_fixed, color: Color(0xff0f4c75),),
+                                              ),
+                                              Divider(),
+                                              new Text("Topographer : ${dataQr['topo']}",
+                                                style: TextStyle(fontSize: 14.0),),],
+                                          ),
                                           Row(
                                             children: <Widget>[
                                               Padding(padding: EdgeInsets.all(8.0),
@@ -149,17 +207,53 @@ class _ProjTileState extends State<ProjTile> {
 
                                           Divider(),
                                           new Text("Date project : ${dateProject.day}/${dateProject.month}/${dateProject.year}",
-                                            style: TextStyle(fontSize: 16.0),),],
-                                       ),
+                                            style: TextStyle(fontSize: 14.0),),],
+                                           ),
                                           Row(
                                             children: <Widget>[
                                               Padding(padding: EdgeInsets.all(8.0),
-                                                child: Icon(Icons.person, color: Color(0xff0f4c75),),
+                                                child: Icon(Icons.account_circle, color: Color(0xff0f4c75),),
                                               ),
                                           Divider(),
                                           new Text("Customer : ${dataQr['customer']}",
-                                            style: TextStyle(fontSize: 16.0),),],
+                                            style: TextStyle(fontSize: 14.0),),],
                                        ),
+                                        Row(
+                                          children: <Widget>[
+                                            Padding(padding: EdgeInsets.all(8.0),
+                                              child: Icon(Icons.show_chart, color: Color(0xff0f4c75),),
+                                            ),
+                                            Divider(),
+                                            new Text("Phase : ${dataQr['phase']}",
+                                              style: TextStyle(fontSize: 14.0),),],
+                                        ),
+                                        Row(
+                                          children: <Widget>[
+                                            Padding(padding: EdgeInsets.all(8.0),
+                                              child: Icon(Icons.assignment, color: Color(0xff0f4c75),),
+                                            ),
+                                            Divider(),
+                                            new Text("Clues : ${dataQr['clues']}",
+                                              style: TextStyle(fontSize: 14.0),),],
+                                        ),
+                                        Row(
+                                          children: <Widget>[
+                                            Padding(padding: EdgeInsets.all(8.0),
+                                              child: Icon(Icons.supervisor_account, color: Color(0xff0f4c75),),
+                                            ),
+                                            Divider(),
+                                            new Text("Manager : ${dataQr['responsible']}",
+                                              style: TextStyle(fontSize: 14.0),),],
+                                        ),
+                                        Row(
+                                          children: <Widget>[
+                                            Padding(padding: EdgeInsets.all(8.0),
+                                              child: Icon(Icons.comment, color: Color(0xff0f4c75),),
+                                            ),
+                                            Divider(),
+                                            new Text("Comments : ${dataQr['comments']}",
+                                              style: TextStyle(fontSize: 14.0),),],
+                                        ),
 //                                        Row(
 //                                          children: <Widget>[
 //                                            Padding(padding: EdgeInsets.all(8.0),
@@ -190,7 +284,7 @@ class _ProjTileState extends State<ProjTile> {
                                                                   style: TextStyle(
                                                                     color: Colors.blueAccent,
                                                                     decoration: TextDecoration.underline,
-                                                                    fontSize: 16.0,
+                                                                    fontSize: 14.0,
                                                                   ),
                                                                 ),
                                                               ],
@@ -217,7 +311,7 @@ class _ProjTileState extends State<ProjTile> {
 
 
                                             carouselSlider = CarouselSlider(
-                                              height: 200.0,
+                                              height: 200,
                                               initialPage: 0,
                                               enlargeCenterPage: true,
                                               autoPlay: true,

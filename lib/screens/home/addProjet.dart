@@ -60,7 +60,7 @@ class _MyAddPageState extends State<MyAddPage> {
   int _currentStep = 0;
 
   StepperType _stepperType = StepperType.vertical;
-  DateTime _datePrj;
+  DateTime _datePrj = DateTime.now();
   String _dateText ='';
   String projId ='';
   String _typeP ='';
