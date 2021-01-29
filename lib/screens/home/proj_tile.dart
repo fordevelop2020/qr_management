@@ -1,5 +1,6 @@
 
 import 'dart:io';
+import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:path/path.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:intl/intl.dart';
@@ -72,11 +73,11 @@ class _ProjTileState extends State<ProjTile> {
 
 
                     return Container(
-                      height: 1500,
+                      height: 1300,
                       padding: const EdgeInsets.all(10.0),
                         child: Column(
                           children: <Widget>[
-                            Image.asset('assets/building.png',height: 200,width: 400,),
+                            Image.asset('assets/building.png',height: 180,width: 380,),
                             Expanded(
                               child: Container(
                                 padding: EdgeInsets.all(10),
@@ -103,10 +104,11 @@ class _ProjTileState extends State<ProjTile> {
                                           child: IconButton(icon: Icon(Icons.edit),color: Color(0xff0f4c75),onPressed: (){
                                             Navigator.of(context).push(new MaterialPageRoute(
                                                 builder: (BuildContext context) => new SettingsForm(
-                                                  name: dataQr['name'],
+                                                  name: widget.qrResult,
                                                   reference: dataQr['reference'],
                                                   date: dataQr['date'].toDate(),
                                                   index: dataQr.reference,
+                                                  docId: dataQr.documentID,
                                                   localisation: dataQr['location'],
                                                   mo: dataQr['mo'],
                                                   moDelegate: dataQr['moDelegate'],
@@ -118,6 +120,7 @@ class _ProjTileState extends State<ProjTile> {
                                                   comments: dataQr['comments'],
                                                   manager: dataQr['responsible'],
                                                   details: dataQr['details'],
+                                                  imagesNotif: dataQr['imagePlans'],
 
 
                                                 )

@@ -61,6 +61,10 @@ dependencies:
       url_launcher: ^5.7.2
       file_picker: ^1.4.3+2
       flutter_linkify: ^4.0.2
+      image_picker: ^0.6.6+5
+      open_file: ^3.0.3
+      firebase_picture_uploader:
+      fluttertoast: ^3.1.3
 
 
 

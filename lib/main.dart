@@ -1,6 +1,8 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_management/screens/home/Home.dart';
@@ -26,20 +28,6 @@ class MyApp extends StatelessWidget {
         home: MyHomePage(),
       ),
     );
-//      return new MaterialApp(
-//        title: 'Qr Management',
-//        theme: new ThemeData(
-//          primarySwatch: Colors.purple,
-//        ),
-//
-//        home: new MyHomePage(),
-//      );
-//    return StreamProvider<User>.value(
-//      value: AuthService().user,
-//      child: MaterialApp(
-//       home: Wrapper(),
-//      ),
-//    );
 
   }
 }
@@ -49,7 +37,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
 
   final emailTextController =  TextEditingController();
   final passwordTextController =   TextEditingController();
@@ -58,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
   FirebaseUser userData;
   bool loading = false;
   String error = '';
-  final formKey = new GlobalKey<FormState>();
+  GlobalKey<FormState> _formKey =  GlobalKey<FormState>();
 
   User _userFromFirebaseUser(FirebaseUser user){
     return user != null ? User(uid: user.uid) : null;
@@ -70,17 +58,19 @@ class _MyHomePageState extends State<MyHomePage> {
   String successMessage = '';
   String errorMessage = '';
   String _email;
-
   String _password;
 
 
   bool validateAndSave(){
-    final form = formKey.currentState;
+    final form = _formKey.currentState;
 
     if(form.validate()){
       form.save();
-      return true;
       print('Form is valid. Email:$_email, password:$_password');
+      final snackbar = new SnackBar(content: new Text("Email:$_email, password:$_password"));
+      Scaffold.of(context).showSnackBar(snackbar);
+      return true;
+
     }
       return false;
   }
@@ -91,6 +81,35 @@ class _MyHomePageState extends State<MyHomePage> {
 //    }
 //  }
 
+  showdialog(context){
+    return showDialog(context : context, builder:(context){
+      var height = MediaQuery.of(context).size.height;
+      var width = MediaQuery.of(context).size.width;
+      return AlertDialog(backgroundColor: Colors.transparent,elevation:0.1,shape: CircleBorder(),content:
+             Container(
+               height: 50,
+               width:  20,
+               color: Colors.transparent,
+               child: SpinKitFadingGrid(
+            color: Colors.blueAccent,
+//              size: 50.0,
+                controller: AnimationController(vsync: this,
+                duration: const Duration(milliseconds: 1200)),
+          ),
+             ),
+      );
+    });
+  }
+
+  void toastMessage(String message){
+    Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        timeInSecForIos: 1,
+        fontSize: 16.0
+    );
+  }
 
 
   Future<FirebaseUser> _signIn() async {
@@ -117,9 +136,9 @@ class _MyHomePageState extends State<MyHomePage> {
   {
     if(validateAndSave()){
 
-      final bool isValid = EmailValidator.validate(emailT);
-
-      print('Email is valid? ' + (isValid ? 'yes' : 'no'));
+//      final bool isValid = EmailValidator.validate(emailT);
+//
+//      print('Email is valid? ' + (isValid ? 'yes' : 'no'));
       FirebaseUser userData;
       try{
       userData = (await firebaseAuth.createUserWithEmailAndPassword(email: emailT, password: passwordT)).user;
@@ -156,12 +175,13 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<FirebaseUser> signInWithMail(String emailT , String passwordT) async
   {
 
-    final bool isValid = EmailValidator.validate(emailT);
-
-    print('Email is valid? ' + (isValid ? 'yes' : 'no'));
+//    final bool isValid = EmailValidator.validate(emailT);
+//
+//    print('Email is valid? ' + (isValid ? 'yes' : 'no'));
 
     try{
       userData = (await firebaseAuth.signInWithEmailAndPassword(email: emailT, password: passwordT)).user;
+
       Navigator.of(context).push(
           new MaterialPageRoute(
               builder: (BuildContext context) =>
@@ -230,13 +250,29 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: <Widget>[
 
                    Text(
-                  'OYA & Think+',
+                  'Think',
                   style: TextStyle(
                     color: Global.white,
                     fontSize: 30.0,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
+                    Text(
+                      '+',
+                      style: TextStyle(
+                        color: Global.white,
+                        fontSize: 100.0,
+                        fontWeight: FontWeight.w100,
+                      ),
+                    ),
+                    Text(
+                      'OYA',
+                      style: TextStyle(
+                        color: Global.white,
+                        fontSize: 30.0,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
            // ]),
 
             ]),
@@ -245,45 +281,101 @@ class _MyHomePageState extends State<MyHomePage> {
           Padding(
             padding: const EdgeInsets.all(30.0),
                 child: new Form(
-                key: formKey,
+                key: _formKey,
             child:new Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-               new TextForm2Field(
-                  hintText: 'Email',
-                  validator: (value) => value.isEmpty ? 'Email can\'t be empty' : null,
-                  //controller: emailTextController,
+                TextFormField(
+                  validator: (val) => !val.contains('@')?'Invalid Email': null,
+                  decoration: InputDecoration(
+                    hintText: 'Email',
+                    labelStyle: TextStyle(color:Color(0xff3282b8)),
+                    focusColor: Color(0xff3282b8),
+                    filled: true,
+                    enabledBorder: UnderlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Color(0xff3282b8)),
+                    ),
+                    prefixIcon: Icon(
+                        Icons.mail_outline,
+                      size: 18,
+                      color: Color(0xff3282b8),
+                    ),
+                    suffixIcon: GestureDetector(
+                      onTap: () {
+                        model.isVisible = !model.isVisible;
+                      },
+                      child: Icon(
+                        model.isValid ? Icons.check : null,
+                        size: 18,
+                        color: Color(0xff3282b8),
+                      ),
+                    ),
+                  ),
+//                 validator: (email)=>EmailValidator.validate(email)? null:"Invalid email address",
+//                  validator: (value){ if (value.isEmpty){ return 'Email can\'t be empty';}
+//                  if(!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]").hasMatch(value)){
+//                    return 'Please a valid Email';
+//                 }
+//                  return  null; },
+//                  controller: emailTextController,
                   obscureText: false,
-                  prefixIconData: Icons.mail_outline,
-                  suffixIconData: model.isValid ? Icons.check : null,
+                  cursorColor: Color(0xff3282b8),
+                  style: TextStyle(
+                    color: Color(0xff3282b8),
+                    fontSize: 14.0,
+                  ),
                   onSaved: (value) => _email = value,
                ),
                  SizedBox(
-                          height: 10.0,
+                          height: 20.0,
                         ),
-                new TextForm2Field(
-                  hintText: 'Password',
-                  validator: (value) => value.isEmpty ? 'Password can\'t be empty' : null,
-                //  controller: passwordTextController,
-                  obscureText: model.isVisible ? false : true,
-                  prefixIconData: Icons.lock_outline,
-                  suffixIconData: model.isVisible
-                      ? Icons.visibility
-                      : Icons.visibility_off,
+                 TextFormField(
 
+                  validator: (value) => value.length < 6 ? 'Password too short' : null,
+                   decoration: InputDecoration(
+                     hintText: 'Password',
+                     labelStyle: TextStyle(color:Color(0xff3282b8)),
+                     focusColor: Color(0xff3282b8),
+                     filled: true,
+                     enabledBorder: UnderlineInputBorder(
+                       borderRadius: BorderRadius.circular(10),
+                       borderSide: BorderSide.none,
+                     ),
+                     focusedBorder: OutlineInputBorder(
+                       borderRadius: BorderRadius.circular(10),
+                       borderSide: BorderSide(color: Color(0xff3282b8)),
+                     ),
+                     prefixIcon: Icon(
+                       Icons.lock_outline,
+                       size: 18,
+                       color: Color(0xff3282b8),
+                     ),
+                     suffixIcon: GestureDetector(
+                       onTap: () {
+                         model.isVisible = !model.isVisible;
+                       },
+                       child: Icon(
+                         model.isVisible
+                             ? Icons.visibility
+                             : Icons.visibility_off,
+                         size: 18,
+                         color: Color(0xff3282b8),
+                       ),
+                     ),
+                   ),
+                  obscureText: model.isVisible ? false : true,
+                   cursorColor: Color(0xff3282b8),
+                   style: TextStyle(
+                     color: Color(0xff3282b8),
+                     fontSize: 14.0,
+                   ),
                   onSaved: (value) => _password = value,
                 ),
-
-//                SizedBox(
-//                  height: 10.0,
-//                ),
-//                Column(
-//                 // crossAxisAlignment: CrossAxisAlignment.center,
-//                  children: <Widget>[
-//
-//                    SizedBox(
-//                      height: 10.0,
-//                    ),
                     Column(
                       children: <Widget>[
                         Align(
@@ -297,8 +389,6 @@ class _MyHomePageState extends State<MyHomePage> {
                           )),
                       ],
                     ),
-                //  ],
-               // ),
                 (errorMessage != ''
                     ? Text(
                   errorMessage,
@@ -308,15 +398,19 @@ class _MyHomePageState extends State<MyHomePage> {
                     : Container()),
 
                 SizedBox(
-                  height: 10.0,
+                  height: 20.0,
                 ),
               ButtonWidget(
                   title: 'Sign in with Google',
                     hasBorder: false,
                 onPressed: ()  {
-                  if (formKey.currentState.validate()) {
-                    formKey.currentState.save();
+//                  if (_formKey.currentState.validate()) {
+//                    _formKey.currentState.save();
+//                    toastMessage("Email: $_email\nPassword: $_password");
+                   loading = true;
+//                   showdialog(context);
                     _signIn();
+
 //                    if(userData != null){
 //                      loading = true;
 //                      Navigator.of(context).push(
@@ -327,7 +421,8 @@ class _MyHomePageState extends State<MyHomePage> {
 //                      );
 //                    } else {}
 //                  }
-                  }},
+                  }
+//                  },
               ),
                 SizedBox(
                   height: 10.0,
@@ -337,8 +432,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   hasBorder: true,
                     // ignore: missing_return
                     onPressed: ()  {
-                    if (formKey.currentState.validate()) {
-                       formKey.currentState.save();
+                    if (_formKey.currentState.validate()) {
+                       _formKey.currentState.save();
                       signInWithMail(_email,_password);
 //                        if(userData != null){
 //                          loading = true;
@@ -361,8 +456,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   title :('Sign Up'),
                   hasBorder: true,
                   onPressed: (){
-                    if (formKey.currentState.validate()) {
-                      formKey.currentState.save();
+                    if (_formKey.currentState.validate()) {
+                      _formKey.currentState.save();
                       signUpWithMail(_email,_password);
                       setState((){
                         error = 'Could not sign in with those credentials';

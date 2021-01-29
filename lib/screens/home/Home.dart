@@ -10,6 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_full_pdf_viewer/flutter_full_pdf_viewer.dart';
 import 'package:folding_cell/folding_cell.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -247,6 +248,7 @@ class _HomeState extends State<Home> {
                        decoration: InputDecoration(
                          border: InputBorder.none,
                          hintText: "Search Project",
+                         hintStyle: TextStyle(color: Colors.white54),
                          suffixIcon: _searchController.text.isNotEmpty
                              ? GestureDetector(
                            onTap: () {
@@ -420,7 +422,9 @@ class _HomeState extends State<Home> {
                                         children: <Widget>[
                                           Expanded(
                                             child: Row(
+                                            mainAxisAlignment : MainAxisAlignment.spaceBetween,
                                              children: <Widget>[
+
                                             new IconButton(
                                               enableFeedback: true,
                                               icon: Icon(Icons.keyboard_backspace,color: Colors.white,size: 20,),
@@ -430,7 +434,7 @@ class _HomeState extends State<Home> {
                                                 });
                                               },),
                                              Divider(),
-                                               SizedBox(width: 150.0),
+//                                               SizedBox(width: 150.0),
                                                new IconButton(
 
                                                      icon: Icon(Icons.directions_run, color: Colors.white,size: 20.0,),
@@ -513,6 +517,7 @@ Future savePdf() async{
   String documentPath = documentDirectory.path;
   File file = File("$documentPath/example.pdf");
   file.writeAsBytesSync(pdf.save());
+
   await Printing.layoutPdf(
       onLayout: (PdfPageFormat format) async => pdf.save());
 }
@@ -551,7 +556,7 @@ String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
                     child: Container(
 
                       width: 150.0,
-                      height: 180.0,
+                      height: 200.0,
                       decoration: BoxDecoration(
                           color: Colors.grey[300],
                           borderRadius: BorderRadius.all(Radius.circular(40)),
@@ -624,7 +629,7 @@ String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
                   Expanded(
                       flex: 2,
                       child: Container(
-                          height: 180.0,
+                          height: 200.0,
                           width: 150.0,
                           decoration: BoxDecoration(
                               color: Colors.grey[300],
@@ -685,11 +690,15 @@ String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
                                 child: Row(children: <Widget>[
                                   Container(child: Padding(
                                     padding: const EdgeInsets.all(8.0),
-                                    child: Image.network(
-                                      document['imagePlans'][0],
-                                      height: 45,
-                                      width: 55,
-                                      fit: BoxFit.fill,
+                                    child: CircleAvatar(
+                                      radius: 30.0,
+                                      backgroundImage:
+                                      NetworkImage(
+                                        document['imagePlans'][0],
+//                                        height: 45,
+//                                        width: 55,
+//                                        fit: BoxFit.fill,
+                                      ),
                                     ),
                                   ),),
                                 ],),
@@ -738,8 +747,11 @@ String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
                                             pdf: pdf.document, image: const AssetImage('assets/oyalogo.png'));
 
                                           pdf.addPage(
+
+
                                                   pw.MultiPage(
                                                       pageFormat: PdfPageFormat.a4,
+
                                                       margin: pw.EdgeInsets.all(32),
                                                       build: (pw.Context context) {
                                                         return <pw.Widget>[
@@ -761,7 +773,7 @@ String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
                                                           pw.Text("Name of the project: "+document['name']),
                                                           pw.Text("Reference: "+document['reference']),
                                                           pw.Text("Details: "+document['details']),
-                                                          pw.Text("Date of creation: "+document['date']),
+                                                          pw.Text("Date of creation: "+_datePrj.toString()),
                                                           pw.SizedBox(
                                                               height: 30.0
                                                           ),
@@ -810,13 +822,13 @@ String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
 //                                      writeOnPdf();
 
                                         await savePdf();
-                                        Directory documentDirectory = await getApplicationDocumentsDirectory();
-                                        String documentPath = documentDirectory.path;
-                                        String fullPath = "$documentPath/example.pdf";
-                                        String name = document['name'];
-                                        Navigator.push(context, MaterialPageRoute(
-                                          builder: (context) => pdfPreviewScreen(path: fullPath, name: name)
-                                        ));
+//                                        Directory documentDirectory = await getApplicationDocumentsDirectory();
+//                                        String documentPath = documentDirectory.path;
+//                                        String fullPath = "$documentPath/example.pdf";
+//                                        String name = document['name'];
+//                                        Navigator.push(context, MaterialPageRoute(
+//                                          builder: (context) => pdfPreviewScreen(path: fullPath, name: name)
+//                                        ));
 
                                       },
                                     ),
