@@ -287,6 +287,12 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
               children: <Widget>[
                 TextFormField(
                   validator: (val) => !val.contains('@')?'Invalid Email': null,
+                  obscureText: false,
+                  cursorColor: Color(0xff3282b8),
+                  style: TextStyle(
+                    color: Color(0xff3282b8),
+                    fontSize: 14.0,
+                  ),
                   decoration: InputDecoration(
                     hintText: 'Email',
                     labelStyle: TextStyle(color:Color(0xff3282b8)),
@@ -323,12 +329,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 //                 }
 //                  return  null; },
 //                  controller: emailTextController,
-                  obscureText: false,
-                  cursorColor: Color(0xff3282b8),
-                  style: TextStyle(
-                    color: Color(0xff3282b8),
-                    fontSize: 14.0,
-                  ),
                   onSaved: (value) => _email = value,
                ),
                  SizedBox(
@@ -337,6 +337,12 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                  TextFormField(
 
                   validator: (value) => value.length < 6 ? 'Password too short' : null,
+                   obscureText: model.isVisible ? false : true,
+                   cursorColor: Color(0xff3282b8),
+                   style: TextStyle(
+                     color: Color(0xff3282b8),
+                     fontSize: 14.0,
+                   ),
                    decoration: InputDecoration(
                      hintText: 'Password',
                      labelStyle: TextStyle(color:Color(0xff3282b8)),
@@ -368,12 +374,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                        ),
                      ),
                    ),
-                  obscureText: model.isVisible ? false : true,
-                   cursorColor: Color(0xff3282b8),
-                   style: TextStyle(
-                     color: Color(0xff3282b8),
-                     fontSize: 14.0,
-                   ),
+
                   onSaved: (value) => _password = value,
                 ),
                     Column(

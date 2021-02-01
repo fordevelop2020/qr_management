@@ -20,8 +20,10 @@ import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_management/models/project.dart';
 import 'package:qr_management/screens/home/ScanQrCode.dart';
+import 'package:qr_management/screens/home/myFiles.dart';
 import 'package:qr_management/screens/home/pdfPreviewScreen.dart';
 import 'package:qr_management/screens/home/proj_tile.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../main.dart';
 import 'addProjet.dart';
 import 'package:pdf/pdf.dart';
@@ -33,8 +35,11 @@ final FirebaseUser user;
 Future _data;
 final GoogleSignIn googleSignIn;
 final String qrResult;
+final String email;
+final String title;
+final String photoUrl;
 
-Home({this.user, this.googleSignIn, this.qrResult});
+Home({this.user, this.googleSignIn, this.qrResult, this.email, this.title,this.photoUrl});
  @override
   _HomeState createState() => _HomeState();
 }
@@ -231,6 +236,22 @@ class _HomeState extends State<Home> {
     name = widget.user.displayName;
     email = widget.user.email;
 
+    _launchURL() async {
+      const url = 'https://thinkoya.com';
+      if (await canLaunch(url)) {
+        await launch(url);
+      } else {
+        throw 'Could not launch $url';
+      }
+    }
+
+    _myFiles() async{
+      Navigator.of(context).push(
+          new MaterialPageRoute(
+              builder: (BuildContext context) => new MyFiles(email: widget.user.email))
+      );
+
+    }
     return SafeArea(
         child: Scaffold(
           appBar: AppBar(
@@ -297,7 +318,7 @@ class _HomeState extends State<Home> {
                   }),
                   Spacer(),
                  // IconButton(icon: Icon(Icons.search), onPressed: () {}),
-                  IconButton(icon: Icon(Icons.more_vert), onPressed: () {}),
+                  IconButton(icon: Icon(Icons.home),color: Color(0xff3282b8), onPressed: () {}),
                 ],
               ),
             ),
@@ -312,22 +333,6 @@ class _HomeState extends State<Home> {
 
 
                 width: mediaQuery.width,
-//              child: Row(
-//                children: <Widget>[
-////                            Padding(
-////                              padding: const EdgeInsets.only(left: 30.0, right: 30.0, bottom: 30.0),
-//                  new Flexible(
-//                    child: new TextField(
-//                      controller: _searchController,
-//                      decoration: InputDecoration(
-//                          prefixIcon: Icon(Icons.search)
-//                      ),
-//                    ),
-//                  ),
-////                            ),
-//                ],
-//              ),
-
                 child: Stack(
                     children: <Widget>[
 
@@ -468,16 +473,23 @@ class _HomeState extends State<Home> {
                                     child: Column(
                                       children: <Widget>[
                                         MyButton(
-                                          text: "Profile",
+
+                                          text: "Qui sommes-nous?",
                                           iconData: Icons.person,
                                           textSize: getSize(0),
                                           height: (menuContainerHeight)/6,
+                                          onPressed: _launchURL,
+
                                         ),
                                         MyButton(
-                                          text: "Payments",
-                                          iconData: Icons.payment,
+                                          text: "My Files",
+                                          iconData: Icons.attach_file,
                                           textSize: getSize(1),
-                                          height: (menuContainerHeight)/6,),
+                                          height: (menuContainerHeight)/6,
+                                          onPressed: _myFiles,
+
+
+                                        ),
                                         MyButton(
                                           text: "Notifications",
                                           iconData: Icons.notifications,
@@ -1060,8 +1072,9 @@ class MyButton extends StatelessWidget {
   final IconData iconData;
   final double textSize;
   final double height;
+  final Function onPressed;
 
-  MyButton({this.text, this.iconData, this.textSize,this.height});
+  MyButton({this.text, this.iconData, this.textSize,this.height, this.onPressed});
 
 
 
@@ -1087,7 +1100,8 @@ class MyButton extends StatelessWidget {
           ),
         ],
       ),
-      onPressed: () {},
+
+      onPressed:  onPressed ,
     );
   }
 }

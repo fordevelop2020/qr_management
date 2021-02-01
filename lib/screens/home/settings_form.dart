@@ -1,6 +1,5 @@
-
 import 'dart:io';
-
+import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_picture_uploader/firebase_picture_uploader.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -65,8 +64,9 @@ class _SettingsFormState extends State<SettingsForm> {
   String _error = 'No Error Dectected';
   List<Asset> imagePlans = List<Asset>();
   Future <File> _imageFile;
+  FirebaseStorage _storageInstance;
 
-TextEditingController ctrName;
+  TextEditingController ctrName;
 TextEditingController ctrRef;
 TextEditingController ctrLocal;
 TextEditingController ctrMo;
@@ -115,7 +115,7 @@ TextEditingController ctrDetails;
     phase = widget.phase;
     topograph = widget.topograph;
     details = widget.details;
-    imagePlans = widget.imagesNotif;
+//    imagePlans = widget.imagesNotif;
 //    index = widget.index;
     docId = widget.docId;
 
@@ -417,6 +417,21 @@ TextEditingController ctrDetails;
     _profilePictures = uploadJobs;
 //    _imagesTile = uploadJobs;
   }
+  Future<dynamic> uploadProfilePicture(File image) async {
+    final String uploadPath = DateTime.now().millisecondsSinceEpoch.toString();
+    StorageReference imgRef = _storageInstance.ref().child(uploadPath);
+
+    // start upload
+    StorageUploadTask uploadTask = imgRef.putFile(image);
+    // wait until upload is complete
+    try {
+      await uploadTask.onComplete;
+    } on Exception catch (error, stackTrace) {
+      throw Exception('Upload failed, Firebase Error: $error $stackTrace');
+    }
+
+    return imgRef.getDownloadURL();
+  }
 
   Future<void> _addData() async {
         for (var imageFile in imagePlans) {
@@ -445,7 +460,7 @@ TextEditingController ctrDetails;
       Firestore.instance.runTransaction((Transaction transaction) async {
         DocumentSnapshot snapshot = await transaction.get(widget.index);
         await transaction.update(snapshot.reference, {
-          "name": name,
+//          "name": name,
           "reference": reference,
           "date": _datePrj,
           "location": localisation,
@@ -468,36 +483,37 @@ TextEditingController ctrDetails;
 
         @override
         Widget build(BuildContext context) {
-//    final profilePictureTile = new Material(
-//          color: Colors.transparent,
-//          child: new Column(
-//            crossAxisAlignment: CrossAxisAlignment.start,
-//            children: <Widget>[
-//              const Text('Project Images',
-//                  style: TextStyle(
-//                    color: Colors.blueAccent,
-//                    fontSize: 15.0,
-//                  )),
-//              const Padding(
-//                padding: EdgeInsets.only(bottom: 5.0),
-//              ),
-//              new PictureUploadWidget(
-//                onPicturesChange: profilePictureCallback,
-//                localization: PictureUploadLocalization(),
-//                initialImages: _profilePictures,
-//                settings: PictureUploadSettings(onErrorFunction: onErrorCallback,
-////                customUploadFunction: uploadProfilePicture,
-//                imageSource: ImageSourceExtended.askUser,
-//                minImageCount: 0, maxImageCount: 5, imageManipulationSettings:
-//                const ImageManipulationSettings(compressQuality: 75,
-//                )),
-//                buttonStyle: const PictureUploadButtonStyle(),
-//                buttonText: 'Upload Picture',
-//                enabled: true,
-//              ),
-//            ],
-//          ),
-//        );
+    final profilePictureTile = new Material(
+          color: Colors.transparent,
+          child: new Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              const Text('Project Images',
+                  style: TextStyle(
+                    color: Colors.blueAccent,
+                    fontSize: 15.0,
+                  )),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 5.0),
+              ),
+              new PictureUploadWidget(
+                onPicturesChange: profilePictureCallback,
+                localization: PictureUploadLocalization(),
+                initialImages: _profilePictures,
+                settings: PictureUploadSettings(onErrorFunction: onErrorCallback,
+                customUploadFunction: uploadProfilePicture,
+                imageSource: ImageSourceExtended.askUser,
+                minImageCount: 0, maxImageCount: 5, imageManipulationSettings:
+                const ImageManipulationSettings(compressQuality: 75,
+                )),
+                buttonStyle: const PictureUploadButtonStyle(),
+                buttonText: 'Upload Picture',
+                enabled: true,
+              ),
+            ],
+          ),
+        );
+          ThemeData theme = Theme.of(context);
           return new Scaffold(
             appBar: AppBar(
               title: Text("Update your project data"),
@@ -515,24 +531,24 @@ TextEditingController ctrDetails;
                       padding: const EdgeInsets.fromLTRB(20, 20, 20, 50),
                       child: Column(children: <Widget>[
 
-//                        profilePictureTile]
-                        Row(
-                          children: <Widget>[
-                            new IconButton(icon: new Icon(Icons.add_photo_alternate), onPressed: loadAssets),
-                          ],
-                        ),
-                        Row(
-                          children: <Widget>[
-                            new IconButton(icon: new Icon(Icons.save), onPressed: _addData),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 100,
-                          child: Expanded(
-
-                            child: buildGridView(),
-                          ),
-                        ),
+                        profilePictureTile
+//                        Row(
+//                          children: <Widget>[
+//                            new IconButton(icon: new Icon(Icons.add_photo_alternate), onPressed: loadAssets),
+//                          ],
+//                        ),
+//                        Row(
+//                          children: <Widget>[
+//                            new IconButton(icon: new Icon(Icons.save), onPressed: _addData),
+//                          ],
+//                        ),
+//                        SizedBox(
+//                          height: 100,
+//                          child: Expanded(
+//
+//                            child: buildGridView(),
+//                          ),
+//                        ),
 
 
                       ])),
@@ -540,14 +556,17 @@ TextEditingController ctrDetails;
 
                       SizedBox(height: 10.0),
                       TextFormField(
+                        enableInteractiveSelection: false,
+                        enabled: false,
                         controller: ctrName,
+                        style: theme.textTheme.subhead.copyWith(color: theme.disabledColor),
                         decoration: new InputDecoration(
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30)),
                           labelText: 'Name project',
                         ),
 //                         validator: (val) => val.isEmpty ? 'Please enter a name' : null,
-                        onChanged: (String val2) => setState(() => name = val2),
+//                        onChanged: (String val2) => setState(() => name = val2),
                       ),
 
                       SizedBox(height: 15.0),

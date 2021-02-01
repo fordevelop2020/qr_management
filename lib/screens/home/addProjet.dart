@@ -84,6 +84,8 @@ class _MyAddPageState extends State<MyAddPage> {
 //  String image3d;
   String comments ='';
   var _typesProjet=['Select project type','Public','Private','Deco','Other'];
+  var _phases = ['Select phase','Esquisse','Aps','Apd','Pac','Pe','dce','exe','Reception'];
+  var _selectedPhase = 'Select phase';
   var _selectedTypeProjet ='Select project type';
 
   List<Asset> imagePlans = List<Asset>();
@@ -373,6 +375,28 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
             : _stepperType = StepperType.vertical);
       }
 
+  showAlertDialog(BuildContext context) {
+    // set up the button
+    Widget okButton = FlatButton(
+      child: Text("OK"),
+      onPressed: () { Navigator.of(context).pop();},
+    );
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Confirmation"),
+      content: Text("This project is added successfully !"),
+      actions: [
+        okButton,
+      ],
+    );
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
       @override
       Widget build(BuildContext context) {
 
@@ -418,7 +442,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                   "bet": bet,
                   "topo": topo,
                   "date": _datePrj,
-                  "phase": phase,
+                  "phase": _selectedPhase,
                   "clues": clues,
                   "responsible": responsible,
                   "imagePlans": imageUrls,
@@ -513,6 +537,8 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                               } else {
                                 _addData();
                                 _currentStep = 0;
+                                showAlertDialog(context);
+
                               }
                             }
                           });
@@ -715,14 +741,42 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                         ),
                       ],
                     ),
-                    TextFormField(
-                      decoration: InputDecoration(labelText: 'Phase',
-                          icon: Icon(Icons.blur_on)),
-                      onChanged: (String nv) {
-                        setState(() {
-                          phase = nv;
-                        });
-                      },
+//                    TextFormField(
+//                      decoration: InputDecoration(labelText: 'Phase',
+//                          icon: Icon(Icons.blur_on)),
+//                      onChanged: (String nv) {
+//                        setState(() {
+//                          phase = nv;
+//                        });
+//                      },
+//                    ),
+                    Row(
+                      children: <Widget>[
+                        Icon(Icons.blur_on,color:Colors.grey[600]),
+                        SizedBox(width: 20,),
+                        DropdownButton<String>(
+
+
+                          items: _phases.map((String dropDownStringItem2){
+
+                            return DropdownMenuItem<String>(
+
+                              value: dropDownStringItem2,
+                              child: (Text(dropDownStringItem2,style:TextStyle(color:Colors.grey[600],fontSize: 16))),
+                            );
+                          }).toList(),
+
+                          onChanged:(String newValueSelected2){
+                            setState(() {
+                              this._selectedPhase = newValueSelected2;
+                              print(_selectedPhase);
+                            });
+
+                          },
+                          value: _selectedPhase,
+                          icon: Icon(Icons.arrow_drop_down),
+                        ),
+                      ],
                     ),
                     TextFormField(
                       decoration: InputDecoration(labelText: 'Clues',

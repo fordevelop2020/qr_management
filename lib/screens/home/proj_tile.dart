@@ -1,5 +1,7 @@
 
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:path/path.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
@@ -12,11 +14,15 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
+
+import 'Home.dart';
+import 'ScanQrCode.dart';
 // ignore: must_be_immutable
 class ProjTile extends StatefulWidget {
 
   String qrResult;
-  ProjTile({this.qrResult});
+  final FirebaseUser user;
+  ProjTile({this.qrResult,this.user});
 
   @override
   _ProjTileState createState() => _ProjTileState();
@@ -53,6 +59,22 @@ class _ProjTileState extends State<ProjTile> {
         appBar: AppBar(
           title: Text('Project Tile'),
           backgroundColor: Color(0xff0f4c75),
+        ),
+        bottomNavigationBar: BottomAppBar(
+          elevation: 8.0,
+          color: Colors.white,
+          child: Row(
+            children: [
+              IconButton(icon: Icon(FontAwesomeIcons.qrcode,color: Color(0xff3282b8),), onPressed: () {
+                Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context)=>
+                    ScanQrCode()));
+
+              }),
+              Spacer(),
+              // IconButton(icon: Icon(Icons.search), onPressed: () {}),
+              IconButton(icon: Icon(Icons.home),color: Color(0xff3282b8), onPressed: () {}),
+            ],
+          ),
         ),
 
         body: StreamBuilder<QuerySnapshot>(
