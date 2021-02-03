@@ -261,7 +261,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                       '+',
                       style: TextStyle(
                         color: Global.white,
-                        fontSize: 100.0,
+                        fontSize: 80.0,
                         fontWeight: FontWeight.w100,
                       ),
                     ),

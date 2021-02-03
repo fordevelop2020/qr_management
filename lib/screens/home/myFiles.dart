@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_management/screens/home/settings_form.dart';
+import 'package:url_encoder/url_encoder.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
@@ -24,7 +25,7 @@ class MyFiles extends StatefulWidget {
 
      _onOpen(String link) async {
       if (await canLaunch(link)) {
-        await launch(link,forceWebView: true);
+        await launch(link);
       } else {
         throw 'Could not launch $link';
       }
@@ -73,7 +74,8 @@ class MyFiles extends StatefulWidget {
                                               // ignore: missing_return
                                               builder: (BuildContext context) {
                                                 for(int index = 0; index < fifi['documents'].toString().length ; index++){
-                                                String fileName = fifi['documents'][index].toString().substring(fifi['documents'][index].toString().lastIndexOf('/')+1, fifi['documents'][index].toString().length);
+                                                  String uri = '${Uri.decodeComponent(fifi['documents'][index].toString())}';
+                                                String fileName = uri.substring(uri.lastIndexOf('/')+1,uri.length);
                                                 String nameWithoutEx = fileName.substring(0, fileName.lastIndexOf('?'));
                                                 print("Document hh:"+fifi['documents'][index].toString());
                                                 return InkWell(
@@ -95,7 +97,7 @@ class MyFiles extends StatefulWidget {
                                                     ],
                                                   ),
 
-                                                  onTap: () => _onOpen(nameWithoutEx),
+                                                  onTap: () => _onOpen(fifi['documents'][index].toString()),
 
                                                 );
                                               }}

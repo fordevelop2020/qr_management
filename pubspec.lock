@@ -756,6 +756,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.6"
+  url_encoder:
+    dependency: "direct main"
+    description:
+      name: url_encoder
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.3"
   url_launcher:
     dependency: "direct main"
     description:

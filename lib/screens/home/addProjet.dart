@@ -313,10 +313,10 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
 
   }
 
-  Future<dynamic> postFile(String dwnlFile) async {
-    String fileName2 = DateTime.now().millisecondsSinceEpoch.toString();
-    StorageReference reference = FirebaseStorage.instance.ref().child(fileName2);
-    StorageUploadTask uploadTask2 = reference.putFile(File(dwnlFile),StorageMetadata(contentType: _typeP +'/'+ _extension),);
+  Future<dynamic> postFile(fileName) async {
+    _extension = fileName.toString().split('.').last;
+    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
+    StorageUploadTask uploadTask2 = reference.putFile(File(fileName),StorageMetadata(contentType: '$FileType.custom/$_extension'));
     StorageTaskSnapshot downloadUrl = await uploadTask2.onComplete;
     final String url =(await downloadUrl.ref.getDownloadURL());
     return url;
@@ -325,6 +325,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
 
 
   Future<void> downloadFile(StorageReference ref) async {
+
     final String url = await ref.getDownloadURL();
     final http.Response downloadData = await http.get(url);
     final Directory systemTempDir = Directory.systemTemp;

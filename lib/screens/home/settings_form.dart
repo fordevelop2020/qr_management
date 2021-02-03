@@ -39,6 +39,7 @@ class SettingsForm extends StatefulWidget {
 
 class _SettingsFormState extends State<SettingsForm> {
   final _formKey = GlobalKey<FormState>();
+  final  _listKey = GlobalKey();
   DateTime _datePrj;
   String _dateText;
   String name;
@@ -57,12 +58,12 @@ class _SettingsFormState extends State<SettingsForm> {
    String docId;
    List  _imagesTile;
    File imgFile;
-  List<UploadJob> _profilePictures = [];
+  List <UploadJob> _profilePictures = [];
    List<String> imageUrls;
    int index= 0;
    bool isSelected = false;
   String _error = 'No Error Dectected';
-  List<Asset> imagePlans = List<Asset>();
+  List imagePlans;
   Future <File> _imageFile;
   FirebaseStorage _storageInstance;
 
@@ -115,7 +116,7 @@ TextEditingController ctrDetails;
     phase = widget.phase;
     topograph = widget.topograph;
     details = widget.details;
-//    imagePlans = widget.imagesNotif;
+    imagePlans = widget.imagesNotif;
 //    index = widget.index;
     docId = widget.docId;
 
@@ -417,6 +418,8 @@ TextEditingController ctrDetails;
     _profilePictures = uploadJobs;
 //    _imagesTile = uploadJobs;
   }
+
+
   Future<dynamic> uploadProfilePicture(File image) async {
     final String uploadPath = DateTime.now().millisecondsSinceEpoch.toString();
     StorageReference imgRef = _storageInstance.ref().child(uploadPath);
@@ -433,53 +436,29 @@ TextEditingController ctrDetails;
     return imgRef.getDownloadURL();
   }
 
-  Future<void> _addData() async {
-        for (var imageFile in imagePlans) {
-          postImage(imageFile).then((downloadUrl) {
-            imageUrls.add(downloadUrl.toString());
-                if (imageUrls.length == imagePlans.length) {
-//                  String doci = docId.toString();
-                  Firestore.instance.runTransaction((Transaction transaction) async {
-                    DocumentSnapshot snapshot = await transaction.get(widget.index);
-                    await transaction.update(snapshot.reference,{
-                        "imagePlans": imageUrls,
-                      });
-//                        setState(() {
-//                          imagePlans = [];
-//                          imageUrls = [];
-//                        });
-                      });
-              }}).catchError((err) {
-                print(err);
-              });
-            }
-    }
+//  Future<void> _addData() async {
+//        for (var image in _profilePictures) {
+//          postImage(image).then((downloadUrl) {
+//            imageUrls.add(downloadUrl.toString());
+//                if (imageUrls.length == _profilePictures.length) {
+//                  Firestore.instance.runTransaction((Transaction transaction) async {
+//                    DocumentSnapshot snapshot = await transaction.get(widget.index);
+//                    await transaction.update(snapshot.reference,{
+//                        "imagePlans": imageUrls,
+//                      });
+////                        setState(() {
+////                          imagePlans = [];
+////                          imageUrls = [];
+////                        });
+//                      });
+//              }}).catchError((err) {
+//                print(err);
+//              });
+//            }
+//    }
 
 
-  void _editProject(){
-      Firestore.instance.runTransaction((Transaction transaction) async {
-        DocumentSnapshot snapshot = await transaction.get(widget.index);
-        await transaction.update(snapshot.reference, {
-//          "name": name,
-          "reference": reference,
-          "date": _datePrj,
-          "location": localisation,
-          "bet": bet,
-          "clues": clues,
-          "comments": comments,
-          "customer": customer,
-          "responsible": manager,
-          "mo": mo,
-          "moDelegate": moDelegate,
-          "phase": phase,
-          "topo": topograph,
-          "details": details,
-//          "imagePlans": imageUrls
-        });
-      });
 
-    Navigator.pop(context);
-  }
 
         @override
         Widget build(BuildContext context) {
@@ -501,7 +480,7 @@ TextEditingController ctrDetails;
                 localization: PictureUploadLocalization(),
                 initialImages: _profilePictures,
                 settings: PictureUploadSettings(onErrorFunction: onErrorCallback,
-                customUploadFunction: uploadProfilePicture,
+//                customUploadFunction: uploadProfilePicture,
                 imageSource: ImageSourceExtended.askUser,
                 minImageCount: 0, maxImageCount: 5, imageManipulationSettings:
                 const ImageManipulationSettings(compressQuality: 75,
@@ -514,6 +493,42 @@ TextEditingController ctrDetails;
           ),
         );
           ThemeData theme = Theme.of(context);
+
+          adding(){
+            int insertIndex = 1;
+            imagePlans.insertAll(insertIndex,_profilePictures);
+//            for (int offset =0 ; offset < _profilePictures.length; offset++){
+//              _listKey.currentState.insertItem(insertIndex+offset);}
+//
+          }
+
+    void _editProject(){
+
+
+      Firestore.instance.runTransaction((Transaction transaction) async {
+        DocumentSnapshot snapshot = await transaction.get(widget.index);
+        await transaction.update(snapshot.reference, {
+//          "name": name,
+          "reference": reference,
+          "date": _datePrj,
+          "location": localisation,
+          "bet": bet,
+          "clues": clues,
+          "comments": comments,
+          "customer": customer,
+          "responsible": manager,
+          "mo": mo,
+          "moDelegate": moDelegate,
+          "phase": phase,
+          "topo": topograph,
+          "details": details,
+          "imagePlans": adding
+//          "imagePlans": [_profilePictures]
+        });
+      });
+
+      Navigator.pop(context);
+    }
           return new Scaffold(
             appBar: AppBar(
               title: Text("Update your project data"),

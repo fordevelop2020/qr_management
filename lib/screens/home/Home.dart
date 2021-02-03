@@ -553,7 +553,9 @@ String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
           Scaffold.of(context).showSnackBar(
             new SnackBar(content: new Text("Data Deleted!"),)
           );
+
         },
+        background:  Container(color: Colors.redAccent,),
         child: Container(
 
             color: Color(0xffffffff),
