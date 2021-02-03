@@ -294,7 +294,8 @@ class _ProjTileState extends State<ProjTile> {
                                                   return Builder(
 
                                                     builder: (BuildContext context) {
-                                                      String fileName = fifi.toString().substring(fifi.lastIndexOf('/')+1, fifi.length);
+                                                      String uri = '${Uri.decodeComponent(fifi.toString())}';
+                                                      String fileName = uri.substring(uri.lastIndexOf('/')+1,uri.length);
                                                       String nameWithoutEx = fileName.substring(0, fileName.lastIndexOf('?'));
                                                     return InkWell(
                                                             child: Row(
@@ -352,7 +353,7 @@ class _ProjTileState extends State<ProjTile> {
                                                 });
                                               },
 
-                                              items: imgList.map((item) {
+                                              items: imgList?.map((item) {
                                                 return Builder(
                                                   builder: (BuildContext context) {
                                                     return Container(
@@ -372,7 +373,7 @@ class _ProjTileState extends State<ProjTile> {
                                                     );
                                                   },
                                                 );
-                                              }).toList(),
+                                              })?.toList()?? [Text("no images added!")],
                                             ),
                                             Divider(),
                                             SizedBox(

@@ -59,11 +59,12 @@ class _SettingsFormState extends State<SettingsForm> {
    List  _imagesTile;
    File imgFile;
   List <UploadJob> _profilePictures = [];
-   List<String> imageUrls;
+  List<Asset> imagePlans2 = List<Asset>();
+   List<String> imageUrls=[];
    int index= 0;
    bool isSelected = false;
   String _error = 'No Error Dectected';
-  List imagePlans;
+  List imagePlans =[];
   Future <File> _imageFile;
   FirebaseStorage _storageInstance;
 
@@ -144,7 +145,7 @@ TextEditingController ctrDetails;
 
   Future<void> loadAssets() async {
     setState(() {
-      imagePlans = List<Asset>();
+      imagePlans2 = List<Asset>();
     });
     List<Asset> resultList = List<Asset>();
     String error = 'No Error Dectected';
@@ -152,7 +153,7 @@ TextEditingController ctrDetails;
       resultList = await MultiImagePicker.pickImages(
         maxImages: 10,
         enableCamera: false,
-        selectedAssets: imagePlans,
+        selectedAssets: imagePlans2,
         cupertinoOptions  : CupertinoOptions(takePhotoIcon: "chat"),
 //
         materialOptions: MaterialOptions(
@@ -170,7 +171,7 @@ TextEditingController ctrDetails;
     if (!mounted) return;
 
     setState(() {
-      imagePlans = resultList;
+      imagePlans2 = resultList;
       _error = error;
     });
   }
@@ -179,9 +180,9 @@ TextEditingController ctrDetails;
     return GridView.count(
         crossAxisCount: 6,
         // ignore: missing_return
-        children: List.generate(imagePlans.length, (index)
+        children: List.generate(imagePlans2.length, (index)
         {
-          Asset asset = imagePlans[index];
+          Asset asset = imagePlans2[index];
           return Padding(
             padding: EdgeInsets.all(2.0),
             child: ThreeDContainer(
@@ -420,6 +421,7 @@ TextEditingController ctrDetails;
   }
 
 
+
   Future<dynamic> uploadProfilePicture(File image) async {
     final String uploadPath = DateTime.now().millisecondsSinceEpoch.toString();
     StorageReference imgRef = _storageInstance.ref().child(uploadPath);
@@ -503,7 +505,10 @@ TextEditingController ctrDetails;
           }
 
     void _editProject(){
-
+      for (var imageFile in imagePlans2) {
+        postImage(imageFile).then((downloadUrl) {
+          imageUrls.add(downloadUrl.toString());
+          if (imageUrls.length == imagePlans2.length) {
 
       Firestore.instance.runTransaction((Transaction transaction) async {
         DocumentSnapshot snapshot = await transaction.get(widget.index);
@@ -522,10 +527,14 @@ TextEditingController ctrDetails;
           "phase": phase,
           "topo": topograph,
           "details": details,
-          "imagePlans": adding
+          "imagePlans": imagePlans + imageUrls
 //          "imagePlans": [_profilePictures]
         });
       });
+          }
+        }).catchError((err) {
+          print(err);
+        });}
 
       Navigator.pop(context);
     }
@@ -542,11 +551,81 @@ TextEditingController ctrDetails;
                   child: Column(
                     children: [
                       SizedBox(height: 10.0),
+                      new IconButton(icon: new Icon(Icons.add_photo_alternate), onPressed: loadAssets),
+                      SizedBox(
+                        height: 100.0,
+
+                        child: Expanded(
+
+                          child: buildGridView(),
+                        ),
+                      ),
+
                    Padding(
                       padding: const EdgeInsets.fromLTRB(20, 20, 20, 50),
                       child: Column(children: <Widget>[
 
-                        profilePictureTile
+
+                           Stack(
+                             children: <Widget>[
+//                                SizedBox(
+//                                  height: 100.0,
+//
+//                                  child: Expanded(
+//
+//                                   child: buildGridView(),
+//                               ),
+//                                ),
+                                SizedBox(
+                                  height: 150.0,
+
+                                  child: ListView(
+                              scrollDirection: Axis.horizontal,
+                              children: imagePlans.asMap().map((i, item) =>
+                                  MapEntry(
+                                      i,
+                                      Builder(
+                                        builder: (BuildContext context) {
+                                            return Container(
+                                              child: Stack(
+                                                alignment: AlignmentDirectional.bottomCenter,
+                                                children: <Widget>[
+
+//                                                  ConstrainedBox(
+//                                                      constraints: BoxConstraints.expand(),
+                                                       Image.network(
+                                                         item,
+                                                         fit: BoxFit.fill,
+                                                            height: 100,
+                                                             width: 80,
+                                                             errorBuilder: (BuildContext context, Object exception, StackTrace stackTrace) {
+                                                             return Text('Your error widget...');
+                                                           },
+                                                         ),
+                                                  Positioned(
+                                                      right: -2,
+                                                      top: -9,
+                                                      child: IconButton(
+                                                          icon: Icon(
+                                                            Icons.cancel,
+                                                            color: Colors.white.withOpacity(0.5),
+                                                            size: 18,
+                                                          ),
+                                                          onPressed: () => setState(() {
+                                                            imagePlans.removeAt(index);
+                                                          })))
+
+//                                                      ),
+//                                                ],
+                                                ] ));
+
+                                          }),
+                                      )).values.toList(),
+
+      ),
+
+                    ),]),
+//                        profilePictureTile
 //                        Row(
 //                          children: <Widget>[
 //                            new IconButton(icon: new Icon(Icons.add_photo_alternate), onPressed: loadAssets),

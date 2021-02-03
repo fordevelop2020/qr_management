@@ -553,6 +553,21 @@ String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
           Scaffold.of(context).showSnackBar(
             new SnackBar(content: new Text("Data Deleted!"),)
           );
+          showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text('Are you sure?'),
+                content: Text('Do you want to remove item?'),
+                actions: <Widget>[
+                  FlatButton(
+                      onPressed: () => Navigator.of(context).pop(false),//  We can return any object from here
+                      child: Text('NO')),
+                  FlatButton(
+                      onPressed: () => Navigator.of(context).pop(true), //  We can return any object from here
+                      child: Text('YES'))
+                ],
+              )).then((value) =>
+              print('Selected Alert Option: ' + value.toString()));
 
         },
         background:  Container(color: Colors.redAccent,),
