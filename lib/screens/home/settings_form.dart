@@ -418,7 +418,7 @@ class _SettingsFormState extends State<SettingsForm> {
                            Stack(
                              children: <Widget>[
                                 SizedBox(
-                                  height: 150.0,
+                                  height: 80.0,
 
                                   child: ListView(
                               scrollDirection: Axis.horizontal,
@@ -431,25 +431,30 @@ class _SettingsFormState extends State<SettingsForm> {
                                               child: Stack(
                                                 alignment: AlignmentDirectional.bottomCenter,
                                                 children: <Widget>[
-
-//                                                  ConstrainedBox(
-//                                                      constraints: BoxConstraints.expand(),
-                                                       Image.network(
-                                                         item,
-                                                         fit: BoxFit.fill,
-                                                            height: 200,
-                                                             width: 180,
-                                                             errorBuilder: (BuildContext context, Object exception, StackTrace stackTrace) {
-                                                             return Text('Your error widget...');
-                                                           },
+                                                          Container(
+                                                            margin: EdgeInsets.all(8.0),
+                                                            child: ClipRRect(
+                                                             borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                             child: Image.network(
+                                                               item,
+                                                               fit: BoxFit.fill,
+//                                                              BorderRadius.all(Radius.circular(10)),
+                                                                     width: 50,
+                                                                     height: 50,
+                                                                   errorBuilder: (BuildContext context, Object exception, StackTrace stackTrace) {
+                                                                   return Text('Your error widget...');
+                                                                 },
                                                          ),
+
+                                                       ),
+                                                          ),
                                                   Positioned(
-                                                      right: -2,
-                                                      top: -9,
+                                                      right: -16,
+                                                      top: 2,
                                                       child: IconButton(
                                                           icon: Icon(
                                                             Icons.cancel,
-                                                            color: Colors.red.withOpacity(0.5),
+                                                            color: Colors.red.withOpacity(0.7),
                                                             size: 18,
                                                           ),
                                                           onPressed: () => setState(() {

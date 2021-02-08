@@ -113,7 +113,7 @@ class _ProjTileState extends State<ProjTile> {
                       padding: const EdgeInsets.all(10.0),
                         child: Column(
                           children: <Widget>[
-                            Image.asset('assets/building.png',height: 180,width: 380,),
+                            Image.asset('assets/building.png',height: 150,width: 380,),
                             Expanded(
                               child: Container(
                                 padding: EdgeInsets.all(10),
@@ -301,8 +301,9 @@ class _ProjTileState extends State<ProjTile> {
 //                                            ),
                                           Divider(),
                                        docFile.isEmpty || docFile == null ? Text("no document found") :
+                                           SizedBox(height: 10.0,),
                                             SizedBox(
-                                              height: 100,
+                                              height: 130,
 
 
                                               child: ListView(
@@ -356,8 +357,7 @@ class _ProjTileState extends State<ProjTile> {
                                               ),
 
                                             ),
-//                                  ],
-//                                     ),
+                                        SizedBox(height: 10.0,),
 
 
                                             carouselSlider = CarouselSlider(
