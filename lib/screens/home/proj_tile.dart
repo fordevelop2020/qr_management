@@ -19,10 +19,11 @@ import 'Home.dart';
 import 'ScanQrCode.dart';
 // ignore: must_be_immutable
 class ProjTile extends StatefulWidget {
-
-  String qrResult;
+  ProjTile({this.qrResult,this.user,this.qrResultHome});
+  final String qrResult;
+  final String qrResultHome;
   final FirebaseUser user;
-  ProjTile({this.qrResult,this.user});
+
 
   @override
   _ProjTileState createState() => _ProjTileState();
@@ -54,6 +55,17 @@ class _ProjTileState extends State<ProjTile> {
       }
     }
 
+      choosen() {
+      String prj ="";
+      if( widget.qrResultHome != null){
+        prj = widget.qrResultHome;
+      } else {
+        prj = widget.qrResult;
+      }
+      return prj;
+
+    }
+
       return Scaffold(
 //        backgroundColor: Color(0xff0f4c75),
         appBar: AppBar(
@@ -79,7 +91,7 @@ class _ProjTileState extends State<ProjTile> {
 
         body: StreamBuilder<QuerySnapshot>(
             stream: Firestore.instance.collection('Projet').where(
-                "name", isEqualTo: widget.qrResult).snapshots(),
+                "name", isEqualTo: choosen()).snapshots(),
             builder: (context, snapshot) {
               if (snapshot.data == null) return CircularProgressIndicator();
 
@@ -89,7 +101,9 @@ class _ProjTileState extends State<ProjTile> {
                     DocumentSnapshot dataQr = snapshot.data.documents[index1];
                     // ignore: unnecessary_statements
                     imgList = dataQr['imagePlans'];
-                    docFile = dataQr['documents'];
+                    docFile = dataQr['documents'] ;
+                    // ignore: unnecessary_statements
+
 
                     DateTime dateProject = dataQr['date'].toDate();
 
@@ -126,7 +140,7 @@ class _ProjTileState extends State<ProjTile> {
                                           child: IconButton(icon: Icon(Icons.edit),color: Color(0xff0f4c75),onPressed: (){
                                             Navigator.of(context).push(new MaterialPageRoute(
                                                 builder: (BuildContext context) => new SettingsForm(
-                                                  name: widget.qrResult,
+                                                  name: choosen(),
                                                   reference: dataQr['reference'],
                                                   date: dataQr['date'].toDate(),
                                                   index: dataQr.reference,
@@ -143,6 +157,7 @@ class _ProjTileState extends State<ProjTile> {
                                                   manager: dataQr['responsible'],
                                                   details: dataQr['details'],
                                                   imagesNotif: dataQr['imagePlans'],
+                                                  documents: dataQr['documents'],
 
 
                                                 )
@@ -157,7 +172,7 @@ class _ProjTileState extends State<ProjTile> {
                                                  child: Icon(Icons.work, color: Color(0xff0f4c75),),
                                         ),
                                             Divider(),
-                                            new Text("Project :  ${widget.qrResult}",
+                                            new Text("Project :  ${choosen()}",
                                             style: TextStyle(fontSize: 18.0,
                                                 fontWeight: FontWeight.bold),),],
                                           ),
@@ -285,13 +300,16 @@ class _ProjTileState extends State<ProjTile> {
 //                                              child: Icon(Icons.attach_file, color: Color(0xff0f4c75),),
 //                                            ),
                                           Divider(),
-                                          SizedBox(
+                                       docFile.isEmpty || docFile == null ? Text("no document found") :
+                                            SizedBox(
                                               height: 100,
-            //                                child: new Text(docFile.toString()),
-                                              child: ListView(
 
-                                                children: docFile?.map((fifi) {
-                                                  return Builder(
+
+                                              child: ListView(
+                                                children: docFile.map((fifi) {
+
+
+                                                  return new Builder(
 
                                                     builder: (BuildContext context) {
                                                       String uri = '${Uri.decodeComponent(fifi.toString())}';
@@ -305,12 +323,17 @@ class _ProjTileState extends State<ProjTile> {
                                                                 ),
 //                                                                SizedBox(width: 20.0,),
                                                                 Divider(),
-                                                                Text(
-                                                                 "Document: "+ nameWithoutEx,
-                                                                  style: TextStyle(
-                                                                    color: Colors.blueAccent,
-                                                                    decoration: TextDecoration.underline,
-                                                                    fontSize: 14.0,
+                                                                Flexible(
+                                                                  child: Text(
+                                                                   "Document: "+ nameWithoutEx,
+                                                                    textAlign: TextAlign.justify,
+                                                                    overflow: TextOverflow.ellipsis,
+                                                                    maxLines: 2,
+                                                                    style: TextStyle(
+                                                                      color: Colors.blueAccent,
+                                                                      decoration: TextDecoration.underline,
+                                                                      fontSize: 14.0,
+                                                                    ),
                                                                   ),
                                                                 ),
                                                               ],
@@ -329,8 +352,9 @@ class _ProjTileState extends State<ProjTile> {
                                                       }
                                                       );
 
-                                                })?.toList() ?? [Text("no document found")],
+                                                }).toList(),
                                               ),
+
                                             ),
 //                                  ],
 //                                     ),

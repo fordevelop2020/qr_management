@@ -429,24 +429,24 @@ class _HomeState extends State<Home> {
                                             child: Row(
                                             mainAxisAlignment : MainAxisAlignment.spaceBetween,
                                              children: <Widget>[
+                                               new IconButton(
 
-                                            new IconButton(
-                                              enableFeedback: true,
-                                              icon: Icon(Icons.keyboard_backspace,color: Colors.white,size: 20,),
-                                              onPressed: (){
-                                                this.setState(() {
-                                                  isMenuOpen = false;
-                                                });
-                                              },),
+                                                 icon: Icon(Icons.directions_run, color: Colors.white,size: 20.0,),
+                                                 onPressed: (){
+                                                   _signOut();
+                                                 },
+                                               ),
+
                                              Divider(),
 //                                               SizedBox(width: 150.0),
                                                new IconButton(
-
-                                                     icon: Icon(Icons.directions_run, color: Colors.white,size: 20.0,),
-                                                     onPressed: (){
-                                                       _signOut();
-                                                     },
-                                                   ),
+                                                 enableFeedback: true,
+                                                 icon: Icon(Icons.keyboard_backspace,color: Colors.white,size: 20,),
+                                                 onPressed: (){
+                                                   this.setState(() {
+                                                     isMenuOpen = false;
+                                                   });
+                                                 },),
 
                                              ],),
                                           ),
@@ -475,7 +475,7 @@ class _HomeState extends State<Home> {
                                         MyButton(
 
                                           text: "Qui sommes-nous?",
-                                          iconData: Icons.person,
+                                          iconData: Icons.work,
                                           textSize: getSize(0),
                                           height: (menuContainerHeight)/6,
                                           onPressed: _launchURL,
@@ -491,8 +491,8 @@ class _HomeState extends State<Home> {
 
                                         ),
                                         MyButton(
-                                          text: "Notifications",
-                                          iconData: Icons.notifications,
+                                          text: "Client Area",
+                                          iconData: Icons.people_outline,
                                           textSize: getSize(2),
                                           height: (menuContainerHeight)/6,),
                                         MyButton(
@@ -759,7 +759,7 @@ String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
 
                                       onPressed: () {
                                         Navigator.of(context).push(MaterialPageRoute(
-                                          builder: (context) => ProjTile(qrResult : dataProj),
+                                          builder: (context) => ProjTile(qrResultHome : dataProj),
                                         ));
                                       },
 //
@@ -840,7 +840,7 @@ String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
                                                             barcode: pw.Barcode.qrCode(
                                                               errorCorrectLevel: pw.BarcodeQRCorrectionLevel.high,
                                                             ),
-                                                            data: document['name'],
+                                                            data: document['name'].toString(),
 
                                                             height: 100.0,
                                                             width: 100.0,

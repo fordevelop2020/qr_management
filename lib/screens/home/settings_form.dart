@@ -1,18 +1,21 @@
 import 'dart:io';
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_picture_uploader/firebase_picture_uploader.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:http/http.dart' as http;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:qr_management/screens/home/utils.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:qr_management/widgets/button_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'addProjet.dart';
 
 class SettingsForm extends StatefulWidget {
   SettingsForm({this.email, this.name,this.reference,this.date,this.index,this.localisation,
-  this.mo, this.moDelegate, this.bet, this.topograph, this.customer, this.phase, this.clues, this.comments, this.manager, this.details,this.imagesNotif,this.docId});
+  this.mo, this.moDelegate, this.bet, this.topograph, this.customer, this.phase, this.clues, this.comments, this.manager, this.details,this.imagesNotif,this.docId,this.documents});
   final String email;
   final String name;
   final String reference;
@@ -31,6 +34,7 @@ class SettingsForm extends StatefulWidget {
   final String details;
   final List imagesNotif ;
   final String docId;
+  final List documents;
 
 
   @override
@@ -56,31 +60,38 @@ class _SettingsFormState extends State<SettingsForm> {
    String manager;
    String details;
    String docId;
-   List  _imagesTile;
    File imgFile;
-  List <UploadJob> _profilePictures = [];
+
   List<Asset> imagePlans2 = List<Asset>();
    List<String> imageUrls=[];
+  List<String> fileUrls = [];
    int index= 0;
    bool isSelected = false;
   String _error = 'No Error Dectected';
   List imagePlans =[];
-  Future <File> _imageFile;
-  FirebaseStorage _storageInstance;
+  List docs = [];
+  String fileName;
+
+  Map<String, String> _paths;
+  Map<String,String> documents2= Map<String,String>();
+  String _extension;
+  List<StorageUploadTask> _tasks = <StorageUploadTask>[];
+  StorageUploadTask _uploadTask2;
+
 
   TextEditingController ctrName;
-TextEditingController ctrRef;
-TextEditingController ctrLocal;
-TextEditingController ctrMo;
-TextEditingController ctrMoD;
-TextEditingController ctrBet;
-TextEditingController ctrTopo;
-TextEditingController ctrCust;
-TextEditingController ctrPhase;
-TextEditingController ctrClu;
-TextEditingController ctrComm;
-TextEditingController ctrManager;
-TextEditingController ctrDetails;
+  TextEditingController ctrRef;
+  TextEditingController ctrLocal;
+  TextEditingController ctrMo;
+  TextEditingController ctrMoD;
+  TextEditingController ctrBet;
+  TextEditingController ctrTopo;
+  TextEditingController ctrCust;
+  TextEditingController ctrPhase;
+  TextEditingController ctrClu;
+  TextEditingController ctrComm;
+  TextEditingController ctrManager;
+  TextEditingController ctrDetails;
 
 
   @override
@@ -118,13 +129,8 @@ TextEditingController ctrDetails;
     topograph = widget.topograph;
     details = widget.details;
     imagePlans = widget.imagesNotif;
-//    index = widget.index;
     docId = widget.docId;
-
-//  setState(() {
-//    imagePlans.add("Add Image");
-//  });
-
+    docs = widget.documents;
   }
 
   Future<Null> _selectDatePrj(BuildContext context) async {
@@ -204,340 +210,183 @@ TextEditingController ctrDetails;
           );
         }));
   }
-  
-//  Future _onAddImageClick(int index) async{
-//    setState(() {
-//      _imageFile = ImagePicker.pickImage(source: ImageSource.gallery);
-//      getFileImage(index);
-//    });
-//  }
-//
-//  void getFileImage(int index){
-//    _imageFile.then((file) async {
-//      setState(() {
-//        ImageUploadModel imageUpload = new ImageUploadModel();
-//        imageUpload.isUploaded = false;
-//        imageUpload.uploading = false;
-//        imageUpload.imageFile = file;
-//        imageUpload.imageUrl = '';
-//        imagePlans.replaceRange(index, index+1, [imageUpload]);
-//      });
-//    });
-//  }
-//  void _showPicker(context) {
-//    showModalBottomSheet(
-//        context: context,
-//        builder: (BuildContext bc) {
-//          return SafeArea(
-//            child: Container(
-//              child: new Wrap(
-//                children: <Widget>[
-//                  new ListTile(
-//                      leading: new Icon(Icons.photo_library),
-//                      title: new Text('Photo Library'),
-//                      onTap: () {
-//                        loadAssets();
-//                        Navigator.of(context).pop();
-//                      }),
-//                ],
-//              ),
-//            ),
-//          );
-//        }
-//    );
-//  }
 
-// _showImage(){
-//    if(imgFile == null && imagesTile == null){
-//      return Text("image placeholder");
-//    }else if (imgFile != null){
-//      print("showing images from local file");
-//
-//
-//      return SizedBox(
-//        height: 150.0,
-//        child: ListView.builder(
-//          itemCount: imagesTile.length,
-//          itemBuilder: (context, index) {
-//            final item = imagesTile[index];
-//            return  Container(
-//                     child: Stack(
-//                                    alignment: AlignmentDirectional
-//                                        .bottomCenter,
-//                                    children: <Widget>[
-//                                       GestureDetector(
-//                                         child: Image.network(item,
-//                                          fit: BoxFit.fill,
-//                                          height: 200,
-//                                          width: 180,
-//                                      ),
-//                                       onTap:() { //
-//                                         setState(() {
-//
-//                                         });
-//                                       },
-//                                       )
-//
-//                                    ],
-//            ));}
-//
-//            ),
-//      );
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//      return Stack(
-//          children: <Widget>[
-//            SizedBox(
-//              height: 150.0,
-//              child: ListView(
-//                scrollDirection: Axis.horizontal,
-//                children: imagesTile.asMap().entries.map((item) {
-//                  Builder(
-//                    // ignore: missing_return
-//                      builder: (BuildContext context) {
-//                        isSelected = true;
-//                        int idx = item.key;
-//                        String val = item.value;
-//                          return Container(
-//                              child: Stack(
-//                                  alignment: AlignmentDirectional
-//                                      .bottomCenter,
-//                                  children: <Widget>[
-//                                    imgFile != null
-//                                        ? Image.file(
-//                                      imgFile,
-//                                      fit: BoxFit.fill,
-//                                      height: 200,
-//                                      width: 180,
-//                                    )
-//                                        : Image.network(item.value),
-//
-//                                    FlatButton(
-//                                      padding: EdgeInsets.all(10),
-//                                      color: Colors.black54,
-//                                      child: Text('Change Image',
-//                                        style: TextStyle(
-//                                            color: Colors.white,
-//                                            fontSize: 16,
-//                                            fontWeight: FontWeight.w400),),
-//                                      onPressed: () => _getLocalImage(),
-//                                    ),
-//                                  ]));
-//                      });
-//                }).toList(),
-//              ),
-//            ),]);
 
-//    }else if (imagesTile != null){
-//      print("showing images from url");
-//
-//      return Stack(
-////        alignment: AlignmentDirectional.bottomCenter,
-//        children: <Widget>[
-//                    SizedBox(
-//                      height: 150.0,
-//                      child: ListView(
-//                              scrollDirection: Axis.horizontal,
-//                              children: imagesTile.asMap().map((i, item) =>
-//                                  MapEntry(
-//                                      i,
-//                                      Builder(
-//                                        builder: (BuildContext context) {
-//                                            return Container(
-//                                              child: Stack(
-//                                                alignment: AlignmentDirectional.bottomCenter,
-//                                                children: <Widget>[
-////                                                  ConstrainedBox(
-////                                                      constraints: BoxConstraints.expand(),
-//                                                       Image.network(
-//                                                         item,
-//                                                         fit: BoxFit.fill,
-//                                                            height: 200,
-//                                                             width: 180,
-//                                                             errorBuilder: (BuildContext context, Object exception, StackTrace stackTrace) {
-//                                                             return Text('Your error widget...');
-//                                                           },
-//                                                         ),
-//                                                        FlatButton(
-//                                                          padding: EdgeInsets.all(10),
-//                                                          color: Colors.black54,
-//                                                    child: Text('Change Image', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w400),),
-//                                                    onPressed: () => _getLocalImage(),
-//                                                  )
-////                                                      ),
-////                                                ],
-//                                                ] ));
-//
-//                                          }),
-//                                      )).values.toList(),
-//      ),
-//                    ),]);
-//    }}
-
-//  _getLocalImage() async{
-//    String error = 'No Error Dectected';
-//    File imageFileReslt= await ImagePicker.pickImage(
-//        source: ImageSource.gallery, imageQuality: 50, maxWidth: 400
-//    );
-//    if(imageFileReslt != null) {
-//      setState(() {
-//        imgFile = imageFileReslt;
-//        _error = error;
-//        isSelected = true;
-//        index ++;
-//      });
-//    }
-//  }
 
   Future<dynamic> postImage(Asset imageFile) async {
-//    await imageFile.requestOriginal();
     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
     StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
     StorageUploadTask uploadTask = reference.putData(( await imageFile.getByteData()).buffer.asUint8List());
     StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
-//    print(storageTaskSnapshot.ref.getDownloadURL());
     return storageTaskSnapshot.ref.getDownloadURL();
+  }
+
+  Future<dynamic> postFile(fileName) async {
+    _extension = fileName.toString().split('.').last;
+    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
+    StorageUploadTask uploadTask2 = reference.putFile(File(fileName),StorageMetadata(contentType: '$FileType.custom/$_extension'));
+    StorageTaskSnapshot downloadUrl = await uploadTask2.onComplete;
+    final String url =(await downloadUrl.ref.getDownloadURL());
+    return url;
 
   }
 
 
 
-  void onErrorCallback(error, stackTrace) {
-    print(error);
-    print(stackTrace);
-  }
+  Future<void> _editDocs() async{
+    for(String dwnlfile in documents2.values) {
+      postFile(dwnlfile).then((downloadUrl) {
+        fileUrls.add(downloadUrl.toString());
+        if (fileUrls.length == documents2.length) {
+          Firestore.instance.runTransaction((
+              Transaction transaction) async {
+            DocumentSnapshot snapshot = await transaction.get(
+                widget.index);
+            await transaction.update(snapshot.reference, {
 
-  void profilePictureCallback(
-      {List<UploadJob> uploadJobs, bool pictureUploadProcessing}) {
-    _profilePictures = uploadJobs;
-//    _imagesTile = uploadJobs;
-  }
-
-
-
-  Future<dynamic> uploadProfilePicture(File image) async {
-    final String uploadPath = DateTime.now().millisecondsSinceEpoch.toString();
-    StorageReference imgRef = _storageInstance.ref().child(uploadPath);
-
-    // start upload
-    StorageUploadTask uploadTask = imgRef.putFile(image);
-    // wait until upload is complete
-    try {
-      await uploadTask.onComplete;
-    } on Exception catch (error, stackTrace) {
-      throw Exception('Upload failed, Firebase Error: $error $stackTrace');
+              "documents": docs + fileUrls
+            });
+          });
+//                }
+        }
+      }).catchError((err) {
+        print(err);
+      });
     }
 
-    return imgRef.getDownloadURL();
   }
 
-//  Future<void> _addData() async {
-//        for (var image in _profilePictures) {
-//          postImage(image).then((downloadUrl) {
-//            imageUrls.add(downloadUrl.toString());
-//                if (imageUrls.length == _profilePictures.length) {
-//                  Firestore.instance.runTransaction((Transaction transaction) async {
-//                    DocumentSnapshot snapshot = await transaction.get(widget.index);
-//                    await transaction.update(snapshot.reference,{
-//                        "imagePlans": imageUrls,
-//                      });
-////                        setState(() {
-////                          imagePlans = [];
-////                          imageUrls = [];
-////                        });
-//                      });
-//              }}).catchError((err) {
-//                print(err);
-//              });
-//            }
-//    }
+
+  void _openFileExplorer() async {
+    try {
+      _paths = await FilePicker.getMultiFilePath(
+        // ignore: missing_return
+          type: FileType.custom, allowedExtensions: [_extension]);
+      setState(() {
+        documents2 = _paths;
+      });
+      uploadToFirebase();
+      _editDocs();
+
+    } on PlatformException catch(e){
+      print("Unsupported operation" +e.toString());
+    }if (!mounted){ return;}
+  }
+
+  uploadToFirebase(){
+    _paths.forEach((fileName, filePath) => {
+      upload(fileName, filePath)});
+  }
+
+  upload(fileName, filePath) {
+    _extension = fileName.toString().split('.').last;
+    StorageReference storageRef =
+    FirebaseStorage.instance.ref().child(fileName);
+    _uploadTask2 = storageRef.putFile(
+      File(filePath),
+      StorageMetadata(
+        contentType: '$FileType.custom/$_extension',
+      ),
+    );
+    setState(() {
+      _tasks.add(_uploadTask2);
+
+    });
+  }
 
 
 
+  Future<void> downloadFile(StorageReference ref) async {
+    final String url = await ref.getDownloadURL();
+    final http.Response downloadData = await http.get(url);
+    final Directory systemTempDir = Directory.systemTemp;
+    final File tempFile = File('${systemTempDir.path}/tmp.jpg');
+    if (tempFile.existsSync()) {
+      await tempFile.delete();
+    }
+    await tempFile.create();
+    final StorageFileDownloadTask task = ref.writeToFile(tempFile);
+    final int byteCount = (await task.future).totalByteCount;
+    var bodyBytes = downloadData.bodyBytes;
+    final String name = await ref.getName();
+    final String path = await ref.getPath();
+    print(
+      'Success!\nDownloaded $name \nUrl: $url'
+          '\npath: $path \nBytes Count :: $byteCount',
+    );
+  }
 
-        @override
+
+  @override
         Widget build(BuildContext context) {
-    final profilePictureTile = new Material(
-          color: Colors.transparent,
-          child: new Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              const Text('Project Images',
-                  style: TextStyle(
-                    color: Colors.blueAccent,
-                    fontSize: 15.0,
-                  )),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 5.0),
-              ),
-              new PictureUploadWidget(
-                onPicturesChange: profilePictureCallback,
-                localization: PictureUploadLocalization(),
-                initialImages: _profilePictures,
-                settings: PictureUploadSettings(onErrorFunction: onErrorCallback,
-//                customUploadFunction: uploadProfilePicture,
-                imageSource: ImageSourceExtended.askUser,
-                minImageCount: 0, maxImageCount: 5, imageManipulationSettings:
-                const ImageManipulationSettings(compressQuality: 75,
-                )),
-                buttonStyle: const PictureUploadButtonStyle(),
-                buttonText: 'Upload Picture',
-                enabled: true,
-              ),
-            ],
-          ),
-        );
           ThemeData theme = Theme.of(context);
 
-          adding(){
-            int insertIndex = 1;
-            imagePlans.insertAll(insertIndex,_profilePictures);
-//            for (int offset =0 ; offset < _profilePictures.length; offset++){
-//              _listKey.currentState.insertItem(insertIndex+offset);}
-//
+          Future<void> _onOpen(String link) async {
+            if (await canLaunch(link)) {
+              await launch(link);
+            } else {
+              throw 'Could not launch $link';
+            }
           }
 
-    void _editProject(){
+
+
+          Future<void> _editProject() async{
       for (var imageFile in imagePlans2) {
         postImage(imageFile).then((downloadUrl) {
           imageUrls.add(downloadUrl.toString());
-          if (imageUrls.length == imagePlans2.length) {
+      if (imageUrls.length == imagePlans2.length) {
+//                if (fileUrls.length == documents2.length) {
 
-      Firestore.instance.runTransaction((Transaction transaction) async {
-        DocumentSnapshot snapshot = await transaction.get(widget.index);
-        await transaction.update(snapshot.reference, {
-//          "name": name,
-          "reference": reference,
-          "date": _datePrj,
-          "location": localisation,
-          "bet": bet,
-          "clues": clues,
-          "comments": comments,
-          "customer": customer,
-          "responsible": manager,
-          "mo": mo,
-          "moDelegate": moDelegate,
-          "phase": phase,
-          "topo": topograph,
-          "details": details,
-          "imagePlans": imagePlans + imageUrls
-//          "imagePlans": [_profilePictures]
-        });
-      });
+                  Firestore.instance.runTransaction((
+                      Transaction transaction) async {
+                    DocumentSnapshot snapshot = await transaction.get(
+                        widget.index);
+                    await transaction.update(snapshot.reference, {
+                      "imagePlans": imagePlans + imageUrls,
+                      "reference": reference,
+                      "date": _datePrj,
+                      "location": localisation,
+                      "bet": bet,
+                      "clues": clues,
+                      "comments": comments,
+                      "customer": customer,
+                      "responsible": manager,
+                      "mo": mo,
+                      "moDelegate": moDelegate,
+                      "phase": phase,
+                      "topo": topograph,
+                      "details": details,
+                    });
+                  });
+
+              }
+            }).catchError((err) {
+              print(err);
+            });
           }
-        }).catchError((err) {
-          print(err);
-        });}
-
+//        }).catchError((err) {
+//          print(err);
+//        });
+//      }
       Navigator.pop(context);
     }
+
+          final List<Widget> children = <Widget>[];
+          _tasks.forEach((StorageUploadTask task) {
+            final Widget tile = UploadTaskListTile(task: task,
+              onDismissed: (){
+                setState(() {
+                  _tasks.remove(task);
+                });
+              },
+              onDownload: (){
+                downloadFile(task.lastSnapshot.ref);
+              },
+            );  children.add(tile);
+          });
+
+
           return new Scaffold(
             appBar: AppBar(
               title: Text("Update your project data"),
@@ -568,14 +417,6 @@ TextEditingController ctrDetails;
 
                            Stack(
                              children: <Widget>[
-//                                SizedBox(
-//                                  height: 100.0,
-//
-//                                  child: Expanded(
-//
-//                                   child: buildGridView(),
-//                               ),
-//                                ),
                                 SizedBox(
                                   height: 150.0,
 
@@ -596,8 +437,8 @@ TextEditingController ctrDetails;
                                                        Image.network(
                                                          item,
                                                          fit: BoxFit.fill,
-                                                            height: 100,
-                                                             width: 80,
+                                                            height: 200,
+                                                             width: 180,
                                                              errorBuilder: (BuildContext context, Object exception, StackTrace stackTrace) {
                                                              return Text('Your error widget...');
                                                            },
@@ -608,15 +449,12 @@ TextEditingController ctrDetails;
                                                       child: IconButton(
                                                           icon: Icon(
                                                             Icons.cancel,
-                                                            color: Colors.white.withOpacity(0.5),
+                                                            color: Colors.red.withOpacity(0.5),
                                                             size: 18,
                                                           ),
                                                           onPressed: () => setState(() {
-                                                            imagePlans.removeAt(index);
+                                                            imagePlans.removeAt(i);
                                                           })))
-
-//                                                      ),
-//                                                ],
                                                 ] ));
 
                                           }),
@@ -625,25 +463,6 @@ TextEditingController ctrDetails;
       ),
 
                     ),]),
-//                        profilePictureTile
-//                        Row(
-//                          children: <Widget>[
-//                            new IconButton(icon: new Icon(Icons.add_photo_alternate), onPressed: loadAssets),
-//                          ],
-//                        ),
-//                        Row(
-//                          children: <Widget>[
-//                            new IconButton(icon: new Icon(Icons.save), onPressed: _addData),
-//                          ],
-//                        ),
-//                        SizedBox(
-//                          height: 100,
-//                          child: Expanded(
-//
-//                            child: buildGridView(),
-//                          ),
-//                        ),
-
 
                       ])),
 
@@ -659,13 +478,9 @@ TextEditingController ctrDetails;
                               borderRadius: BorderRadius.circular(30)),
                           labelText: 'Name project',
                         ),
-//                         validator: (val) => val.isEmpty ? 'Please enter a name' : null,
-//                        onChanged: (String val2) => setState(() => name = val2),
                       ),
 
                       SizedBox(height: 15.0),
-//                                       new Padding(
-//                                         padding: const EdgeInsets.all(16.0),
                       TextFormField(
                         controller: ctrRef,
                         decoration: InputDecoration(
@@ -807,7 +622,7 @@ TextEditingController ctrDetails;
                                 labelText: 'Date project',
                                 suffixIcon: new IconButton(
                                   icon: Icon(Icons.date_range,
-                                      color: Color(0xff3282b8)),
+                                      color: Color(0xff0f4c75)),
                                   onPressed: () => _selectDatePrj(context),
                                 ),
                               ),
@@ -817,65 +632,79 @@ TextEditingController ctrDetails;
                         ],
                       ),
                       SizedBox(height: 15.0),
+                      docs.isEmpty || docs == null ? Text("no document found") :
 
-//                      SizedBox(height: 150.0,
-//                                    Expanded(
+                      SizedBox(
+                        height: 100,
+                        child: ListView(
 
-//                          child: ListView(
-//                            scrollDirection: Axis.horizontal,
-//                            children: imagesTile.asMap().map((i, item) =>
-//                                MapEntry(
-//                                    i,
-//
-//                                    Builder(
-//                                      builder: (BuildContext context) {
-//                                        int ind = 0;
-//                                        bool selected = i == ind;
-//                                        for (
-//                                        ind = 0; ind < item.length; ind ++) {
-//                                          return Container(
-//                                            width: 140.0,
-//                                            height: 100.0,
-//                                            margin: EdgeInsets.symmetric(
-//                                                vertical: 10.0,
-//                                                horizontal: 2.0),
-//                                            child: ConstrainedBox(
-//                                                constraints: BoxConstraints
-//                                                    .expand(),
-//
-//                                                child: GestureDetector(
-//                                                  onTap: () {
-//                                                    _showPicker(context);
-//                                                  },
-//                                                  child: item = selected && imgFile != null ?
-//                                                  Image.file(
-//                                                    imgFile,
-//                                                    fit: BoxFit.fill,
-//                                                  ) : Image.network(item),
-////                                                       errorBuilder: (BuildContext context, Object exception, StackTrace stackTrace) {
-////                                                       return Text('Your error widget...');
-////                                                     },
-//
-//                                                )),
-//
-//                                          );
-//                                        }
-//                                        return Container(
-//                                            width: 140,
-//                                            height: 100,
-//                                            margin: EdgeInsets.symmetric(
-//                                                vertical: 10.0,
-//                                                horizontal: 2.0),
-//                                            child: ConstrainedBox(
-//                                                constraints: BoxConstraints
-//                                                    .expand(),
-//                                                child: Image.network(
-//                                                    item[ind])));
-//                                      },
-//
-//                                    ))).values.toList(),
-//                          )),
-                      SizedBox(height: 15.0),
+                          children: docs.map((fifi) {
+                            return Builder(
+                                builder: (BuildContext context) {
+                                  String uri = '${Uri.decodeComponent(fifi.toString())}';
+                                  String fileName = uri.substring(uri.lastIndexOf('/')+1,uri.length);
+                                  String nameWithoutEx = fileName.substring(0, fileName.lastIndexOf('?'));
+                                  return InkWell(
+                                    child: Row(
+                                      children: <Widget>[
+                                        Padding(padding: EdgeInsets.all(8.0),
+                                          child: Icon(Icons.attach_file, color: Color(0xff0f4c75),),
+                                        ),
+                                        Flexible(
+                                          child: Text(
+                                            "Document: "+ nameWithoutEx,
+                                            textAlign: TextAlign.justify,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 2,
+                                            style: TextStyle(
+                                              color: Color(0xff0f4c75),
+                                              decoration: TextDecoration.underline,
+                                              fontSize: 14.0,
+                                            ),
+                                          ),
+                                        ),
+//                                        IconButton(
+//                                            icon: Icon(Icons.create,color: Color(0xff0f4c75),),
+//                                            onPressed: _editDocs ,
+//                                            ),
+                                        IconButton(
+                                          icon: Icon(Icons.delete,color: Color(0xff0f4c75),),
+                                            onPressed: () => setState(() {
+                                            docs.removeAt(index);
+                                            }
+                                        )),
+                                      ],
+                                    ),
+                                    onTap: () => _onOpen(fifi),
+                                  );
+                                }
+                            );
+
+                          }).toList(),
+                        ),
+                      ),
+                      Row(
+                        children: <Widget>[
+                          SizedBox(width: 20),
+                          RaisedButton(
+                            child: Text('Add documents', style: TextStyle(color:Colors.grey[600]),),
+                            onPressed: (){
+                              _openFileExplorer();
+                            },
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      SizedBox(
+                        height: 180,
+                        child: Expanded(
+                          child: ListView(
+                            children: children,
+                          ),
+                        ),
+                      ),
 
                       // dropDown
 //                DropdownButtonFormField(
@@ -889,17 +718,7 @@ TextEditingController ctrDetails;
 //                    }).toList(),
 //                    onChanged: (val) => setState(() => _currentReference = val)
 //                ),
-                      // slider
-//                SizedBox(height: 20.0),
-//                Slider(
-//                  value: (_currentProjId ?? userData.projId).toDouble(),
-//                  activeColor: Colors.cyan[_currentProjId ?? userData.projId],
-//                  inactiveColor: Colors.cyan[_currentProjId ?? userData.projId],
-//                  min : 100.0,
-//                  max : 900.0,
-//                  divisions: 8,
-//                  onChanged: (val) => setState(() => _currentProjId = val.round()),
-//                ),
+
                       RaisedButton(
                           color: Color(0xff0f4c75),
                           child: Text(
@@ -922,17 +741,3 @@ TextEditingController ctrDetails;
           );
         }
       }
-
-//      class ImageUploadModel{
-//  bool isUploaded;
-//  bool uploading;
-//  File imageFile;
-//  String imageUrl;
-//
-//  ImageUploadModel({
-//    this.isUploaded,
-//    this.uploading,
-//    this.imageFile,
-//    this.imageUrl,
-//      });
-//}

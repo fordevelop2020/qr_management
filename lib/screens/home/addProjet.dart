@@ -78,10 +78,7 @@ class _MyAddPageState extends State<MyAddPage> {
   String clues ='';
   String responsible ='';
 
-
-//  File imagePlans;
   String details ='';
-//  String image3d;
   String comments ='';
   var _typesProjet=['Select project type','Public','Private','Deco','Other'];
   var _phases = ['Select phase','Esquisse','Aps','Apd','Pac','Pe','dce','exe','Reception'];
@@ -89,7 +86,6 @@ class _MyAddPageState extends State<MyAddPage> {
   var _selectedTypeProjet ='Select project type';
 
   List<Asset> imagePlans = List<Asset>();
-//  List<String> documents = List<String>();
   List<Asset> image3d = List<Asset>();
   List<String> imageUrls = <String>[];
   List<String> fileUrls = <String>[];
@@ -100,19 +96,15 @@ class _MyAddPageState extends State<MyAddPage> {
 
 
   String fileName;
-  String _path;
   Map<String, String> _paths;
   Map<String,String> documents;
   String _extension;
-  FileType _pickingType ;
   List<StorageUploadTask> _tasks = <StorageUploadTask>[];
   StorageUploadTask _uploadTask2;
 
 //
   void _openFileExplorer() async {
     try {
-//      _path = null;
-//      if(_multiPick){
         _paths = await FilePicker.getMultiFilePath(
           // ignore: missing_return
           type: FileType.custom, allowedExtensions: [_extension]);
@@ -343,24 +335,11 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
       'Success!\nDownloaded $name \nUrl: $url'
           '\npath: $path \nBytes Count :: $byteCount',
     );
-//    _formKey.currentState.showSnackBar(
-//      SnackBar(
-//        backgroundColor: Colors.white,
-//        content: Image.memory(
-//          bodyBytes,
-//          fit: BoxFit.fill,
-//        ),
-//      ),
-//    );
   }
-
-
-
       @override
       void initState() {
         // TODO: implement initState
         super.initState();
-//        MyAddPage._scaffoldKey = _scaffoldKey;
         _dateText = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
       }
 
@@ -474,23 +453,6 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
               print(err);
             });
           }}
-
-//
-//
-//        final List<Widget> children = <Widget>[];
-//        _tasks.forEach((StorageUploadTask task) {
-//          final Widget tile = UploadTaskListTile(task: task,
-//            onDismissed: (){
-//              setState(() {
-//                _tasks.remove(task);
-//              });
-//            },
-//            onDownload: (){
-//              downloadFile(task.lastSnapshot.ref);
-//            },
-//          );  children.add(tile);
-//        });
-
 
         return Scaffold(
 //          key: _scaffoldKey,
@@ -742,15 +704,6 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                         ),
                       ],
                     ),
-//                    TextFormField(
-//                      decoration: InputDecoration(labelText: 'Phase',
-//                          icon: Icon(Icons.blur_on)),
-//                      onChanged: (String nv) {
-//                        setState(() {
-//                          phase = nv;
-//                        });
-//                      },
-//                    ),
                     Row(
                       children: <Widget>[
                         Icon(Icons.blur_on,color:Colors.grey[600]),
@@ -780,7 +733,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                       ],
                     ),
                     TextFormField(
-                      decoration: InputDecoration(labelText: 'Clues',
+                      decoration: InputDecoration(labelText: 'index',
                           icon: Icon(Icons.blur_on)),
                       onChanged: (String nv) {
                         setState(() {

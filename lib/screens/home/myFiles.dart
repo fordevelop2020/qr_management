@@ -19,6 +19,7 @@ class MyFiles extends StatefulWidget {
   class _MyFilesState extends State<MyFiles> {
 
     List docFile = [];
+     List<DocumentSnapshot> documents = [];
 
   @override
   Widget build(BuildContext context) {
@@ -38,21 +39,25 @@ class MyFiles extends StatefulWidget {
         title: Text("my Files"),
         backgroundColor: Color(0xff0f4c75),
       ),
-
       body: FutureBuilder<QuerySnapshot>(
           future: Firestore.instance.collection('Projet').getDocuments(),
+          // ignore: missing_return
           builder: (context, snapshot) {
+
             if (snapshot.data == null) return CircularProgressIndicator();
-            final List<DocumentSnapshot> documents = snapshot.data.documents;
-            docFile = ['documents'];
-//            return ListView(
-//                children: documents.map((doc) =>
-            return Container(
+           documents = snapshot.data.documents;
+
+//    for(int index = 0; index < documents.length;index++){
+//    documents[index].toString().isEmpty || documents[index] == null ? Text("empty") :
+
+    return Container(
                     height: 1300,
                     padding: const EdgeInsets.all(10.0),
                     child: Column(
                       children: <Widget>[
-                        Image.asset('assets/building.png',height: 180,width: 380,),
+    Image.asset('assets/building.png',height: 180,width: 380,),
+//       documents.asMap().values.toList() == null ? Text("no document found") :
+
                         Expanded(
                           child: Container(
                             padding: EdgeInsets.all(10),
@@ -64,47 +69,53 @@ class MyFiles extends StatefulWidget {
                                   topRight: Radius.circular(30),
                                 )
                             ),
-//     ],
-                   child: Card(
-                         child: ListView(
+
+
+                          child: Card(
+
+
+                              child: ListView(
 //
-                                        children: documents?.map((fifi) {
-                                          return Builder(
+                              children: documents.map((fifi) {
+                              return Builder(
 
-                                              // ignore: missing_return
-                                              builder: (BuildContext context) {
-                                                for(int index = 0; index < fifi['documents'].toString().length ; index++){
-                                                  String uri = '${Uri.decodeComponent(fifi['documents'][index].toString())}';
-                                                String fileName = uri.substring(uri.lastIndexOf('/')+1,uri.length);
-                                                String nameWithoutEx = fileName.substring(0, fileName.lastIndexOf('?'));
-                                                print("Document hh:"+fifi['documents'][index].toString());
-                                                return InkWell(
-                                                  child: Row(
-                                                    children: <Widget>[
-                                                      Padding(padding: EdgeInsets.all(8.0),
-                                                        child: Icon(Icons.attach_file, color: Color(0xff0f4c75),),
-                                                      ),
+                              // ignore: missing_return
+                              builder: (BuildContext context) {
+
+                              for(int index = 0; index < fifi['documents'].toString().length ; index++){
+                              String uri = '${Uri.decodeComponent(fifi['documents'][index].toString())}';
+                              String fileName = uri.substring(uri.lastIndexOf('/')+1,uri.length);
+                              String nameWithoutEx = fileName.substring(0, fileName.lastIndexOf('?'));
+                              print("Document:"+fifi['documents'][index].toString());
+                              return InkWell(
+                              child: Row(
+                              children: <Widget>[
+                              Padding(padding: EdgeInsets.all(8.0),
+                              child: Icon(Icons.attach_file, color: Color(0xff0f4c75),),
+                              ),
 //                                                                SizedBox(width: 20.0,),
-                                                      Divider(),
-                                                      Text(
-                                                        "Document:" +nameWithoutEx,
-                                                        style: TextStyle(
-                                                          color: Colors.blueAccent,
-                                                          decoration: TextDecoration.underline,
-                                                          fontSize: 14.0,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
+                              Divider(),
+                              Text(
+                              "Document:" +nameWithoutEx,
+                              style: TextStyle(
+                              color: Colors.blueAccent,
+                              decoration: TextDecoration.underline,
+                              fontSize: 14.0,
+                              ),
+                              ),
+                              ],
+                              ),
 
-                                                  onTap: () => _onOpen(fifi['documents'][index].toString()),
+                              onTap: () => _onOpen(fifi['documents'][index].toString()),
 
-                                                );
-                                              }}
-                                          );
+                              );
+                              }}
 
-                                        })?.toList() ?? [Text("no document found")],
-                                      ),
+                              );
+
+                              }).toList(),
+                              ),
+
 //                    )).toList()
 
 
@@ -187,12 +198,19 @@ class MyFiles extends StatefulWidget {
 //          }
 //      ),
 
+                              ),
+
             )
-            )
+
             )
             ],
-                    ));
-          })
+                    )
+            );
 
-    );}
+            } )
+
+    );
+
+
+    }
 }

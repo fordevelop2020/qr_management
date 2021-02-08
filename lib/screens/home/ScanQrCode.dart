@@ -17,7 +17,7 @@ class ScanQrCode extends StatefulWidget {
 }
 
 class _ScanQrCodeState extends State<ScanQrCode> {
- String qrResult = "Not Yet Scanned!";
+ String qrResultScan = "Not Yet Scanned!";
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +45,7 @@ class _ScanQrCodeState extends State<ScanQrCode> {
                 Container(
                   width: 300,
                   child: Text(
-                   qrResult,
+                    "Project name: "+qrResultScan,
                     textAlign: TextAlign.center,
                     maxLines: 5,
                     overflow: TextOverflow.ellipsis,
@@ -53,15 +53,17 @@ class _ScanQrCodeState extends State<ScanQrCode> {
 
                   ),),
 
+
                 IconButton(
                   icon: Icon(Icons.remove_red_eye,color: Color(0xff3282b8),), onPressed: () {
                   Navigator.of(context).push( MaterialPageRoute(
-                      builder: (context) => ProjTile(qrResult : qrResult),
+                    builder: (context) => ProjTile(qrResult : qrResultScan),
                   ));
                 },
                 ),
               ],
             ),
+
 
 
             SizedBox(
@@ -74,21 +76,22 @@ class _ScanQrCodeState extends State<ScanQrCode> {
                 try {
                   String scanning = await BarcodeScanner.scan();
                   setState(() {
-                    qrResult = "Project name: "+scanning;
+                    qrResultScan = scanning;
+                    print(qrResultScan);
                   });
                 } on PlatformException catch(ex){
                   if(ex.code == BarcodeScanner.CameraAccessDenied){
                     setState(() {
-                      qrResult = "Camera permission was denied";
+                      qrResultScan = "Camera permission was denied";
                     });
                   }else {
                     setState(() {
-                      qrResult = "Unknown Error $ex";
+                      qrResultScan = "Unknown Error $ex";
                     });
                   }
                 }on FormatException{
                   setState(() {
-                    qrResult = "You pressed the back button before scanning anything";
+                    qrResultScan = "You pressed the back button before scanning anything";
                   });
                 }catch(ex){
 
