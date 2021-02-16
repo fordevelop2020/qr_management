@@ -400,76 +400,99 @@ class _SettingsFormState extends State<SettingsForm> {
                   child: Column(
                     children: [
                       SizedBox(height: 10.0),
-                      new IconButton(icon: new Icon(Icons.add_photo_alternate), onPressed: loadAssets),
-                      SizedBox(
-                        height: 100.0,
+                      Card(
+                        elevation: 4.0,
+                        shadowColor:Color(0xffBBE1FA) ,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 20, 20, 50),
+                            child: Column(children: <Widget>[
+                              Stack(
+                                  children: <Widget>[
+                                    Text("ImagePlans",style: TextStyle(
+                                color: Colors.grey[600],
+                          fontSize: 14.0,
+                        ),),
+                                    SizedBox(
+                                      height: 80.0,
+                                      child: ListView(
+                                        scrollDirection: Axis.horizontal,
+                                        children: imagePlans.asMap().map((i, item) =>
+                                            MapEntry(
+                                              i,
+                                              Builder(
+                                                  builder: (BuildContext context) {
+                                                    return Container(
+                                                        child: Stack(
+                                                            alignment: AlignmentDirectional.bottomCenter,
+                                                            children: <Widget>[
+                                                              Container(
+                                                                margin: EdgeInsets.all(8.0),
+                                                                child: ClipRRect(
+                                                                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                                  child: Image.network(
+                                                                    item,
+                                                                    fit: BoxFit.fill,
+//                                                              BorderRadius.all(Radius.circular(10)),
+                                                                    width: 50,
+                                                                    height: 50,
+                                                                    errorBuilder: (BuildContext context, Object exception, StackTrace stackTrace) {
+                                                                      return Text('Your error widget...');
+                                                                    },
+                                                                  ),
 
-                        child: Expanded(
+                                                                ),
+                                                              ),
+                                                              Positioned(
+                                                                  right: -16,
+                                                                  top: 2,
+                                                                  child: IconButton(
+                                                                      icon: Icon(
+                                                                        Icons.cancel,
+                                                                        color: Colors.red.withOpacity(0.7),
+                                                                        size: 18,
+                                                                      ),
+                                                                      onPressed: () => setState(() {
+                                                                        imagePlans.removeAt(i);
+                                                                      })))
+                                                            ] ));
 
-                          child: buildGridView(),
+                                                  }),
+                                            )).values.toList(),
+
+                                      ),
+                                    ),]),
+                            ])),
+                      ),
+                      Card(
+                        elevation: 4.0,
+//                        color: Color(0xffBBE1FA),
+                        shadowColor: Color(0xffBBE1FA),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15.0),
+
+                        ),
+                        child: Column(
+//                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: <Widget>[
+                            Text("Add images Plans",style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14.0,
+                            ),),
+                            new IconButton(icon: new Icon(Icons.add_photo_alternate), onPressed: loadAssets,),
+                            SizedBox(
+                              height: 80.0,
+
+                              child: Expanded(
+
+                                child: buildGridView(),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-
-                   Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 50),
-                      child: Column(children: <Widget>[
-
-
-                           Stack(
-                             children: <Widget>[
-                                SizedBox(
-                                  height: 80.0,
-
-                                  child: ListView(
-                              scrollDirection: Axis.horizontal,
-                              children: imagePlans.asMap().map((i, item) =>
-                                  MapEntry(
-                                      i,
-                                      Builder(
-                                        builder: (BuildContext context) {
-                                            return Container(
-                                              child: Stack(
-                                                alignment: AlignmentDirectional.bottomCenter,
-                                                children: <Widget>[
-                                                          Container(
-                                                            margin: EdgeInsets.all(8.0),
-                                                            child: ClipRRect(
-                                                             borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                             child: Image.network(
-                                                               item,
-                                                               fit: BoxFit.fill,
-//                                                              BorderRadius.all(Radius.circular(10)),
-                                                                     width: 50,
-                                                                     height: 50,
-                                                                   errorBuilder: (BuildContext context, Object exception, StackTrace stackTrace) {
-                                                                   return Text('Your error widget...');
-                                                                 },
-                                                         ),
-
-                                                       ),
-                                                          ),
-                                                  Positioned(
-                                                      right: -16,
-                                                      top: 2,
-                                                      child: IconButton(
-                                                          icon: Icon(
-                                                            Icons.cancel,
-                                                            color: Colors.red.withOpacity(0.7),
-                                                            size: 18,
-                                                          ),
-                                                          onPressed: () => setState(() {
-                                                            imagePlans.removeAt(i);
-                                                          })))
-                                                ] ));
-
-                                          }),
-                                      )).values.toList(),
-
-      ),
-
-                    ),]),
-
-                      ])),
 
 
                       SizedBox(height: 10.0),
@@ -639,53 +662,61 @@ class _SettingsFormState extends State<SettingsForm> {
                       SizedBox(height: 15.0),
                       docs.isEmpty || docs == null ? Text("no document found") :
 
-                      SizedBox(
-                        height: 100,
-                        child: ListView(
+                      Card(
+                        elevation: 4.0,
+                        shadowColor: Color(0xffBBE1FA),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
 
-                          children: docs.map((fifi) {
-                            return Builder(
-                                builder: (BuildContext context) {
-                                  String uri = '${Uri.decodeComponent(fifi.toString())}';
-                                  String fileName = uri.substring(uri.lastIndexOf('/')+1,uri.length);
-                                  String nameWithoutEx = fileName.substring(0, fileName.lastIndexOf('?'));
-                                  return InkWell(
-                                    child: Row(
-                                      children: <Widget>[
-                                        Padding(padding: EdgeInsets.all(8.0),
-                                          child: Icon(Icons.attach_file, color: Color(0xff0f4c75),),
-                                        ),
-                                        Flexible(
-                                          child: Text(
-                                            "Document: "+ nameWithoutEx,
-                                            textAlign: TextAlign.justify,
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 2,
-                                            style: TextStyle(
-                                              color: Color(0xff0f4c75),
-                                              decoration: TextDecoration.underline,
-                                              fontSize: 14.0,
+                        ),
+                        child: SizedBox(
+                          height: 135,
+                          child: ListView(
+
+                            children: docs.map((fifi) {
+                              return Builder(
+                                  builder: (BuildContext context) {
+                                    String uri = '${Uri.decodeComponent(fifi.toString())}';
+                                    String fileName = uri.substring(uri.lastIndexOf('/')+1,uri.length);
+                                    String nameWithoutEx = fileName.substring(0, fileName.lastIndexOf('?'));
+                                    return InkWell(
+                                      child: Row(
+                                        children: <Widget>[
+                                          Padding(padding: EdgeInsets.all(8.0),
+                                            child: Icon(Icons.attach_file, color: Color(0xff0f4c75),),
+                                          ),
+                                          Flexible(
+                                            child: Text(
+                                              "Document: "+ nameWithoutEx,
+                                              textAlign: TextAlign.justify,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 2,
+                                              style: TextStyle(
+                                                color: Color(0xff0f4c75),
+                                                decoration: TextDecoration.underline,
+                                                fontSize: 14.0,
+                                              ),
                                             ),
                                           ),
-                                        ),
 //                                        IconButton(
 //                                            icon: Icon(Icons.create,color: Color(0xff0f4c75),),
 //                                            onPressed: _editDocs ,
 //                                            ),
-                                        IconButton(
-                                          icon: Icon(Icons.delete,color: Color(0xff0f4c75),),
-                                            onPressed: () => setState(() {
-                                            docs.removeAt(index);
-                                            }
-                                        )),
-                                      ],
-                                    ),
-                                    onTap: () => _onOpen(fifi),
-                                  );
-                                }
-                            );
+                                          IconButton(
+                                            icon: Icon(Icons.delete,color: Color(0xff0f4c75),),
+                                              onPressed: () => setState(() {
+                                              docs.removeAt(index);
+                                              }
+                                          )),
+                                        ],
+                                      ),
+                                      onTap: () => _onOpen(fifi),
+                                    );
+                                  }
+                              );
 
-                          }).toList(),
+                            }).toList(),
+                          ),
                         ),
                       ),
                       Row(
@@ -703,7 +734,7 @@ class _SettingsFormState extends State<SettingsForm> {
                         height: 10.0,
                       ),
                       SizedBox(
-                        height: 180,
+                        height: 120,
                         child: Expanded(
                           child: ListView(
                             children: children,
