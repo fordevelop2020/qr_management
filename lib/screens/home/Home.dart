@@ -4,6 +4,7 @@
 // ignore: avoid_web_libraries_in_flutter
 
 import 'dart:convert';
+
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,14 +18,14 @@ import 'package:google_sign_in/google_sign_in.dart';
 // ignore: unused_import
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
-import 'package:provider/provider.dart';
 import 'package:qr_management/models/project.dart';
 import 'package:qr_management/screens/home/ScanQrCode.dart';
 import 'package:qr_management/screens/home/myFiles.dart';
-import 'package:qr_management/screens/home/pdfPreviewScreen.dart';
 import 'package:qr_management/screens/home/proj_tile.dart';
+import 'package:qr_management/screens/home/Espace_Clt.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../main.dart';
+import 'Espace_Clt.dart';
 import 'addProjet.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -62,7 +63,7 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    limits= [0, 0, 0, 0, 0, 0];
+    limits= [0, 0, 0, 0, 0, 0,0,0];
     WidgetsBinding.instance.addPostFrameCallback(getPosition);
     super.initState();
     _searchController.addListener(_onSearchChanged);
@@ -130,7 +131,7 @@ class _HomeState extends State<Home> {
     final position = renderBox.localToGlobal(Offset.zero);
     double start = position.dy - 20;
     double contLimit = position.dy + renderBox.size.height - 20;
-    double step = (contLimit-start)/5;
+    double step = (contLimit-start)/6;
     limits = [];
     for (double x = start; x <= contLimit; x = x + step) {
       limits.add(x);
@@ -252,6 +253,15 @@ class _HomeState extends State<Home> {
       );
 
     }
+
+    _clientSpace() async{
+      Navigator.of(context).push(
+          new MaterialPageRoute(
+              builder: (BuildContext context) => new EspcClt()
+          ) );
+
+    }
+
     return SafeArea(
         child: Scaffold(
           appBar: AppBar(
@@ -309,6 +319,8 @@ class _HomeState extends State<Home> {
             bottomNavigationBar: BottomAppBar(
               elevation: 8.0,
               color: Colors.white,
+              shape: CircularNotchedRectangle(),
+              notchMargin: 12.0,
               child: Row(
                 children: [
                   IconButton(icon: Icon(FontAwesomeIcons.qrcode,color: Color(0xff3282b8),), onPressed: () {
@@ -318,15 +330,16 @@ class _HomeState extends State<Home> {
                   }),
                   Spacer(),
                  // IconButton(icon: Icon(Icons.search), onPressed: () {}),
-                  IconButton(icon: Icon(Icons.home),color: Color(0xff3282b8), onPressed: () {}),
+                  IconButton(icon: Icon(Icons.home),color: Color(0xff3282b8),onPressed: () {}),
                 ],
               ),
             ),
             floatingActionButton:
-            FloatingActionButton(child: Icon(Icons.add),backgroundColor: Color(0xff3282b8), onPressed: () {
+            FloatingActionButton(child: Center(child: Icon(Icons.add)),backgroundColor: Color(0xff3282b8),onPressed: () {
               Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context)=>
               new MyAddPage(email: widget.user.email,)));
-            }, elevation: 8.0,),
+            }, elevation: 8.0,
+            ),
 
             floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
             body: Container(
@@ -477,7 +490,7 @@ class _HomeState extends State<Home> {
                                           text: "Qui sommes-nous?",
                                           iconData: Icons.work,
                                           textSize: getSize(0),
-                                          height: (menuContainerHeight)/6,
+                                          height: (menuContainerHeight)/8,
                                           onPressed: _launchURL,
 
                                         ),
@@ -485,21 +498,32 @@ class _HomeState extends State<Home> {
                                           text: "My Files",
                                           iconData: Icons.attach_file,
                                           textSize: getSize(1),
-                                          height: (menuContainerHeight)/6,
+                                          height: (menuContainerHeight)/8,
                                           onPressed: _myFiles,
-
-
                                         ),
                                         MyButton(
                                           text: "Client Area",
                                           iconData: Icons.people_outline,
                                           textSize: getSize(2),
-                                          height: (menuContainerHeight)/6,),
+                                          height: (menuContainerHeight)/8,
+                                        onPressed: _clientSpace,
+                                        ),
+
+                                        MyButton(
+                                          text: "Help",
+                                          iconData: Icons.help_outline,
+                                          textSize: getSize(3),
+                                          height: (menuContainerHeight)/8,),
+                                        MyButton(
+                                          text: "Rate the app",
+                                          iconData: Icons.star_half,
+                                          textSize: getSize(4),
+                                          height: (menuContainerHeight)/8,),
                                         MyButton(
                                           text: "Settings",
                                           iconData: Icons.settings,
-                                          textSize: getSize(3),
-                                          height: (menuContainerHeight)/6,),
+                                          textSize: getSize(5),
+                                          height: (menuContainerHeight)/8,),
 
                                       ],
                                     ),
@@ -541,36 +565,68 @@ DateTime _datePrj = document['date'].toDate();
 String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
 //print(dataProj);
   return Builder(
+    // ignore: missing_return
     builder: (BuildContext context) {
 
-      return new Dismissible(
-        key: new Key(document.documentID),
-        onDismissed: (direction){
-          Firestore.instance.runTransaction((transaction) async{
-            DocumentSnapshot snapshot = await transaction.get(document.reference);
-            await transaction.delete(snapshot.reference);
+      getData() async{
+        return await Firestore.instance.collection('Projet').snapshots();
+      }
+      deleteData(){
+        Firestore.instance.runTransaction((transaction) async {
+          DocumentSnapshot snapshot = await transaction.get(document.reference);
+          await transaction.delete(snapshot.reference).whenComplete((){
+            final snackBar = SnackBar(content: Text('Project: ${dataProj} is deleted!'));
+            Scaffold.of(context).showSnackBar(snackBar);
+            getData();
           });
-          Scaffold.of(context).showSnackBar(
-            new SnackBar(content: new Text("Data Deleted!"),)
-          );
-          showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: Text('Are you sure?'),
-                content: Text('Do you want to remove item?'),
-                actions: <Widget>[
-                  FlatButton(
-                      onPressed: () => Navigator.of(context).pop(false),//  We can return any object from here
-                      child: Text('NO')),
-                  FlatButton(
-                      onPressed: () => Navigator.of(context).pop(true), //  We can return any object from here
-                      child: Text('YES'))
-                ],
-              )).then((value) =>
-              print('Selected Alert Option: ' + value.toString()));
+        });
+      }
 
+      _deleteMessage(){
+        return showDialog(
+                context: context,
+                useRootNavigator: false,
+                builder: (context) => AlertDialog(
+                  title: Text('Are you sure?'),
+                  content: Text('Do you want to remove item?'),
+                  actions: <Widget>[
+                    FlatButton(
+                        onPressed: () =>  Navigator.pop(context,false),//  We can return any object from here
+                        child: Text('NO')),
+                    FlatButton(
+                        onPressed: () {
+                          deleteData();
+                          Navigator.pop(context,true);
+                          },
+                      child: Text('YES'),
+                     ),
+                  ],
+                )).then((val) =>
+            Navigator.pop(context,true),
+                  );
+//                print('Selected Alert Option: ' + value.toString()));
+          }
+//          );
+
+
+//      }
+//
+      return new Dismissible(
+        direction: DismissDirection.endToStart,
+        resizeDuration: Duration(milliseconds: 200),
+        key: ObjectKey(document.documentID) ,
+       // key: new Key(document.documentID),
+        onDismissed: (direction) {
+          _deleteMessage();
+          getData();
         },
-        background:  Container(color: Colors.redAccent,),
+       background:  Container(
+         color: Colors.redAccent,
+       padding: EdgeInsets.only(right: 28.0),
+       alignment: AlignmentDirectional.centerStart,
+       child: Icon(Icons.delete_forever, color: Colors.white,),),
+
+
         child: Container(
 
             color: Color(0xffffffff),
@@ -604,7 +660,6 @@ String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
                           ]),
 //
                       child: Container(
-
 
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,

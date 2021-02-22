@@ -681,6 +681,7 @@ class _SettingsFormState extends State<SettingsForm> {
                                     String nameWithoutEx = fileName.substring(0, fileName.lastIndexOf('?'));
                                     return InkWell(
                                       child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: <Widget>[
                                           Padding(padding: EdgeInsets.all(8.0),
                                             child: Icon(Icons.attach_file, color: Color(0xff0f4c75),),
@@ -698,10 +699,6 @@ class _SettingsFormState extends State<SettingsForm> {
                                               ),
                                             ),
                                           ),
-//                                        IconButton(
-//                                            icon: Icon(Icons.create,color: Color(0xff0f4c75),),
-//                                            onPressed: _editDocs ,
-//                                            ),
                                           IconButton(
                                             icon: Icon(Icons.delete,color: Color(0xff0f4c75),),
                                               onPressed: () => setState(() {
@@ -719,14 +716,35 @@ class _SettingsFormState extends State<SettingsForm> {
                           ),
                         ),
                       ),
+                      SizedBox(height: 15.0),
                       Row(
                         children: <Widget>[
                           SizedBox(width: 20),
-                          RaisedButton(
-                            child: Text('Add documents', style: TextStyle(color:Colors.grey[600]),),
-                            onPressed: (){
-                              _openFileExplorer();
-                            },
+                          Container(
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: Colors.lightBlue,
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(16.0),
+                              ),
+                              boxShadow: <BoxShadow>[
+                                BoxShadow(
+                                    color: Colors.lightBlue
+                                        .withOpacity(0.5),
+                                    offset: const Offset(1.1, 1.1),
+                                    blurRadius: 10.0),
+                              ],
+                            ),
+                            child: RaisedButton(
+                              color: Color(0xff0f4c75),
+                              child: Text('Add documents', style: TextStyle(fontWeight: FontWeight.w600,
+                                fontSize: 18,
+                                letterSpacing: 0.0,
+                                color: Colors.white,),),
+                              onPressed: (){
+                                _openFileExplorer();
+                              },
+                            ),
                           ),
                         ],
                       ),
