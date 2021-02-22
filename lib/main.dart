@@ -3,9 +3,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_management/screens/home/Home.dart';
+import 'package:qr_management/screens/home/ScanQrClt.dart';
+import 'package:qr_management/screens/home/ScanQrCode.dart';
 import 'package:qr_management/shared/globals.dart';
 import 'package:qr_management/widgets/button_widget.dart';
 import 'package:qr_management/widgets/textfield_widget.dart';
@@ -240,7 +243,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 100.0),
+            padding: const EdgeInsets.only(top: 95.0),
 
 
 //              mainAxisAlignment: MainAxisAlignment.center,
@@ -332,7 +335,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                   onSaved: (value) => _email = value,
                ),
                  SizedBox(
-                          height: 20.0,
+                          height: 16.0,
                         ),
                  TextFormField(
 
@@ -399,7 +402,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                     : Container()),
 
                 SizedBox(
-                  height: 20.0,
+                  height: 17.0,
                 ),
               ButtonWidget(
                   title: 'Sign in with Google',
@@ -426,7 +429,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 //                  },
               ),
                 SizedBox(
-                  height: 10.0,
+                  height: 8.0,
                 ),
                 ButtonWidget(
                   title: 'Login',
@@ -451,7 +454,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                     }},
     ),
                 SizedBox(
-                  height: 10.0,
+                  height: 8.0,
                 ),
                 ButtonWidget(
                   title :('Sign Up'),
@@ -465,72 +468,28 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                       });
                   }},
 
-                  )],
+                  ),
+                 Row(
+                  children: [
+                    IconButton(icon: Icon(FontAwesomeIcons.qrcode,color: Color(0xff3282b8),), onPressed: () {
+                      Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context)=>
+                          ScanQrClt()));
+
+                    }), Text("Client Area",style: TextStyle(
+                      color: Color(0xff3282b8),
+                      fontSize: 14.0,
+                    ),)
+                  ],
+                ),
+
+
+              ],
     )),
     )],
     ));
   }
 }
-//  },
-//
-//
-//}
 
-//          ),
-//          ),
-//
-//    ]));
-
-//          ),
-//          (successMessage != ''
-//              ? Text(
-//            successMessage,
-//            textAlign: TextAlign.center,
-//            style: TextStyle(fontSize: 24, color: Colors.green),
-//          )
-//              : Container()),
-//        ],
-//      ),
-//    );
-//  }
-//}
-
-//  @override
-//  Widget build(BuildContext context) {
-//    return Scaffold(
-//
-//        appBar: AppBar(
-//        backgroundColor: Colors.purple,
-//     title: Text('Sign In'),),
-//     //   width: double.infinity,
-////        decoration: BoxDecoration(
-////          image: DecorationImage(
-////            image: AssetImage('assets/bg.jpg'), fit: BoxFit.cover
-////          )
-////        ),
-//    body: Center(
-//        child: Column(
-//          mainAxisAlignment: MainAxisAlignment.center,
-//          crossAxisAlignment: CrossAxisAlignment.center,
-//          children: <Widget>[
-//            FlatButton(
-//            color: Colors.purple,
-//              child: Text('Sign in with Google', style: TextStyle(color: Colors.white),), onPressed: _signIn,
-//            ),
-//            new Image.asset('assets/logo.png'),
-//          new Padding(padding: const EdgeInsets.only(bottom: 30.0),),
-//            new InkWell(
-//              onTap: (){
-//                _signIn();
-//              },
-//            ),
-//            new Image.asset('assets/googleLogo.png', width: 200.0),
-//          ],
-//        ),
-//      ),
-//    );
-//  }
-//}
 
 
 

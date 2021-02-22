@@ -161,6 +161,7 @@ class MyFiles extends StatefulWidget {
                                                                       maxLines: 3,
                                                                       overflow: TextOverflow.ellipsis,),
                                                                       subtitle: new Text(dataQr['name']),
+
                                                                     ),
                                                                   ),
                                                                 ],
@@ -178,6 +179,7 @@ class MyFiles extends StatefulWidget {
                               });
                         })),
                   ),
+
 
                         )
                 ]),

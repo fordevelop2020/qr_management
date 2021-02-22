@@ -400,13 +400,22 @@ class _SettingsFormState extends State<SettingsForm> {
                   child: Column(
                     children: [
                       SizedBox(height: 10.0),
-                      Card(
-                        elevation: 4.0,
-                        shadowColor:Color(0xffBBE1FA) ,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        child: Padding(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text("Project images", style: TextStyle(color: Color(0xff0f4c75),fontSize: 18.0,fontWeight: FontWeight.w600),),
+                          ),
+                        ],
+                      ),
+//                      Card(
+//                        elevation: 4.0,
+//                        shadowColor:Color(0xffBBE1FA) ,
+//                        shape: RoundedRectangleBorder(
+//                          borderRadius: BorderRadius.circular(15.0),
+//                        ),
+                         Padding(
                             padding: const EdgeInsets.fromLTRB(20, 20, 20, 50),
                             child: Column(children: <Widget>[
                               Stack(
@@ -415,6 +424,7 @@ class _SettingsFormState extends State<SettingsForm> {
                                 color: Colors.grey[600],
                           fontSize: 14.0,
                         ),),
+
                                     SizedBox(
                                       height: 80.0,
                                       child: ListView(
@@ -429,20 +439,23 @@ class _SettingsFormState extends State<SettingsForm> {
                                                             alignment: AlignmentDirectional.bottomCenter,
                                                             children: <Widget>[
                                                               Container(
-                                                                margin: EdgeInsets.all(8.0),
-                                                                child: ClipRRect(
-                                                                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                                  child: Image.network(
-                                                                    item,
-                                                                    fit: BoxFit.fill,
+//                                                                margin: EdgeInsets.all(8.0),
+                                                                child: Card(
+                                                                  elevation: 3.5,
+                                                                  child: ClipRRect(
+                                                                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                                    child: Image.network(
+                                                                      item,
+                                                                      fit: BoxFit.fill,
 //                                                              BorderRadius.all(Radius.circular(10)),
-                                                                    width: 50,
-                                                                    height: 50,
-                                                                    errorBuilder: (BuildContext context, Object exception, StackTrace stackTrace) {
-                                                                      return Text('Your error widget...');
-                                                                    },
-                                                                  ),
+                                                                      width: 50,
+                                                                      height: 50,
+                                                                      errorBuilder: (BuildContext context, Object exception, StackTrace stackTrace) {
+                                                                        return Text('Your error widget...');
+                                                                      },
+                                                                    ),
 
+                                                                  ),
                                                                 ),
                                                               ),
                                                               Positioned(
@@ -465,7 +478,7 @@ class _SettingsFormState extends State<SettingsForm> {
                                       ),
                                     ),]),
                             ])),
-                      ),
+//                      ),
                       Card(
                         elevation: 4.0,
 //                        color: Color(0xffBBE1FA),
@@ -483,7 +496,7 @@ class _SettingsFormState extends State<SettingsForm> {
                             ),),
                             new IconButton(icon: new Icon(Icons.add_photo_alternate), onPressed: loadAssets,),
                             SizedBox(
-                              height: 80.0,
+                              height: 60.0,
 
                               child: Expanded(
 
@@ -493,173 +506,261 @@ class _SettingsFormState extends State<SettingsForm> {
                           ],
                         ),
                       ),
-
-
-                      SizedBox(height: 10.0),
-                      TextFormField(
-                        enableInteractiveSelection: false,
-                        enabled: false,
-                        controller: ctrName,
-                        style: theme.textTheme.subhead.copyWith(color: theme.disabledColor),
-                        decoration: new InputDecoration(
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30)),
-                          labelText: 'Name project',
-                        ),
+                      SizedBox(height: 15.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text("Project identifiers", style: TextStyle(color: Color(0xff0f4c75),fontSize: 18.0,fontWeight: FontWeight.w600),),
+                          ),
+                        ],
                       ),
 
-                      SizedBox(height: 15.0),
-                      TextFormField(
-                        controller: ctrRef,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30)),
-                          labelText: 'Reference',
+
+                      Card(
+                        elevation: 3.5,
+                        shadowColor: Color(0xffBBE1FA),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
+
                         ),
-                        onChanged: (String val2) =>
-                            setState(() => reference = val2),
-                      ),
-                      SizedBox(height: 15.0),
-                      TextFormField(
-                        controller: ctrLocal,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30)),
-                          labelText: 'Localisation',
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(height: 10.0),
+                              TextFormField(
+                                enableInteractiveSelection: false,
+                                enabled: false,
+                                controller: ctrName,
+                                style: theme.textTheme.subhead.copyWith(color: theme.disabledColor),
+                                decoration: new InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30)),
+                                  labelText: 'Name project',
+                                ),
+                              ),
+
+                              SizedBox(height: 15.0),
+                              TextFormField(
+                                controller: ctrRef,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30)),
+                                  labelText: 'Reference',
+                                ),
+                                onChanged: (String val2) =>
+                                    setState(() => reference = val2),
+                              ),
+                              SizedBox(height: 15.0),
+
+                              TextFormField(
+                                controller: ctrDetails,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30)),
+                                  labelText: 'Details',
+                                ),
+                                onChanged: (String val2) =>
+                                    setState(() => details = val2),
+                              ),
+                              SizedBox(height: 15.0),
+                              Row(
+                                children: <Widget>[
+                                  new Expanded(
+                                    child: TextFormField(
+                                      initialValue: _dateText,
+                                      decoration: InputDecoration(
+                                        border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(30)),
+                                        labelText: 'Date project',
+                                        suffixIcon: new IconButton(
+                                          icon: Icon(Icons.date_range,
+                                              color: Color(0xff0f4c75)),
+                                          onPressed: () => _selectDatePrj(context),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                ],
+                              ),
+                              SizedBox(height: 15.0),
+                            ],
+                          ),
                         ),
-                        onChanged: (String val) =>
-                            setState(() => localisation = val),
-                      ),
-                      SizedBox(height: 15.0),
-                      TextFormField(
-                        controller: ctrMo,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30)),
-                          labelText: 'Mo',
-                        ),
-                        onChanged: (String val2) => setState(() => mo = val2),
-                      ),
-                      SizedBox(height: 15.0),
-                      TextFormField(
-                        controller: ctrMoD,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30)),
-                          labelText: 'MoDelegate',
-                        ),
-                        onChanged: (String val2) =>
-                            setState(() => moDelegate = val2),
-                      ),
-                      SizedBox(height: 15.0),
-                      TextFormField(
-                        controller: ctrCust,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30)),
-                          labelText: 'Customer',
-                        ),
-                        onChanged: (String val2) =>
-                            setState(() => customer = val2),
-                      ),
-                      SizedBox(height: 15.0),
-                      TextFormField(
-                        controller: ctrBet,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30)),
-                          labelText: 'BET',
-                        ),
-                        onChanged: (String val2) => setState(() => bet = val2),
-                      ),
-                      SizedBox(height: 15.0),
-                      TextFormField(
-                        controller: ctrTopo,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30)),
-                          labelText: 'Topographer',
-                        ),
-                        onChanged: (String val2) =>
-                            setState(() => topograph = val2),
-                      ),
-                      SizedBox(height: 15.0),
-                      TextFormField(
-                        controller: ctrPhase,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30)),
-                          labelText: 'Phase',
-                        ),
-                        onChanged: (String val2) =>
-                            setState(() => phase = val2),
-                      ),
-                      SizedBox(height: 15.0),
-                      TextFormField(
-                        controller: ctrClu,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30)),
-                          labelText: 'Clues',
-                        ),
-                        onChanged: (String val2) =>
-                            setState(() => clues = val2),
-                      ),
-                      SizedBox(height: 15.0),
-                      TextFormField(
-                        controller: ctrManager,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30)),
-                          labelText: 'Manager',
-                        ),
-                        onChanged: (String val2) =>
-                            setState(() => manager = val2),
-                      ),
-                      SizedBox(height: 15.0),
-                      TextFormField(
-                        controller: ctrDetails,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30)),
-                          labelText: 'Details',
-                        ),
-                        onChanged: (String val2) =>
-                            setState(() => details = val2),
-                      ),
-                      SizedBox(height: 15.0),
-                      TextFormField(
-                        controller: ctrComm,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30)),
-                          labelText: 'Comments',
-                        ),
-                        onChanged: (String val2) =>
-                            setState(() => comments = val2),
                       ),
                       SizedBox(height: 15.0),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
-                          new Expanded(
-                            child: TextFormField(
-                              initialValue: _dateText,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(30)),
-                                labelText: 'Date project',
-                                suffixIcon: new IconButton(
-                                  icon: Icon(Icons.date_range,
-                                      color: Color(0xff0f4c75)),
-                                  onPressed: () => _selectDatePrj(context),
-                                ),
-                              ),
-                            ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text("Project information", style: TextStyle(color: Color(0xff0f4c75),fontSize: 18.0,fontWeight: FontWeight.w600),),
                           ),
-
                         ],
                       ),
+                      Card(
+                        elevation: 3.5,
+                        shadowColor: Color(0xffBBE1FA),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
+
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: <Widget>[
+                              TextFormField(
+                                controller: ctrCust,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30)),
+                                  labelText: 'Customer',
+                                ),
+                                onChanged: (String val2) =>
+                                    setState(() => customer = val2),
+                              ),
+                              SizedBox(height: 15.0),
+                              TextFormField(
+                                controller: ctrLocal,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30)),
+                                  labelText: 'Localisation',
+                                ),
+                                onChanged: (String val) =>
+                                    setState(() => localisation = val),
+                              ),
+                              SizedBox(height: 15.0),
+                              TextFormField(
+                                controller: ctrMo,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30)),
+                                  labelText: 'Mo',
+                                ),
+                                onChanged: (String val2) => setState(() => mo = val2),
+                              ),
+                              SizedBox(height: 15.0),
+                              TextFormField(
+                                controller: ctrMoD,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30)),
+                                  labelText: 'MoDelegate',
+                                ),
+                                onChanged: (String val2) =>
+                                    setState(() => moDelegate = val2),
+                              ),
+                              SizedBox(height: 15.0),
+                              TextFormField(
+                                controller: ctrPhase,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30)),
+                                  labelText: 'Phase',
+                                ),
+                                onChanged: (String val2) =>
+                                    setState(() => phase = val2),
+                              ),
+                              SizedBox(height: 15.0),
+                              TextFormField(
+                                controller: ctrClu,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30)),
+                                  labelText: 'Indices',
+                                ),
+                                onChanged: (String val2) =>
+                                    setState(() => clues = val2),
+                              ),
+                              SizedBox(height: 15.0),
+                              TextFormField(
+                                controller: ctrComm,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30)),
+                                  labelText: 'Comments',
+                                ),
+                                onChanged: (String val2) =>
+                                    setState(() => comments = val2),
+                              ),
+                              SizedBox(height: 15.0),
+                            ],
+                          ),
+                        ),
+                      ),
                       SizedBox(height: 15.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text("Project members", style: TextStyle(color: Color(0xff0f4c75),fontSize: 18.0,fontWeight: FontWeight.w600),),
+                          ),
+                        ],
+                      ),
+
+                      Card(
+                        elevation: 3.5,
+                        shadowColor: Color(0xffBBE1FA),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
+
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(height: 15.0),
+                              TextFormField(
+                                controller: ctrManager,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30)),
+                                  labelText: 'Manager',
+                                ),
+                                onChanged: (String val2) =>
+                                    setState(() => manager = val2),
+                              ),
+                              SizedBox(height: 15.0),
+                              TextFormField(
+                                controller: ctrBet,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30)),
+                                  labelText: 'BET',
+                                ),
+                                onChanged: (String val2) => setState(() => bet = val2),
+                              ),
+                              SizedBox(height: 15.0),
+                              TextFormField(
+                                controller: ctrTopo,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30)),
+                                  labelText: 'Topographer',
+                                ),
+                                onChanged: (String val2) =>
+                                    setState(() => topograph = val2),
+                              ),
+                              SizedBox(height: 15.0),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 15.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text("My files", style: TextStyle(color: Color(0xff0f4c75),fontSize: 18.0,fontWeight: FontWeight.w600),),
+                          ),
+                        ],
+                      ),
                       docs.isEmpty || docs == null ? Text("no document found") :
 
                       Card(
@@ -752,7 +853,7 @@ class _SettingsFormState extends State<SettingsForm> {
                         height: 10.0,
                       ),
                       SizedBox(
-                        height: 120,
+                        height: 90,
                         child: Expanded(
                           child: ListView(
                             children: children,
@@ -781,7 +882,6 @@ class _SettingsFormState extends State<SettingsForm> {
                           ),
                           onPressed: () async {
                             if (_formKey.currentState.validate()) {
-//                              _addData();
                               _editProject();
 
                             }
