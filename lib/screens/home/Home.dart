@@ -270,44 +270,11 @@ class _HomeState extends State<Home> {
           });
     }
 
-    deleteData(){
-      DocumentSnapshot document;
-      Firestore.instance.runTransaction((transaction) async {
-        DocumentSnapshot snapshot = await transaction.get(document.reference);
-        await transaction.delete(document.reference).whenComplete((){
-          final snackBar = SnackBar(content: Text('Project: is deleted!'));
-          Scaffold.of(context).showSnackBar(snackBar);
-//            getData();
-        });
+    Future<void> _getData() async {
+      setState(() {
+        getDataProjectsStreamsSnapshots();
       });
     }
-
-    Future<dynamic> deleteNote(String id) async {
-
-      final CollectionReference noteCollection = Firestore.instance.collection('Projet');
-      final TransactionHandler deleteTransaction = (Transaction tx) async {
-        final DocumentSnapshot ds = await tx.get(noteCollection.document(id));
-
-        await tx.delete(ds.reference);
-        return {'deleted': true};
-      };
-
-      return Firestore.instance
-          .runTransaction(deleteTransaction)
-          .then((result) => result['deleted'])
-          .catchError((error) {
-        print('error: $error');
-        return false;
-      });
-    }
-//    void _deleteNote(BuildContext context, Note note, int position) async {
-//      db.deleteNote(note.id).then((notes) {
-//        setState(() {
-//          items.removeAt(position);
-//        });
-//      });
-//    }
-
 
     return SafeArea(
         child: Scaffold(
@@ -405,10 +372,10 @@ class _HomeState extends State<Home> {
 
                 child: Stack(
                     children: <Widget>[
-
-
-                      ListView.builder(
-                       itemCount: _resultsList.length,
+                      _resultsList.length!= 0
+                  ?  RefreshIndicator(
+                        child: ListView.builder(
+                         itemCount: _resultsList.length,
 //                      StreamBuilder(
 //                          stream: getDataProjectsStreamsSnapshots(context),
 ////                          Firestore.instance
@@ -419,82 +386,60 @@ class _HomeState extends State<Home> {
 //                            if (!snapshot.hasData) return const Text('loading ...');
 //                                          return ListView.builder(
 //                                            itemCount: snapshot.data.documents.length,
-                                            itemBuilder: (context, index) {
-                                                _listOfImages = [];
-                                                for (int i = 0;
-                                                i <
-                                                _resultsList[index].data['imagePlans']
-                                                    .length;
-                                                i++) {
-                                                _listOfImages.add(NetworkImage(_resultsList[index].data['imagePlans'][i]));}
+                          itemBuilder: (context, index) {
+                                                  _listOfImages = [];
+                                                  for (int i = 0;
+                                                  i <
+                                                  _resultsList[index].data['imagePlans']
+                                                      .length;
+                                                  i++) {
+                                                  _listOfImages.add(NetworkImage(_resultsList[index].data['imagePlans'][i]));}
 
-                                              return
-                                                Dismissible(
-                                                key: Key(_resultsList[index].toString()),
-                                                confirmDismiss: (direction) async => await confirm(direction,context),
-                                                background: Container(
-                                                  alignment: AlignmentDirectional.centerEnd,
-                                                  color: Colors.redAccent,
-                                                  child: Icon(Icons.delete, color: Colors.white,),
-                                                ),
-                                                   onDismissed: (direction){
-                                                  DocumentSnapshot document = _resultsList[index];
-                                                  _resultsList.remove(_resultsList.removeAt(index));
-                                                  Firestore.instance.collection("Projet")
-                                                  .document(document.documentID)
-                                                  .delete().catchError((e){
-                                                    print(e);
-                                                  });
-                                                  print(document.documentID);
-                                                },
-//                                                    onDismissed:(_)=> deleteData(),
+                                                return
+                                                  Dismissible(
+                                                  key: Key(_resultsList[index].toString()),
+                                                  confirmDismiss: (direction) async => await confirm(direction,context),
+                                                  background: Container(
+                                                    alignment: AlignmentDirectional.centerEnd,
+                                                    color: Colors.redAccent,
+                                                    child: Icon(Icons.delete, color: Colors.white,),
+                                                  ),
+                                                     onDismissed: (direction){
+                                                    DocumentSnapshot document = _resultsList[index];
+                                                    _resultsList.remove(_resultsList.removeAt(index));
+                                                    Firestore.instance.collection("Projet")
+                                                    .document(document.documentID)
+                                                    .delete().catchError((e){
+                                                      print(e);
+                                                    });
+                                                    final snackBar = SnackBar(content: Text('Project: ${_resultsList[index].data['name']} is deleted!'));
+                                                        Scaffold.of(context).showSnackBar(snackBar);
+                                                    print(document.documentID);
+                                                  },
+                                                  child: SimpleFoldingCell.create(
 
-//                                                  Firestore.instance.runTransaction((transaction) async {
-//                                                    DocumentSnapshot snapshot = await transaction.get(document.reference);
+                                                    frontWidget: _buildFrontWidget(context,_resultsList[index]),
+                                                    innerWidget: _buildInnerWidget(context,_resultsList[index]),
+
+
+                                                    cellSize: Size(MediaQuery
+                                                        .of(context)
+                                                        .size.width, 220),
+                                                    padding: EdgeInsets.all(0),
+                                                    animationDuration: Duration(
+                                                        milliseconds: 300),
+                                                    borderRadius: 10,
+                                                    onOpen: () =>
+                                                        print('$index cell opened'),
+                                                    onClose: () =>
+                                                        print('$index cell closed'),
+                                                  )
 //
-//
-////                                                  if(_resultsList.contains(_resultsList.removeAt(index))){
-////                                                    setState(() async {
-////                                                      _resultsList.remove(_resultsList.removeAt(index));
-////                                                      _resultsList.removeAt(index);
-////                                                      await transaction.delete(snapshot.reference);
-////
-////                                                    });
-//                                                      });
-
-
-//                                                  Firestore.instance.runTransaction((transaction) async {
-////                                                              DocumentSnapshot snapshot = await transaction.get();
-//                                                    await transaction.delete(_resultsList[index]).whenComplete((){
-//                                                      final snackBar = SnackBar(content: Text('Project: ${_resultsList[index].data['name']} is deleted!'));
-//                                                      Scaffold.of(context).showSnackBar(snackBar);
-//                                                    });
-//                                                  });
-//
-//                                                  Scaffold.of(context).showSnackBar(SnackBar(content: Text("Deleted"),));
-//                                                },
-                                                child: SimpleFoldingCell.create(
-
-                                                  frontWidget: _buildFrontWidget(context,_resultsList[index]),
-                                                  innerWidget: _buildInnerWidget(context,_resultsList[index]),
-
-
-                                                  cellSize: Size(MediaQuery
-                                                      .of(context)
-                                                      .size.width, 220),
-                                                  padding: EdgeInsets.all(0),
-                                                  animationDuration: Duration(
-                                                      milliseconds: 300),
-                                                  borderRadius: 10,
-                                                  onOpen: () =>
-                                                      print('$index cell opened'),
-                                                  onClose: () =>
-                                                      print('$index cell closed'),
-                                                )
-//
-                                              );
-                                            },
-                                          ),
+                                                );
+                                              },
+                                            ),
+              onRefresh: _getData,
+                      ): Center(child: CircularProgressIndicator(),),
 
 //                                          }),
 
