@@ -9,6 +9,7 @@ import 'package:flutter/src/material/stepper.dart';
 import 'package:http/http.dart' as http;
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:qr_management/screens/home/Home.dart';
 import 'dart:io';
 import 'package:qr_management/screens/home/utils.dart';
 import 'package:file_picker/file_picker.dart';
@@ -101,6 +102,8 @@ class _MyAddPageState extends State<MyAddPage> {
   String _extension;
   List<StorageUploadTask> _tasks = <StorageUploadTask>[];
   StorageUploadTask _uploadTask2;
+
+  bool _isPressed = false;
 
 //
   void _openFileExplorer() async {
@@ -501,6 +504,9 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                                 _addData();
                                 _currentStep = 0;
                                 showAlertDialog(context);
+//                                Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) =>
+//                                new Home()),
+//                                );
 
                               }
                             }
@@ -628,6 +634,12 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                     TextFormField(
                       decoration: InputDecoration(labelText: 'Localisation',
                           icon: Icon(Icons.blur_on)),
+                      // ignore: missing_return
+                      validator: (value) {
+                        if (value.isEmpty || value.length < 1) {
+                          return 'Please enter valid localisation';
+                        }
+                      },
                       onChanged: (String nv) {
                         setState(() {
                           location = nv;
@@ -686,7 +698,6 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
               title: const Text('Phase B'),
               content: Form(
                 key: formKeys[1],
-//              key: _scaffoldKey,
                 child: Column(
                   children: <Widget>[
                     Row(
@@ -733,7 +744,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                       ],
                     ),
                     TextFormField(
-                      decoration: InputDecoration(labelText: 'index',
+                      decoration: InputDecoration(labelText: 'Indices',
                           icon: Icon(Icons.blur_on)),
                       onChanged: (String nv) {
                         setState(() {
@@ -760,10 +771,24 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                       ButtonWidget(
                         title: ('Add documents'),
                         hasBorder: true,
+
+                        // ignore: missing_return
                         onPressed: (){
-                          _openFileExplorer();
+                          setState(() {
+                            _isPressed = !_isPressed;
+                          });
+                            _openFileExplorer();
+
+                        },
+                        // ignore: missing_return
+                        validator: ( bool _pressed){
+
+                          if(_pressed = !_isPressed){
+                            return Text(" add doc plz");
+                          }
                         },
                       ),
+
                     ],
                   ),
                   SizedBox(
@@ -772,13 +797,15 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                    SizedBox(
                      height: 180,
                      child: Expanded(
+
                        child: ListView(
                        children: children,
                           ),
                      ),
-                   ),
+                   )
                   ],
                 ),
+
               ),
               isActive: _currentStep >= 1,
               state: StepState.complete
@@ -805,6 +832,12 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                                     decoration: InputDecoration(
                                         labelText: 'Details',
                                         icon: Icon(Icons.blur_on)),
+                                    // ignore: missing_return
+                                    validator: (value) {
+                                      if (value.isEmpty || value.length < 1) {
+                                        return 'Please enter valid details';
+                                      }
+                                    },
 
                                     onChanged: (String nv) {
                                       setState(() {
@@ -860,11 +893,14 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                                           new IconButton(icon: new Icon(Icons.add_photo_alternate), onPressed: loadAssets),
                                         ],
                                       ),
-                                      SizedBox(
-                                        height: 100,
-                                        child: Expanded(
+                                      Card(
+                                        elevation: 2.5,
+                                        child: SizedBox(
+                                          height: 90,
+                                          child: Expanded(
 
-                                          child: buildGridView(),
+                                            child: buildGridView(),
+                                          ),
                                         ),
                                       ),
                                       ],),
@@ -889,8 +925,14 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                                             new IconButton(icon: new Icon(Icons.add_photo_alternate), onPressed: loadAssets3D),
                                           ],
                                         ),
-                                        Expanded(
-                                          child: buildGridView3D(),
+                                        Card(
+                                          elevation: 2.5,
+                                          child: SizedBox(
+                                            height: 90,
+                                            child: Expanded(
+                                              child: buildGridView3D(),
+                                            ),
+                                          ),
                                         ),
                                       ],),
                                   ),

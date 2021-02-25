@@ -4,12 +4,16 @@ import 'package:qr_management/shared/globals.dart';
 class ButtonWidget extends StatelessWidget {
   final String title;
   final bool hasBorder;
-  final Function() onPressed;
+  final Function onPressed;
+  final Function validator;
+  final Function onSaved;
 
   ButtonWidget({
     this.title,
     this.hasBorder,
     this.onPressed,
+    this.validator,
+    this.onSaved,
   });
 
   @override

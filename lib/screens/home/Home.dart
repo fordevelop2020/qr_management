@@ -3,9 +3,8 @@
 
 // ignore: avoid_web_libraries_in_flutter
 
-import 'dart:convert';
-
 import 'dart:io';
+
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,10 +21,8 @@ import 'package:qr_management/models/project.dart';
 import 'package:qr_management/screens/home/ScanQrCode.dart';
 import 'package:qr_management/screens/home/myFiles.dart';
 import 'package:qr_management/screens/home/proj_tile.dart';
-import 'package:qr_management/screens/home/Espace_Clt.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../main.dart';
-import 'Espace_Clt.dart';
 import 'addProjet.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -253,14 +250,64 @@ class _HomeState extends State<Home> {
       );
 
     }
-
-    _clientSpace() async{
-      Navigator.of(context).push(
-          new MaterialPageRoute(
-              builder: (BuildContext context) => new EspcClt()
-          ) );
-
+    Future<bool> confirm(DismissDirection direction, BuildContext context) async {
+      return await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Confirm delete"),
+              content: const Text("Are you sure you wish to delete this project?"),
+              actions: <Widget>[
+                FlatButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: const Text("Delete")),
+                FlatButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text("Cancel"),
+                )
+              ],
+            );
+          });
     }
+
+    deleteData(){
+      DocumentSnapshot document;
+      Firestore.instance.runTransaction((transaction) async {
+        DocumentSnapshot snapshot = await transaction.get(document.reference);
+        await transaction.delete(document.reference).whenComplete((){
+          final snackBar = SnackBar(content: Text('Project: is deleted!'));
+          Scaffold.of(context).showSnackBar(snackBar);
+//            getData();
+        });
+      });
+    }
+
+    Future<dynamic> deleteNote(String id) async {
+
+      final CollectionReference noteCollection = Firestore.instance.collection('Projet');
+      final TransactionHandler deleteTransaction = (Transaction tx) async {
+        final DocumentSnapshot ds = await tx.get(noteCollection.document(id));
+
+        await tx.delete(ds.reference);
+        return {'deleted': true};
+      };
+
+      return Firestore.instance
+          .runTransaction(deleteTransaction)
+          .then((result) => result['deleted'])
+          .catchError((error) {
+        print('error: $error');
+        return false;
+      });
+    }
+//    void _deleteNote(BuildContext context, Note note, int position) async {
+//      db.deleteNote(note.id).then((notes) {
+//        setState(() {
+//          items.removeAt(position);
+//        });
+//      });
+//    }
+
 
     return SafeArea(
         child: Scaffold(
@@ -308,14 +355,11 @@ class _HomeState extends State<Home> {
 
                },)
              ],
-//             bottom: PreferredSize(
-//               preferredSize: Size(50,50),
-//               child: Container(),
-//             ),
              elevation: 20.0,
 
              backgroundColor: Color(0xff0f4c75),
            ),
+
             bottomNavigationBar: BottomAppBar(
               elevation: 8.0,
               color: Colors.white,
@@ -343,11 +387,25 @@ class _HomeState extends State<Home> {
 
             floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
             body: Container(
-
+//              child: Padding(
+//                padding: const EdgeInsets.all(8.0),
+//                child: Container(
+//                  padding: const EdgeInsets.all(10),
+//                  height: 70,
+//                  alignment: Alignment(0, 0),
+//                  color: Colors.orange,
+//                  child: Text(
+//                    "To remove a project, swipe the tile to the left",
+//                    style: TextStyle(color: Colors.white),
+//                  ),
+//                ),
+//              ),
 
                 width: mediaQuery.width,
+
                 child: Stack(
                     children: <Widget>[
+
 
                       ListView.builder(
                        itemCount: _resultsList.length,
@@ -370,21 +428,70 @@ class _HomeState extends State<Home> {
                                                 i++) {
                                                 _listOfImages.add(NetworkImage(_resultsList[index].data['imagePlans'][i]));}
 
-                                              return SimpleFoldingCell.create(
-                                                frontWidget: _buildFrontWidget(context,_resultsList[index]),
-                                                innerWidget: _buildInnerWidget(context,_resultsList[index]),
+                                              return
+                                                Dismissible(
+                                                key: Key(_resultsList[index].toString()),
+                                                confirmDismiss: (direction) async => await confirm(direction,context),
+                                                background: Container(
+                                                  alignment: AlignmentDirectional.centerEnd,
+                                                  color: Colors.redAccent,
+                                                  child: Icon(Icons.delete, color: Colors.white,),
+                                                ),
+                                                   onDismissed: (direction){
+                                                  DocumentSnapshot document = _resultsList[index];
+                                                  _resultsList.remove(_resultsList.removeAt(index));
+                                                  Firestore.instance.collection("Projet")
+                                                  .document(document.documentID)
+                                                  .delete().catchError((e){
+                                                    print(e);
+                                                  });
+                                                  print(document.documentID);
+                                                },
+//                                                    onDismissed:(_)=> deleteData(),
 
-                                                cellSize: Size(MediaQuery
-                                                    .of(context)
-                                                    .size.width, 220),
-                                                padding: EdgeInsets.all(0),
-                                                animationDuration: Duration(
-                                                    milliseconds: 300),
-                                                borderRadius: 10,
-                                                onOpen: () =>
-                                                    print('$index cell opened'),
-                                                onClose: () =>
-                                                    print('$index cell closed'),
+//                                                  Firestore.instance.runTransaction((transaction) async {
+//                                                    DocumentSnapshot snapshot = await transaction.get(document.reference);
+//
+//
+////                                                  if(_resultsList.contains(_resultsList.removeAt(index))){
+////                                                    setState(() async {
+////                                                      _resultsList.remove(_resultsList.removeAt(index));
+////                                                      _resultsList.removeAt(index);
+////                                                      await transaction.delete(snapshot.reference);
+////
+////                                                    });
+//                                                      });
+
+
+//                                                  Firestore.instance.runTransaction((transaction) async {
+////                                                              DocumentSnapshot snapshot = await transaction.get();
+//                                                    await transaction.delete(_resultsList[index]).whenComplete((){
+//                                                      final snackBar = SnackBar(content: Text('Project: ${_resultsList[index].data['name']} is deleted!'));
+//                                                      Scaffold.of(context).showSnackBar(snackBar);
+//                                                    });
+//                                                  });
+//
+//                                                  Scaffold.of(context).showSnackBar(SnackBar(content: Text("Deleted"),));
+//                                                },
+                                                child: SimpleFoldingCell.create(
+
+                                                  frontWidget: _buildFrontWidget(context,_resultsList[index]),
+                                                  innerWidget: _buildInnerWidget(context,_resultsList[index]),
+
+
+                                                  cellSize: Size(MediaQuery
+                                                      .of(context)
+                                                      .size.width, 220),
+                                                  padding: EdgeInsets.all(0),
+                                                  animationDuration: Duration(
+                                                      milliseconds: 300),
+                                                  borderRadius: 10,
+                                                  onOpen: () =>
+                                                      print('$index cell opened'),
+                                                  onClose: () =>
+                                                      print('$index cell closed'),
+                                                )
+//
                                               );
                                             },
                                           ),
@@ -501,13 +608,6 @@ class _HomeState extends State<Home> {
                                           height: (menuContainerHeight)/8,
                                           onPressed: _myFiles,
                                         ),
-                                        MyButton(
-                                          text: "Client Area",
-                                          iconData: Icons.people_outline,
-                                          textSize: getSize(2),
-                                          height: (menuContainerHeight)/8,
-                                        onPressed: _clientSpace,
-                                        ),
 
                                         MyButton(
                                           text: "Help",
@@ -568,66 +668,44 @@ String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
     // ignore: missing_return
     builder: (BuildContext context) {
 
-      getData() async{
-        return await Firestore.instance.collection('Projet').snapshots();
-      }
-      deleteData(){
-        Firestore.instance.runTransaction((transaction) async {
-          DocumentSnapshot snapshot = await transaction.get(document.reference);
-          await transaction.delete(snapshot.reference).whenComplete((){
-            final snackBar = SnackBar(content: Text('Project: ${dataProj} is deleted!'));
-            Scaffold.of(context).showSnackBar(snackBar);
-            getData();
-          });
-        });
-      }
-
-      _deleteMessage(){
-        return showDialog(
-                context: context,
-                useRootNavigator: false,
-                builder: (context) => AlertDialog(
-                  title: Text('Are you sure?'),
-                  content: Text('Do you want to remove item?'),
-                  actions: <Widget>[
-                    FlatButton(
-                        onPressed: () =>  Navigator.pop(context,false),//  We can return any object from here
-                        child: Text('NO')),
-                    FlatButton(
-                        onPressed: () {
-                          deleteData();
-                          Navigator.pop(context,true);
-                          },
-                      child: Text('YES'),
-                     ),
-                  ],
-                )).then((val) =>
-            Navigator.pop(context,true),
-                  );
-//                print('Selected Alert Option: ' + value.toString()));
-          }
-//          );
-
-
+//      Future<bool> confirm(DismissDirection direction, BuildContext context) async {
+//        return await showDialog(
+//            context: context,
+//            builder: (BuildContext context) {
+//              return AlertDialog(
+//                title: const Text("Confirm delete"),
+//                content: const Text("Are you sure you wish to delete this project?"),
+//                actions: <Widget>[
+//                  FlatButton(
+//                      onPressed: () => Navigator.of(context).pop(true),
+//                      child: const Text("Delete")),
+//                  FlatButton(
+//                    onPressed: () => Navigator.of(context).pop(false),
+//                    child: const Text("Cancel"),
+//                  )
+//                ],
+//              );
+//            });
 //      }
+      return
+//        Dismissible(
+//          key: Key(document.documentID),
+//      confirmDismiss: (direction) async => await confirm(direction,context),
+//      background: Container(
+//      alignment: AlignmentDirectional.centerEnd,
+//      color: Colors.redAccent,
+//      child: Icon(Icons.delete, color: Colors.white,),
+//      ),
+//      onDismissed: (direction){
+//      Firestore.instance.collection("Projet")
+//          .document(document.documentID)
+//          .delete().catchError((e){
+//      print(e);
+//      });
+//      },
 //
-      return new Dismissible(
-        direction: DismissDirection.endToStart,
-        resizeDuration: Duration(milliseconds: 200),
-        key: ObjectKey(document.documentID) ,
-       // key: new Key(document.documentID),
-        onDismissed: (direction) {
-          _deleteMessage();
-          getData();
-        },
-       background:  Container(
-         color: Colors.redAccent,
-       padding: EdgeInsets.only(right: 28.0),
-       alignment: AlignmentDirectional.centerStart,
-       child: Icon(Icons.delete_forever, color: Colors.white,),),
-
-
-        child: Container(
+//      child:
+      Container(
 
             color: Color(0xffffffff),
             alignment: Alignment.center,
@@ -923,8 +1001,8 @@ String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
                           )
 
                       )),
-                ])),
-      );
+                ]));
+//      );
 
     });
 }
@@ -936,7 +1014,44 @@ Widget _buildInnerWidget(BuildContext context,DocumentSnapshot document) {
       builder: (context)
 
   {
-    return Container(
+//    Future<bool> confirm(DismissDirection direction, BuildContext context) async {
+//      return await showDialog(
+//          context: context,
+//          builder: (BuildContext context) {
+//            return AlertDialog(
+//              title: const Text("Confirm delete"),
+//              content: const Text("Are you sure you wish to delete this project?"),
+//              actions: <Widget>[
+//                FlatButton(
+//                    onPressed: () => Navigator.of(context).pop(true),
+//                    child: const Text("Delete")),
+//                FlatButton(
+//                  onPressed: () => Navigator.of(context).pop(false),
+//                  child: const Text("Cancel"),
+//                )
+//              ],
+//            );
+//          });
+//    }
+
+    return
+//      Dismissible(
+//        key: Key(document.documentID),
+//    confirmDismiss: (direction) async => await confirm(direction,context),
+//    background: Container(
+//    alignment: AlignmentDirectional.centerEnd,
+//    color: Colors.redAccent,
+//    child: Icon(Icons.delete, color: Colors.white,),
+//    ),
+//    onDismissed: (direction){
+//    Firestore.instance.collection("Projet")
+//        .document(document.documentID)
+//        .delete().catchError((e){
+//    print(e);
+//    });
+//    },
+//     child:
+     Container(
         color: Color(0xffffffff),
         alignment: Alignment.center,
 
@@ -1136,7 +1251,9 @@ Widget _buildInnerWidget(BuildContext context,DocumentSnapshot document) {
         ),
 
     );
-  });
+//        )
+  }
+  );
 }
 
 class MyButton extends StatelessWidget {

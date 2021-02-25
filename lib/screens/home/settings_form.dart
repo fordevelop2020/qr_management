@@ -61,6 +61,8 @@ class _SettingsFormState extends State<SettingsForm> {
    String details;
    String docId;
    File imgFile;
+  var _phases = ['Esquisse','Aps','Apd','Pac','Pe','dce','exe','Reception'];
+  var _selectedPhase = '';
 
   List<Asset> imagePlans2 = List<Asset>();
    List<String> imageUrls=[];
@@ -87,7 +89,7 @@ class _SettingsFormState extends State<SettingsForm> {
   TextEditingController ctrBet;
   TextEditingController ctrTopo;
   TextEditingController ctrCust;
-  TextEditingController ctrPhase;
+//  TextEditingController ctrPhase;
   TextEditingController ctrClu;
   TextEditingController ctrComm;
   TextEditingController ctrManager;
@@ -108,7 +110,7 @@ class _SettingsFormState extends State<SettingsForm> {
     ctrManager= new TextEditingController(text: widget.manager);
     ctrMo = new TextEditingController(text: widget.mo);
     ctrMoD = new TextEditingController(text: widget.moDelegate);
-    ctrPhase = new TextEditingController(text: widget.phase);
+//    ctrPhase = new TextEditingController(text: widget.phase);
     ctrTopo = new TextEditingController(text: widget.topograph);
     ctrDetails = new TextEditingController(text: widget.details);
 
@@ -354,7 +356,7 @@ class _SettingsFormState extends State<SettingsForm> {
                       "responsible": manager,
                       "mo": mo,
                       "moDelegate": moDelegate,
-                      "phase": phase,
+                      "phase": _selectedPhase,
                       "topo": topograph,
                       "details": details,
                     });
@@ -655,16 +657,33 @@ class _SettingsFormState extends State<SettingsForm> {
                                     setState(() => moDelegate = val2),
                               ),
                               SizedBox(height: 15.0),
-                              TextFormField(
-                                controller: ctrPhase,
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(30)),
-                                  labelText: 'Phase',
-                                ),
-                                onChanged: (String val2) =>
-                                    setState(() => phase = val2),
+                          DropdownButtonFormField(
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30)),
+                                labelText: 'Phase',
                               ),
+                            value:  phase ?? _selectedPhase  ,
+                              items: _phases.map((phasee){
+                                return DropdownMenuItem(
+                                  value: phasee,
+                                  child: Text('$phasee'),
+                                );
+                              }).toList(),
+
+                              onChanged: (String val) => setState(() => _selectedPhase = val),
+
+                          ),
+//                              TextFormField(
+//                                controller: ctrPhase,
+//                                decoration: InputDecoration(
+//                                  border: OutlineInputBorder(
+//                                      borderRadius: BorderRadius.circular(30)),
+//                                  labelText: 'Phase',
+//                                ),
+//                                onChanged: (String val2) =>
+//                                    setState(() => phase = val2),
+//                              ),
                               SizedBox(height: 15.0),
                               TextFormField(
                                 controller: ctrClu,
@@ -862,17 +881,7 @@ class _SettingsFormState extends State<SettingsForm> {
                       ),
 
                       // dropDown
-//                DropdownButtonFormField(
-//                    decoration: textInputDecoration,
-//                    value: _currentReference ?? dataQr.reference,
-//                    items: references.map((reference){
-//                      return DropdownMenuItem(
-//                        value: reference,
-//                        child: Text('$reference'),
-//                      );
-//                    }).toList(),
-//                    onChanged: (val) => setState(() => _currentReference = val)
-//                ),
+//
 
                       RaisedButton(
                           color: Color(0xff0f4c75),
