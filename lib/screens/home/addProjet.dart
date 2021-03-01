@@ -1,11 +1,15 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // ignore: implementation_imports
 import 'package:flutter/src/material/stepper.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -14,6 +18,9 @@ import 'dart:io';
 import 'package:qr_management/screens/home/utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:qr_management/widgets/button_widget.dart';
+
+import 'ScanQrCode.dart';
+import 'myFiles.dart';
 
 class AddProjet extends StatelessWidget {
   @override
@@ -32,11 +39,11 @@ class CommonThings {
   static Size size;
 }
 class MyAddPage extends StatefulWidget {
-
-//  final GlobalKey<ScaffoldState> globalKey;
-//  const UploadImages({Key key, this.globalKey}) : super(key: key);
-  MyAddPage({Key key, this.title, this.email}) : super(key: key);
+  final FirebaseUser user;
   final String email;
+  final GoogleSignIn googleSignIn;
+
+  MyAddPage({Key key, this.title, this.user, this.googleSignIn,this.email,}) : super(key: key);
   static GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final String title;
 
@@ -94,6 +101,7 @@ class _MyAddPageState extends State<MyAddPage> {
   String _error = 'No Error Dectected';
   bool isUploading = false;
   VoidCallback listener;
+  int _currentIndex =3;
 
 
   String fileName;
@@ -457,6 +465,16 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
             });
           }}
 
+        final List<Widget> _children = [
+          Home(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email,),
+          ScanQrCode(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email,),
+          MyFiles(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email,),
+          MyAddPage(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email,),
+        ];
+        _onTap() { // this has changed
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (BuildContext context) => _children[_currentIndex])); // this has changed
+        }
         return Scaffold(
 //          key: _scaffoldKey,
           backgroundColor: Colors.white,
@@ -470,6 +488,30 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
             ),),
 
             backgroundColor: Color(0xff0f4c75),
+          ),
+          bottomNavigationBar: CurvedNavigationBar(
+            color: Color(0xff0f4c75) ,
+            backgroundColor: Colors.white,
+            buttonBackgroundColor: Color(0xff0f4c75),
+            height: 50,
+
+//              currentIndex: _currentIndex,
+            items: <Widget>[
+              Icon(Icons.home,size: 20,color: Colors.white,),
+              Icon(FontAwesomeIcons.qrcode,size: 20,color: Colors.white,),
+              Icon(FontAwesomeIcons.fileDownload,size: 20,color: Colors.white,),
+              Icon(Icons.add_circle,size: 20,color: Colors.white,),
+
+            ] ,
+            index: _currentIndex,
+            animationDuration: Duration(milliseconds: 200),
+            animationCurve: Curves.bounceInOut,
+            onTap: (index){
+              setState(() {
+                _currentIndex = index;
+              });
+              _onTap();
+            },
           ),
           body: Column(
 

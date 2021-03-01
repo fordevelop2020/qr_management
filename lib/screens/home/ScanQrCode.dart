@@ -2,13 +2,25 @@
 //import 'dart:html';
 
 import 'package:barcode_scan/barcode_scan.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:qr_management/screens/home/Home.dart';
 import 'package:qr_management/screens/home/proj_tile.dart';
 
+import 'addProjet.dart';
+import 'myFiles.dart';
+
+
 class ScanQrCode extends StatefulWidget {
+  final FirebaseUser user;
+  final String email;
+  final GoogleSignIn googleSignIn;
+
+  ScanQrCode({this.user, this.googleSignIn,this.email,});
 
 
   @override
@@ -18,16 +30,52 @@ class ScanQrCode extends StatefulWidget {
 
 class _ScanQrCodeState extends State<ScanQrCode> {
  String qrResultScan = "Not Yet Scanned!";
+ int _currentIndex =1;
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> _children = [
+      Home(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email,),
+      ScanQrCode(email: widget.user.email,user: widget.user, googleSignIn: widget.googleSignIn),
+      MyFiles(email: widget.user.email,user: widget.user, googleSignIn: widget.googleSignIn),
+      MyAddPage(email: widget.user.email,user: widget.user, googleSignIn: widget.googleSignIn),
+    ];
+    _onTap() { // this has changed
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (BuildContext context) => _children[_currentIndex])); // this has changed
+    }
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff0f4c75),
-        title: Text("Scan"),
+        title: Text("Scan Qr Code"),
         centerTitle: true,
       ),
+      bottomNavigationBar: CurvedNavigationBar(
+        color: Color(0xff0f4c75) ,
+        backgroundColor: Colors.white,
+        buttonBackgroundColor: Color(0xff0f4c75),
+        height: 50,
+
+//              currentIndex: _currentIndex,
+        items: <Widget>[
+          Icon(Icons.home,size: 20,color: Colors.white,),
+          Icon(FontAwesomeIcons.qrcode,size: 20,color: Colors.white,),
+          Icon(FontAwesomeIcons.fileDownload,size: 20,color: Colors.white,),
+          Icon(Icons.add_circle,size: 20,color: Colors.white,),
+
+        ] ,
+        index: _currentIndex,
+        animationDuration: Duration(milliseconds: 200),
+        animationCurve: Curves.bounceInOut,
+        onTap: (index){
+          setState(() {
+            _currentIndex = index;
+          });
+          _onTap();
+        },
+      ),
+
       body: Container(
         padding: EdgeInsets.all(20.0),
         child: Column(

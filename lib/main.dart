@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_management/screens/home/Home.dart';
+
 import 'package:qr_management/screens/home/ScanQrClt.dart';
 import 'package:qr_management/screens/home/ScanQrCode.dart';
 import 'package:qr_management/shared/globals.dart';
@@ -18,7 +19,6 @@ import 'models/home_model.dart';
 import 'models/user.dart';
 
 void main() => runApp(MyApp());
-
 class MyApp extends StatelessWidget {
   @override
 
@@ -488,6 +488,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     )],
     ));
   }
+
 }
 
 

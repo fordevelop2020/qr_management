@@ -1,10 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'Home.dart';
+import 'ScanQrCode.dart';
+import 'addProjet.dart';
 class MyFiles extends StatefulWidget {
+  final FirebaseUser user;
   final String email;
-  const MyFiles({Key key, this.email}) : super(key: key);
+  final GoogleSignIn googleSignIn;
+
+  const MyFiles({Key key, this.user, this.googleSignIn,this.email,}) : super(key: key);
 
   @override
   _MyFilesState createState() => _MyFilesState();
@@ -15,6 +26,7 @@ class MyFiles extends StatefulWidget {
     double opacity1 = 0.0;
     double opacity2 = 0.0;
     double opacity3 = 0.0;
+    int _currentIndex =2;
 
     @override
     void initState() {
@@ -56,11 +68,47 @@ class MyFiles extends StatefulWidget {
          (MediaQuery.of(context).size.width / 1.2) +
          24.0;
 
+     final List<Widget> _children = [
+       Home(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email),
+       ScanQrCode(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email),
+       MyFiles(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email),
+       MyAddPage(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email),
+     ];
+     _onTap() { // this has changed
+       Navigator.of(context)
+           .push(MaterialPageRoute(builder: (BuildContext context) => _children[_currentIndex])); // this has changed
+     }
+
     return Scaffold(
       appBar: AppBar(
         title: Text("my Files"),
         backgroundColor: Color(0xff0f4c75),
       ),
+      bottomNavigationBar: CurvedNavigationBar(
+        color: Color(0xff0f4c75) ,
+        backgroundColor: Colors.white,
+        buttonBackgroundColor: Color(0xff0f4c75),
+        height: 50,
+
+//              currentIndex: _currentIndex,
+        items: <Widget>[
+          Icon(Icons.home,size: 20,color: Colors.white,),
+          Icon(FontAwesomeIcons.qrcode,size: 20,color: Colors.white,),
+          Icon(FontAwesomeIcons.fileDownload,size: 20,color: Colors.white,),
+          Icon(Icons.add_circle,size: 20,color: Colors.white,),
+
+        ] ,
+        index: _currentIndex,
+        animationDuration: Duration(milliseconds: 200),
+        animationCurve: Curves.bounceInOut,
+        onTap: (index){
+          setState(() {
+            _currentIndex = index;
+          });
+          _onTap();
+        },
+      ),
+
       body: Stack(
         children : <Widget>[
 //        height: MediaQuery.of(context).size.height,

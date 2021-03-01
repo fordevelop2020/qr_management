@@ -7,6 +7,7 @@ import 'dart:io';
 
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -54,6 +55,8 @@ class _HomeState extends State<Home> {
   List _allResults = [];
   List _resultsList = [];
   Future resultsLoaded;
+ int _currentIndex =0;
+
 
 
 
@@ -111,7 +114,7 @@ class _HomeState extends State<Home> {
 //    .document(uid)
 //    .collection('name')
 //    .where("date", isLessThanOrEqualTo: DateTime.now())
-    .where("email", isEqualTo: widget.user.email)
+    .where("email", isEqualTo: widget.user?.email)
 //    .orderBy('date')
     .getDocuments();
 
@@ -138,6 +141,7 @@ class _HomeState extends State<Home> {
     });
 
   }
+
 
 
 
@@ -222,6 +226,9 @@ class _HomeState extends State<Home> {
   Widget cusSearchBar = Text("My Projects");
 
 
+
+
+
   @override
   Widget build(BuildContext context) {
 
@@ -230,9 +237,23 @@ class _HomeState extends State<Home> {
     double sidebarSize = mediaQuery.width * 0.65;
     double menuContainerHeight = mediaQuery.height/1.4;
 
-    imageUrl = widget.user.photoUrl;
-    name = widget.user.displayName;
-    email = widget.user.email;
+    imageUrl = widget.user?.photoUrl;
+    name = widget.user?.displayName;
+    email = widget.user?.email;
+
+
+    final List<Widget> _children = [
+      Home(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email,),
+      ScanQrCode(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email,),
+      MyFiles(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email,),
+      MyAddPage(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email,),
+    ];
+    _onTap() { // this has changed
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (BuildContext context) => _children[_currentIndex])); // this has changed
+    }
+
+
 
     _launchURL() async {
       const url = 'https://thinkoya.com';
@@ -327,32 +348,38 @@ class _HomeState extends State<Home> {
              backgroundColor: Color(0xff0f4c75),
            ),
 
-            bottomNavigationBar: BottomAppBar(
-              elevation: 8.0,
-              color: Colors.white,
-              shape: CircularNotchedRectangle(),
-              notchMargin: 12.0,
-              child: Row(
-                children: [
-                  IconButton(icon: Icon(FontAwesomeIcons.qrcode,color: Color(0xff3282b8),), onPressed: () {
-                    Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context)=>
-                    ScanQrCode()));
+            bottomNavigationBar: CurvedNavigationBar(
+              color: Color(0xff0f4c75) ,
+              backgroundColor: Colors.white,
+              buttonBackgroundColor: Color(0xff0f4c75),
+              height: 50,
 
-                  }),
-                  Spacer(),
-                 // IconButton(icon: Icon(Icons.search), onPressed: () {}),
-                  IconButton(icon: Icon(Icons.home),color: Color(0xff3282b8),onPressed: () {}),
-                ],
-              ),
-            ),
-            floatingActionButton:
-            FloatingActionButton(child: Center(child: Icon(Icons.add)),backgroundColor: Color(0xff3282b8),onPressed: () {
-              Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context)=>
-              new MyAddPage(email: widget.user.email,)));
-            }, elevation: 8.0,
-            ),
+//              currentIndex: _currentIndex,
+              items: <Widget>[
+                  Icon(Icons.home,size: 20,color: Colors.white,),
+                  Icon(FontAwesomeIcons.qrcode,size: 20,color: Colors.white,),
+                  Icon(FontAwesomeIcons.fileDownload,size: 20,color: Colors.white,),
+                  Icon(Icons.add_circle,size: 20,color: Colors.white,),
 
-            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+              ] ,
+              index: _currentIndex,
+              animationDuration: Duration(milliseconds: 200),
+              animationCurve: Curves.bounceInOut,
+              onTap: (index){
+                setState(() {
+                  _currentIndex = index;
+                });
+                _onTap();
+              },
+            ),
+//            floatingActionButton:
+//            FloatingActionButton(child: Center(child: Icon(Icons.add)),backgroundColor: Color(0xff3282b8),onPressed: () {
+//              Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context)=>
+//              new MyAddPage(email: widget.user.email,)));
+//            }, elevation: 8.0,
+//            ),
+
+//            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
             body: Container(
 //              child: Padding(
 //                padding: const EdgeInsets.all(8.0),
@@ -367,6 +394,7 @@ class _HomeState extends State<Home> {
 //                  ),
 //                ),
 //              ),
+
 
                 width: mediaQuery.width,
 
