@@ -81,8 +81,14 @@ class MyFiles extends StatefulWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("my Files"),
-        backgroundColor: Color(0xff0f4c75),
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        title: Text("My Files",style: TextStyle(color: Color(0xff0f4c75)),),
+        backgroundColor: Colors.grey[300],
+        toolbarOpacity: 0.5,
+        iconTheme: IconThemeData(
+            color: Color(0xff0f4c75)
+        ),
       ),
       bottomNavigationBar: CurvedNavigationBar(
         color: Color(0xff0f4c75) ,

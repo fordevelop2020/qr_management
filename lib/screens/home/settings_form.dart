@@ -1,12 +1,19 @@
 import 'dart:io';
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
+import 'package:qr_management/screens/home/Home.dart';
+import 'package:qr_management/screens/home/ScanQrCode.dart';
+import 'package:qr_management/screens/home/myFiles.dart';
 import 'package:qr_management/screens/home/utils.dart';
 import 'package:qr_management/widgets/button_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -14,9 +21,12 @@ import 'package:url_launcher/url_launcher.dart';
 import 'addProjet.dart';
 
 class SettingsForm extends StatefulWidget {
-  SettingsForm({this.email, this.name,this.reference,this.date,this.index,this.localisation,
-  this.mo, this.moDelegate, this.bet, this.topograph, this.customer, this.phase, this.clues, this.comments, this.manager, this.details,this.imagesNotif,this.docId,this.documents});
+  final FirebaseUser user;
   final String email;
+  final GoogleSignIn googleSignIn;
+  SettingsForm({this.user, this.googleSignIn,this.email, this.name,this.reference,this.date,this.index,this.localisation,
+  this.mo, this.moDelegate, this.bet, this.topograph, this.customer, this.phase1, this.clues, this.comments, this.manager, this.details,this.imagesNotif,
+    this.image3Ds,this.docId,this.documents});
   final String name;
   final String reference;
   final index;
@@ -27,12 +37,13 @@ class SettingsForm extends StatefulWidget {
   final String bet;
   final String topograph;
   final String customer;
-  final String phase;
+  final phase1;
   final String clues;
   final String comments;
   final String manager;
   final String details;
   final List imagesNotif ;
+  final List image3Ds;
   final String docId;
   final List documents;
 
@@ -61,16 +72,20 @@ class _SettingsFormState extends State<SettingsForm> {
    String details;
    String docId;
    File imgFile;
-  var _phases = ['Esquisse','Aps','Apd','Pac','Pe','dce','exe','Reception'];
-  var _selectedPhase = '';
+  var _phases = ['Select phase','Esquisse','Aps','Apd','Pac','Pe','dce','exe','Reception'];
+  var _selectedPhase = 'Select phase';
 
   List<Asset> imagePlans2 = List<Asset>();
+  List<Asset> image3d = List<Asset>();
    List<String> imageUrls=[];
+  List<String> imageUrls3d=[];
   List<String> fileUrls = [];
    int index= 0;
    bool isSelected = false;
   String _error = 'No Error Dectected';
   List imagePlans =[];
+  List image3Dss =[];
+  List imagesTotal = [];
   List docs = [];
   String fileName;
 
@@ -94,6 +109,7 @@ class _SettingsFormState extends State<SettingsForm> {
   TextEditingController ctrComm;
   TextEditingController ctrManager;
   TextEditingController ctrDetails;
+  int _currentIndex =0;
 
 
   @override
@@ -127,10 +143,12 @@ class _SettingsFormState extends State<SettingsForm> {
     manager = widget.manager;
     mo = widget.mo;
     moDelegate = widget.moDelegate;
-    phase = widget.phase;
+    phase = widget.phase1;
     topograph = widget.topograph;
     details = widget.details;
     imagePlans = widget.imagesNotif;
+    image3Dss = widget.image3Ds;
+    imagesTotal = imagePlans + image3Dss;
     docId = widget.docId;
     docs = widget.documents;
   }
@@ -184,6 +202,39 @@ class _SettingsFormState extends State<SettingsForm> {
     });
   }
 
+  Future<void> loadAssets2() async {
+    setState(() {
+      image3d = List<Asset>();
+    });
+    List<Asset> resultList = List<Asset>();
+    String error = 'No Error Dectected';
+    try {
+      resultList = await MultiImagePicker.pickImages(
+        maxImages: 10,
+        enableCamera: false,
+        selectedAssets: image3d,
+        cupertinoOptions  : CupertinoOptions(takePhotoIcon: "chat"),
+//
+        materialOptions: MaterialOptions(
+          actionBarColor: "#abcdef",
+          actionBarTitle: "Upload Image",
+          allViewTitle: "All Photos",
+          useDetailsView: false,
+          selectCircleStrokeColor: "#000000",
+        ),
+      );
+    } on PlatformException catch (e) {
+      error = e.message;
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      image3d = resultList;
+      _error = error;
+    });
+  }
+
   Widget buildGridView() {
     return GridView.count(
         crossAxisCount: 6,
@@ -191,6 +242,35 @@ class _SettingsFormState extends State<SettingsForm> {
         children: List.generate(imagePlans2.length, (index)
         {
           Asset asset = imagePlans2[index];
+          return Padding(
+            padding: EdgeInsets.all(2.0),
+            child: ThreeDContainer(
+              backgroundColor: MultiPickerApp.darker,
+              backgroundDarkerColor: MultiPickerApp.darker,
+              height: 50,
+              width: 50,
+              borderDarkerColor: MultiPickerApp.pauseButton,
+              borderColor: MultiPickerApp.pauseButtonDarker,
+              child: ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                child: AssetThumb(
+                  asset: asset,
+                  width: 100,
+                  height: 100,
+                ),
+              ),
+            ),
+          );
+        }));
+  }
+
+  Widget buildGridView2() {
+    return GridView.count(
+        crossAxisCount: 6,
+        // ignore: missing_return
+        children: List.generate(image3d.length, (index)
+        {
+          Asset asset = image3d[index];
           return Padding(
             padding: EdgeInsets.all(2.0),
             child: ThreeDContainer(
@@ -335,10 +415,13 @@ class _SettingsFormState extends State<SettingsForm> {
 
           Future<void> _editProject() async{
       for (var imageFile in imagePlans2) {
-        postImage(imageFile).then((downloadUrl) {
-          imageUrls.add(downloadUrl.toString());
-      if (imageUrls.length == imagePlans2.length) {
-//                if (fileUrls.length == documents2.length) {
+          postImage(imageFile).then((downloadUrl) {
+            imageUrls.add(downloadUrl.toString());
+            for (var imageFile3d in image3d) {
+              postImage(imageFile3d).then((downloadUrl2) {
+                imageUrls3d.add(downloadUrl2.toString());
+                if (imageUrls.length == imagePlans2.length) {
+                  if (imageUrls3d.length == image3d.length) {
 
                   Firestore.instance.runTransaction((
                       Transaction transaction) async {
@@ -346,6 +429,7 @@ class _SettingsFormState extends State<SettingsForm> {
                         widget.index);
                     await transaction.update(snapshot.reference, {
                       "imagePlans": imagePlans + imageUrls,
+                      "image3d":  image3Dss + imageUrls3d,
                       "reference": reference,
                       "date": _datePrj,
                       "location": localisation,
@@ -362,17 +446,18 @@ class _SettingsFormState extends State<SettingsForm> {
                     });
                   });
 
+                }}
+              }).catchError((err) {
+                print(err);
+              });
               }
-            }).catchError((err) {
-              print(err);
-            });
+              }).catchError((err) {
+                print(err);
+              });
+            }
+            Navigator.pop(context);
           }
-//        }).catchError((err) {
-//          print(err);
-//        });
-//      }
-      Navigator.pop(context);
-    }
+
 
           final List<Widget> children = <Widget>[];
           _tasks.forEach((StorageUploadTask task) {
@@ -388,12 +473,54 @@ class _SettingsFormState extends State<SettingsForm> {
             );  children.add(tile);
           });
 
+          final List<Widget> _children = [
+            Home(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email),
+            ScanQrCode(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email),
+            MyFiles(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email),
+            MyAddPage(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email),
+          ];
+          _onTap() { // this has changed
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (BuildContext context) => _children[_currentIndex])); // this has changed
+          }
+
 
           return new Scaffold(
             appBar: AppBar(
-              title: Text("Update your project data"),
-              backgroundColor: Color(0xff0f4c75),
+              automaticallyImplyLeading: false,
+              centerTitle: true,
+              title: Text("Update your project data",style: TextStyle(color: Color(0xff0f4c75)),),
+              backgroundColor: Colors.grey[300],
+              toolbarOpacity: 0.5,
+              iconTheme: IconThemeData(
+                  color: Color(0xff0f4c75)
+              ),
             ),
+            bottomNavigationBar: CurvedNavigationBar(
+              color: Color(0xff0f4c75) ,
+              backgroundColor: Colors.white,
+              buttonBackgroundColor: Color(0xff0f4c75),
+              height: 50,
+
+//              currentIndex: _currentIndex,
+              items: <Widget>[
+                Icon(Icons.home,size: 20,color: Colors.white,),
+                Icon(FontAwesomeIcons.qrcode,size: 20,color: Colors.white,),
+                Icon(FontAwesomeIcons.fileDownload,size: 20,color: Colors.white,),
+                Icon(Icons.add_circle,size: 20,color: Colors.white,),
+
+              ] ,
+              index: _currentIndex,
+              animationDuration: Duration(milliseconds: 200),
+              animationCurve: Curves.bounceInOut,
+              onTap: (index){
+                setState(() {
+                  _currentIndex = index;
+                });
+                _onTap();
+              },
+            ),
+
             body: Form(
               key: _formKey,
               child: new Padding(
@@ -411,18 +538,12 @@ class _SettingsFormState extends State<SettingsForm> {
                           ),
                         ],
                       ),
-//                      Card(
-//                        elevation: 4.0,
-//                        shadowColor:Color(0xffBBE1FA) ,
-//                        shape: RoundedRectangleBorder(
-//                          borderRadius: BorderRadius.circular(15.0),
-//                        ),
                          Padding(
                             padding: const EdgeInsets.fromLTRB(20, 20, 20, 50),
                             child: Column(children: <Widget>[
                               Stack(
                                   children: <Widget>[
-                                    Text("ImagePlans",style: TextStyle(
+                                    Text("Images Plans & images 3D",style: TextStyle(
                                 color: Colors.grey[600],
                           fontSize: 14.0,
                         ),),
@@ -431,7 +552,7 @@ class _SettingsFormState extends State<SettingsForm> {
                                       height: 80.0,
                                       child: ListView(
                                         scrollDirection: Axis.horizontal,
-                                        children: imagePlans.asMap().map((i, item) =>
+                                        children: imagesTotal.asMap().map((i, item) =>
                                             MapEntry(
                                               i,
                                               Builder(
@@ -478,7 +599,9 @@ class _SettingsFormState extends State<SettingsForm> {
                                             )).values.toList(),
 
                                       ),
-                                    ),]),
+                                    ),
+
+                                  ]),
                             ])),
 //                      ),
                       Card(
@@ -489,23 +612,73 @@ class _SettingsFormState extends State<SettingsForm> {
                             borderRadius: BorderRadius.circular(15.0),
 
                         ),
-                        child: Column(
-//                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: <Widget>[
-                            Text("Add images Plans",style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 14.0,
-                            ),),
-                            new IconButton(icon: new Icon(Icons.add_photo_alternate), onPressed: loadAssets,),
-                            SizedBox(
-                              height: 60.0,
-
-                              child: Expanded(
-
-                                child: buildGridView(),
-                              ),
+                        child: SizedBox(
+                          height: 170.0,
+                          child: Row(
+                            mainAxisAlignment : MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                           Card(
+                            elevation: 3.0,
+                            shadowColor:Color(0xffBBE1FA) ,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0),
                             ),
-                          ],
+                            child: SizedBox(
+                                height: 178.0,
+                                width: 180.0,
+
+                                  child: Column(
+//                          crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: <Widget>[
+                                      Text("Add images Plans",style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 14.0,
+                                      ),),
+                                      new IconButton(icon: new Icon(Icons.add_photo_alternate), onPressed: loadAssets,),
+                                      SizedBox(
+                                        height: 60.0,
+
+                                        child: Expanded(
+
+                                          child: buildGridView(),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                              ),   ),
+                              SizedBox(width: 3.0,),
+                              Card(
+                                elevation: 3.0,
+                                shadowColor:Color(0xffBBE1FA) ,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                ),
+                                child: SizedBox(
+                                  height: 178.0,
+                                  width: 180.0,
+                                  child: Column(
+//                          crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: <Widget>[
+                                      Text("Add images 3D",style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 14.0,
+                                      ),),
+                                      new IconButton(icon: new Icon(Icons.add_photo_alternate), onPressed: loadAssets2,),
+                                      SizedBox(
+                                        height: 60.0,
+
+                                        child: Expanded(
+
+                                          child: buildGridView2(),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       SizedBox(height: 15.0),
@@ -663,27 +836,18 @@ class _SettingsFormState extends State<SettingsForm> {
                                     borderRadius: BorderRadius.circular(30)),
                                 labelText: 'Phase',
                               ),
-                            value:  phase ?? _selectedPhase  ,
+
                               items: _phases.map((phasee){
                                 return DropdownMenuItem(
                                   value: phasee,
-                                  child: Text('$phasee'),
+                                  child: Text(phasee),
                                 );
                               }).toList(),
 
                               onChanged: (String val) => setState(() => _selectedPhase = val),
+                              value:  phase ?? _selectedPhase  ,
 
                           ),
-//                              TextFormField(
-//                                controller: ctrPhase,
-//                                decoration: InputDecoration(
-//                                  border: OutlineInputBorder(
-//                                      borderRadius: BorderRadius.circular(30)),
-//                                  labelText: 'Phase',
-//                                ),
-//                                onChanged: (String val2) =>
-//                                    setState(() => phase = val2),
-//                              ),
                               SizedBox(height: 15.0),
                               TextFormField(
                                 controller: ctrClu,
@@ -841,7 +1005,7 @@ class _SettingsFormState extends State<SettingsForm> {
                         children: <Widget>[
                           SizedBox(width: 20),
                           Container(
-                            height: 38,
+                            height: 30,
                             decoration: BoxDecoration(
                               color: Colors.lightBlue,
                               borderRadius: const BorderRadius.all(
@@ -858,7 +1022,7 @@ class _SettingsFormState extends State<SettingsForm> {
                             child: RaisedButton(
                               color: Color(0xff0f4c75),
                               child: Text('Add documents', style: TextStyle(fontWeight: FontWeight.w600,
-                                fontSize: 18,
+                                fontSize: 14,
                                 letterSpacing: 0.0,
                                 color: Colors.white,),),
                               onPressed: (){

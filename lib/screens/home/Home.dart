@@ -1,10 +1,5 @@
-
-
-
 // ignore: avoid_web_libraries_in_flutter
-
 import 'dart:io';
-
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -45,7 +40,6 @@ Home({this.user, this.googleSignIn, this.qrResult, this.email, this.title,this.p
 
 class _HomeState extends State<Home> {
   List<NetworkImage> _listOfImages = <NetworkImage>[];
-  final pdf = pw.Document();
   String qrData = "projectTest";
   String name;
   String email;
@@ -56,10 +50,6 @@ class _HomeState extends State<Home> {
   List _resultsList = [];
   Future resultsLoaded;
  int _currentIndex =0;
-
-
-
-
 
   @override
   void initState() {
@@ -223,7 +213,7 @@ class _HomeState extends State<Home> {
     showDialog(context: context, child: alertDialog);
   }
   Icon cusIcon = Icon(Icons.search);
-  Widget cusSearchBar = Text("My Projects");
+  Widget cusSearchBar = Text("My Projects",style: TextStyle(color: Color(0xff0f4c75)),);
 
 
 
@@ -243,10 +233,10 @@ class _HomeState extends State<Home> {
 
 
     final List<Widget> _children = [
-      Home(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email,),
-      ScanQrCode(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email,),
-      MyFiles(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email,),
-      MyAddPage(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email,),
+      Home(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email),
+      ScanQrCode(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email),
+      MyFiles(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email),
+      MyAddPage(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email),
     ];
     _onTap() { // this has changed
       Navigator.of(context)
@@ -267,7 +257,7 @@ class _HomeState extends State<Home> {
     _myFiles() async{
       Navigator.of(context).push(
           new MaterialPageRoute(
-              builder: (BuildContext context) => new MyFiles(email: widget.user.email))
+              builder: (BuildContext context) => new MyFiles(email: widget.user.email,user: widget.user,googleSignIn: widget.googleSignIn,))
       );
 
     }
@@ -300,52 +290,55 @@ class _HomeState extends State<Home> {
     return SafeArea(
         child: Scaffold(
           appBar: AppBar(
+            automaticallyImplyLeading: false,
+            iconTheme: IconThemeData(
+              color: Color(0xff0f4c75)
+            ),
             centerTitle: true,
 
              title: cusSearchBar,
+             toolbarOpacity: 0.5,
              actions: <Widget>[
-               IconButton(icon: cusIcon, onPressed: (){
+               IconButton(icon: cusIcon,color: Color(0xff0f4c75), onPressed: (){
                  setState(() {
                    if(this.cusIcon.icon == Icons.search){
-                     this.cusIcon = Icon(Icons.cancel);
+                     this.cusIcon = Icon(Icons.cancel,color: Color(0xff0f4c75),);
                      this.cusSearchBar = TextField(
                        controller: _searchController,
                        textInputAction: TextInputAction.go,
                        decoration: InputDecoration(
                          border: InputBorder.none,
                          hintText: "Search Project",
-                         hintStyle: TextStyle(color: Colors.white54),
+                         hintStyle: TextStyle(color: Color(0xff0f4c75)),
                          suffixIcon: _searchController.text.isNotEmpty
                              ? GestureDetector(
                            onTap: () {
                              WidgetsBinding.instance.addPostFrameCallback(
                                      (_) => _searchController.clear());
                            },
-//                           child: Icon(
-//                             Icons.clear,
-//                             color: Colors.white,
-//                           ),
                          )
                              : null,
                        ),
 //                       ),
                        style: TextStyle(
-                         color: Colors.white,
+                         color: Color(0xff0f4c75),
                          fontSize: 16.0,
                        ),
                      );
-//                     _searchController.clear();
                    } else{
-                     this.cusIcon = Icon(Icons.search);
-                   this.cusSearchBar = Text("My Projects");
+                     this.cusIcon = Icon(Icons.search,color: Color(0xff0f4c75),);
+                   this.cusSearchBar = Text("My projects",style: TextStyle(color: Color(0xff0f4c75)),);
                    }
                  });
 
                },)
              ],
              elevation: 20.0,
+//             textTheme: TextTheme(
+//               title: TextStyle(color: Colors.redAccent)
+//             ),
 
-             backgroundColor: Color(0xff0f4c75),
+             backgroundColor: Colors.grey[300],
            ),
 
             bottomNavigationBar: CurvedNavigationBar(
@@ -372,14 +365,6 @@ class _HomeState extends State<Home> {
                 _onTap();
               },
             ),
-//            floatingActionButton:
-//            FloatingActionButton(child: Center(child: Icon(Icons.add)),backgroundColor: Color(0xff3282b8),onPressed: () {
-//              Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context)=>
-//              new MyAddPage(email: widget.user.email,)));
-//            }, elevation: 8.0,
-//            ),
-
-//            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
             body: Container(
 //              child: Padding(
 //                padding: const EdgeInsets.all(8.0),
@@ -394,15 +379,42 @@ class _HomeState extends State<Home> {
 //                  ),
 //                ),
 //              ),
-
-
-                width: mediaQuery.width,
+              width: mediaQuery.width,
 
                 child: Stack(
                     children: <Widget>[
+//                      Row(
+//                        mainAxisSize: MainAxisSize.max,
+//                        children: <Widget>[
+//
+//                          Container(
+//                            height: 70.0,
+//                              color: Colors.orange,
+//                              child: Text("To remove a project, swipe the tile to the left",style: TextStyle(color: Colors.white),)),
+//                        ],
+//                      ),
                       _resultsList.length!= 0
-                  ?  RefreshIndicator(
-                        child: ListView.builder(
+                  ?
+                      RefreshIndicator(
+                        child:Column(
+                          children : [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(20.0,8.0,2.0,0.0),
+                            child: Row(
+                              mainAxisAlignment : MainAxisAlignment.center,
+                            children: <Widget>[
+
+                              Container(
+                                padding: EdgeInsets.all(10.0),
+                                  alignment: Alignment(0, 0),
+                                  height: 50.0,
+                                  color: Colors.orange.withOpacity(0.5),
+                                  child: Text("To remove a project, swipe the tile to the left                        ",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),textAlign: TextAlign.justify)),
+                            ],
+                        ),
+                          ),
+
+                        Expanded(child: ListView.builder(
                          itemCount: _resultsList.length,
 //                      StreamBuilder(
 //                          stream: getDataProjectsStreamsSnapshots(context),
@@ -465,7 +477,7 @@ class _HomeState extends State<Home> {
 //
                                                 );
                                               },
-                                            ),
+                                            )),]),
               onRefresh: _getData,
                       ): Center(child: CircularProgressIndicator(),),
 
@@ -615,7 +627,7 @@ class _HomeState extends State<Home> {
         ));
 
   }
-}
+
 
 final pdf = pw.Document();
 
@@ -636,49 +648,12 @@ Widget _buildFrontWidget(BuildContext context,DocumentSnapshot document) {
 String dataProj = document['name'].toString();
 DateTime _datePrj = document['date'].toDate();
 String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
-//print(dataProj);
+String email = document['email'].toString();
+
   return Builder(
     // ignore: missing_return
     builder: (BuildContext context) {
-
-//      Future<bool> confirm(DismissDirection direction, BuildContext context) async {
-//        return await showDialog(
-//            context: context,
-//            builder: (BuildContext context) {
-//              return AlertDialog(
-//                title: const Text("Confirm delete"),
-//                content: const Text("Are you sure you wish to delete this project?"),
-//                actions: <Widget>[
-//                  FlatButton(
-//                      onPressed: () => Navigator.of(context).pop(true),
-//                      child: const Text("Delete")),
-//                  FlatButton(
-//                    onPressed: () => Navigator.of(context).pop(false),
-//                    child: const Text("Cancel"),
-//                  )
-//                ],
-//              );
-//            });
-//      }
-      return
-//        Dismissible(
-//          key: Key(document.documentID),
-//      confirmDismiss: (direction) async => await confirm(direction,context),
-//      background: Container(
-//      alignment: AlignmentDirectional.centerEnd,
-//      color: Colors.redAccent,
-//      child: Icon(Icons.delete, color: Colors.white,),
-//      ),
-//      onDismissed: (direction){
-//      Firestore.instance.collection("Projet")
-//          .document(document.documentID)
-//          .delete().catchError((e){
-//      print(e);
-//      });
-//      },
-//
-//      child:
-      Container(
+      return Container(
 
             color: Color(0xffffffff),
             alignment: Alignment.center,
@@ -865,10 +840,9 @@ String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
 
                                       onPressed: () {
                                         Navigator.of(context).push(MaterialPageRoute(
-                                          builder: (context) => ProjTile(qrResultHome : dataProj),
+                                          builder: (context) => ProjTile(qrResultHome : dataProj,user: widget.user,googleSignIn: widget.googleSignIn,email: widget.user.email,),
                                         ));
                                       },
-//
                                     ),
                                   ),
                                   Positioned(
@@ -987,44 +961,7 @@ Widget _buildInnerWidget(BuildContext context,DocumentSnapshot document) {
       builder: (context)
 
   {
-//    Future<bool> confirm(DismissDirection direction, BuildContext context) async {
-//      return await showDialog(
-//          context: context,
-//          builder: (BuildContext context) {
-//            return AlertDialog(
-//              title: const Text("Confirm delete"),
-//              content: const Text("Are you sure you wish to delete this project?"),
-//              actions: <Widget>[
-//                FlatButton(
-//                    onPressed: () => Navigator.of(context).pop(true),
-//                    child: const Text("Delete")),
-//                FlatButton(
-//                  onPressed: () => Navigator.of(context).pop(false),
-//                  child: const Text("Cancel"),
-//                )
-//              ],
-//            );
-//          });
-//    }
-
-    return
-//      Dismissible(
-//        key: Key(document.documentID),
-//    confirmDismiss: (direction) async => await confirm(direction,context),
-//    background: Container(
-//    alignment: AlignmentDirectional.centerEnd,
-//    color: Colors.redAccent,
-//    child: Icon(Icons.delete, color: Colors.white,),
-//    ),
-//    onDismissed: (direction){
-//    Firestore.instance.collection("Projet")
-//        .document(document.documentID)
-//        .delete().catchError((e){
-//    print(e);
-//    });
-//    },
-//     child:
-     Container(
+    return Container(
         color: Color(0xffffffff),
         alignment: Alignment.center,
 
@@ -1227,7 +1164,7 @@ Widget _buildInnerWidget(BuildContext context,DocumentSnapshot document) {
 //        )
   }
   );
-}
+}}
 
 class MyButton extends StatelessWidget {
   final String text;
@@ -1283,7 +1220,7 @@ class DrawerPainter extends CustomPainter{
   @override
   void paint(Canvas canvas, Size size) {
     // TODO: implement paint
-    Paint paint = Paint()..color = Color(0xff3282b8)..style = PaintingStyle.fill;
+    Paint paint = Paint()..color = Color(0xff0f4c75)..style = PaintingStyle.fill;
     Path path = Path();
     path.moveTo(-size.width, 0);
     path.lineTo(size.width, 0);

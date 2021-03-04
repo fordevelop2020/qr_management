@@ -1,7 +1,12 @@
 
 import 'dart:io';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:qr_management/screens/home/Home.dart';
+import 'package:qr_management/screens/home/addProjet.dart';
+import 'package:qr_management/screens/home/myFiles.dart';
 import 'package:qr_management/screens/home/settings_form.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,10 +16,12 @@ import 'package:http/http.dart' as http;
 import 'ScanQrCode.dart';
 // ignore: must_be_immutable
 class ProjTile extends StatefulWidget {
-  ProjTile({this.qrResult,this.user,this.qrResultHome});
+  final FirebaseUser user;
+  final String email;
+  final GoogleSignIn googleSignIn;
+  ProjTile({this.qrResult,this.user,this.qrResultHome,this.googleSignIn,this.email,});
   final String qrResult;
   final String qrResultHome;
-  final FirebaseUser user;
 
 
   @override
@@ -27,6 +34,7 @@ class _ProjTileState extends State<ProjTile> with TickerProviderStateMixin  {
 
   List docFile = [];
   var pathFile;
+  int _currentIndex =0;
 
   List<T> map<T>(List list, Function handler) {
     List<T> result = [];
@@ -93,31 +101,54 @@ class _ProjTileState extends State<ProjTile> with TickerProviderStateMixin  {
 
     }
    DocumentSnapshot dataQr ;
+   final List<Widget> _children = [
+     Home(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email),
+     ScanQrCode(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email),
+     MyFiles(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email),
+     MyAddPage(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email),
+   ];
+   _onTap() { // this has changed
+     Navigator.of(context)
+         .push(MaterialPageRoute(builder: (BuildContext context) => _children[_currentIndex])); // this has changed
+   }
 
       return Scaffold(
 //        backgroundColor: Color(0xff0f4c75),
         appBar: AppBar(
-          title: Text('Project Tile'),
-          backgroundColor: Color(0xff0f4c75),
-        ),
-          bottomNavigationBar: BottomAppBar(
-            elevation: 8.0,
-            color: Colors.white,
-            shape: CircularNotchedRectangle(),
-            notchMargin: 12.0,
-            child: Row(
-              children: [
-                IconButton(icon: Icon(FontAwesomeIcons.qrcode,color: Color(0xff3282b8),), onPressed: () {
-                  Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context)=>
-                      ScanQrCode()));
-
-                }),
-//                Spacer(),
-                // IconButton(icon: Icon(Icons.search), onPressed: () {}),
-//                IconButton(icon: Icon(Icons.home),color: Color(0xff3282b8),onPressed: () {}),
-              ],
-            ),
+          centerTitle: true,
+          automaticallyImplyLeading: false,
+          title: Text('Project Tile',style: TextStyle(color: Color(0xff0f4c75)),),
+          backgroundColor: Colors.grey[300],
+          toolbarOpacity: 0.5,
+          iconTheme: IconThemeData(
+              color: Color(0xff0f4c75)
           ),
+        ),
+        bottomNavigationBar: CurvedNavigationBar(
+          color: Color(0xff0f4c75) ,
+          backgroundColor: Colors.white,
+          buttonBackgroundColor: Color(0xff0f4c75),
+          height: 50,
+
+//              currentIndex: _currentIndex,
+          items: <Widget>[
+            Icon(Icons.home,size: 20,color: Colors.white,),
+            Icon(FontAwesomeIcons.qrcode,size: 20,color: Colors.white,),
+            Icon(FontAwesomeIcons.fileDownload,size: 20,color: Colors.white,),
+            Icon(Icons.add_circle,size: 20,color: Colors.white,),
+
+          ] ,
+          index: _currentIndex,
+          animationDuration: Duration(milliseconds: 200),
+          animationCurve: Curves.bounceInOut,
+          onTap: (index){
+            setState(() {
+              _currentIndex = index;
+            });
+            _onTap();
+          },
+        ),
+
           floatingActionButton: FloatingActionButton(child: Center(child: Icon(Icons.edit)),backgroundColor: Color(0xff3282b8), onPressed: (){
             Navigator.of(context).push(new MaterialPageRoute(
                 builder: (BuildContext context) => new SettingsForm(
@@ -132,13 +163,17 @@ class _ProjTileState extends State<ProjTile> with TickerProviderStateMixin  {
                   bet: dataQr['bet'],
                   topograph: dataQr['topo'],
                   customer: dataQr['customer'],
-                  phase: dataQr['phase'],
+                  phase1: dataQr['phase'],
                   clues: dataQr['clues'],
                   comments: dataQr['comments'],
                   manager: dataQr['responsible'],
                   details: dataQr['details'],
                   imagesNotif: dataQr['imagePlans'],
+                  image3Ds: dataQr['image3d'],
                   documents: dataQr['documents'],
+                  email: dataQr['email'],
+                  user: widget.user,
+                  googleSignIn: widget.googleSignIn,
 
 
                 )
@@ -146,7 +181,7 @@ class _ProjTileState extends State<ProjTile> with TickerProviderStateMixin  {
               }, elevation: 8.0,
               ),
 
-              floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+              floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
 
 
     body: Stack(
@@ -216,7 +251,7 @@ class _ProjTileState extends State<ProjTile> with TickerProviderStateMixin  {
                   itemBuilder: (context, index1) {
                     dataQr = snapshot.data.documents[index1];
                     // ignore: unnecessary_statements
-                    imgList = dataQr['imagePlans'];
+                    imgList = dataQr['imagePlans']+dataQr['image3d'];
                     docFile = dataQr['documents'] ;
                     // ignore: unnecessary_statements
 
@@ -237,12 +272,12 @@ class _ProjTileState extends State<ProjTile> with TickerProviderStateMixin  {
                                                       bet: dataQr['bet'],
                                                       topograph: dataQr['topo'],
                                                       customer: dataQr['customer'],
-                                                      phase: dataQr['phase'],
+                                                      phase1: dataQr['phase'],
                                                       clues: dataQr['clues'],
                                                       comments: dataQr['comments'],
                                                       manager: dataQr['responsible'],
                                                       details: dataQr['details'],
-                                                      imagesNotif: dataQr['imagePlans'],
+                                                      imagesNotif: dataQr['imagePlans']+ dataQr['image3d'],
                                                       documents: dataQr['documents'],
 
 
@@ -473,15 +508,6 @@ class _ProjTileState extends State<ProjTile> with TickerProviderStateMixin  {
                                                                   ),
                                                                   onTap: () => _onOpen(fifi),
                                                                 );
-
-//                                                      return Linkify(
-//                                                        onOpen: _onOpen,
-//                                                        text: "Documents: "+nameWithoutEx+","+fifi,style:TextStyle(fontSize: 16.0),
-//                                                        textAlign: TextAlign.justify,
-//                                                        overflow: TextOverflow.ellipsis,
-//                                                        maxLines: 2,
-//
-//                                                         );
                                                             }
                                                             );
 
@@ -606,5 +632,5 @@ class _ProjTileState extends State<ProjTile> with TickerProviderStateMixin  {
 
 
 
-  
+
 

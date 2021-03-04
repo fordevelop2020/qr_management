@@ -479,15 +479,18 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
 //          key: _scaffoldKey,
           backgroundColor: Colors.white,
           appBar: AppBar(
+            automaticallyImplyLeading: false,
             centerTitle: true,
             title: Text('New project', style: new TextStyle(
-              color: Colors.white,
+              color: Color(0xff0f4c75),
               fontSize: 20.0,
-//            letterSpacing: 2.0,
-              //  fontFamily: "Pacifico"
             ),),
+            iconTheme: IconThemeData(
+                color: Color(0xff0f4c75)
+            ),
 
-            backgroundColor: Color(0xff0f4c75),
+            backgroundColor: Colors.grey[300],
+            toolbarOpacity: 0.5,
           ),
           bottomNavigationBar: CurvedNavigationBar(
             color: Color(0xff0f4c75) ,
@@ -546,9 +549,9 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                                 _addData();
                                 _currentStep = 0;
                                 showAlertDialog(context);
-//                                Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) =>
-//                                new Home()),
-//                                );
+                                Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) =>
+                                new Home(user: widget.user,googleSignIn: widget.googleSignIn,email: widget.user.email,)),
+                                );
 
                               }
                             }
@@ -576,7 +579,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
 
           floatingActionButton: FloatingActionButton(onPressed: switchStepType,
             backgroundColor: Color(0xff0f4c75),
-            child: Icon(Icons.swap_horizontal_circle, color: Colors.white,),),
+            child: Icon(Icons.swap_horizontal_circle, color: Colors.white,),),floatingActionButtonLocation: FloatingActionButtonLocation.endTop ,
 
         );
       }

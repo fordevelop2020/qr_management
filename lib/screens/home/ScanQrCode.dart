@@ -47,9 +47,14 @@ class _ScanQrCodeState extends State<ScanQrCode> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xff0f4c75),
-        title: Text("Scan Qr Code"),
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.grey[300],
+        toolbarOpacity: 0.5,
+        title: Text("Scan Qr Code",style: TextStyle(color: Color(0xff0f4c75)),),
         centerTitle: true,
+        iconTheme: IconThemeData(
+          color: Color(0xff0f4c75)
+        ),
       ),
       bottomNavigationBar: CurvedNavigationBar(
         color: Color(0xff0f4c75) ,
