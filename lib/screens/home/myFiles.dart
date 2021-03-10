@@ -175,9 +175,10 @@ class MyFiles extends StatefulWidget {
                       padding: const EdgeInsets.only(left: 16, right: 16,top: 8,bottom: 8),
 
                         child: new StreamBuilder<QuerySnapshot>(
-                        stream: Firestore.instance.collection("Projet").snapshots(),
+                        stream: Firestore.instance.collection("Projet").where('email', isEqualTo: widget.user.email).snapshots(),
                         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                          if (!snapshot.hasData) return new Text("There is no expense");
+                          if (!snapshot.hasData) return new Text("There is no files", style: TextStyle(color:Color(0xff0f4c75).withOpacity(0.3),fontSize: 15, fontWeight: FontWeight.bold),maxLines: 3,textAlign: TextAlign.justify
+                          ,overflow: TextOverflow.ellipsis);
                           return ListView.builder(
                             shrinkWrap: true,
                               itemCount: snapshot.data.documents.length,

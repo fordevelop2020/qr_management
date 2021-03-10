@@ -37,7 +37,7 @@ class SettingsForm extends StatefulWidget {
   final String bet;
   final String topograph;
   final String customer;
-  final phase1;
+  final String phase1;
   final String clues;
   final String comments;
   final String manager;
@@ -72,8 +72,8 @@ class _SettingsFormState extends State<SettingsForm> {
    String details;
    String docId;
    File imgFile;
-  var _phases = ['Select phase','Esquisse','Aps','Apd','Pac','Pe','dce','exe','Reception'];
-  var _selectedPhase = 'Select phase';
+  var _phases = ['Esquisse','Aps','Apd','Pac','Pe','dce','exe','Reception'];
+  var _selectedPhase = 'Esquisse';
 
   List<Asset> imagePlans2 = List<Asset>();
   List<Asset> image3d = List<Asset>();
@@ -591,7 +591,7 @@ class _SettingsFormState extends State<SettingsForm> {
                                                                         size: 18,
                                                                       ),
                                                                       onPressed: () => setState(() {
-                                                                        imagePlans.removeAt(i);
+                                                                        imagesTotal.removeAt(i);
                                                                       })))
                                                             ] ));
 
@@ -845,7 +845,7 @@ class _SettingsFormState extends State<SettingsForm> {
                               }).toList(),
 
                               onChanged: (String val) => setState(() => _selectedPhase = val),
-                              value:  phase ?? _selectedPhase  ,
+                              value: phase ??  _selectedPhase   ,
 
                           ),
                               SizedBox(height: 15.0),

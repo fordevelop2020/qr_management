@@ -60,8 +60,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   final GoogleSignIn googleSignIn = GoogleSignIn();
   String successMessage = '';
   String errorMessage = '';
-  String _email;
-  String _password;
+  String _email='';
+  String _password='';
 
 
   bool validateAndSave(){
@@ -70,19 +70,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     if(form.validate()){
       form.save();
       print('Form is valid. Email:$_email, password:$_password');
-      final snackbar = new SnackBar(content: new Text("Email:$_email, password:$_password"));
-      Scaffold.of(context).showSnackBar(snackbar);
+//      final snackbar = new SnackBar(content: new Text("Email:$_email, password:$_password"));
+//      Scaffold.of(context).showSnackBar(snackbar);
       return true;
 
     }
       return false;
   }
-
-//  void validateAndSubmit(){
-//    if(validateAndSave()){
-//
-//    }
-//  }
 
   showdialog(context){
     return showDialog(context : context, builder:(context){
@@ -137,13 +131,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   Future<FirebaseUser> signUpWithMail(String emailT , String passwordT) async
   {
-    if(validateAndSave()){
+//    if(validateAndSave()){
 
 //      final bool isValid = EmailValidator.validate(emailT);
 //
 //      print('Email is valid? ' + (isValid ? 'yes' : 'no'));
-      FirebaseUser userData;
-      try{
+//      FirebaseUser userData;
+
       userData = (await firebaseAuth.createUserWithEmailAndPassword(email: emailT, password: passwordT)).user;
       Navigator.of(context).push(
           new MaterialPageRoute(
@@ -154,20 +148,20 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       print(emailT);
       print(passwordT);
 
-    }catch (e){
-      print(e.toString());
-    }
-
-    if(userData != null){
-      print(userData);
-      return userData;
-    }
-    return null;
+//    }catch (e){
+//      print(e.toString());
+//    }
+//
+//    if(userData != null){
+//      print(userData);
+//      return userData;
+//    }
+//    return null;
   // ignore: unnecessary_statements
-  } else (e){
-      // ignore: unnecessary_statements
-      e.toString();
-    };
+//  } else (e){
+//      // ignore: unnecessary_statements
+//      e.toString();
+//    };
   }
 
 
@@ -436,8 +430,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                   hasBorder: true,
                     // ignore: missing_return
                     onPressed: ()  {
-                    if (_formKey.currentState.validate()) {
-                       _formKey.currentState.save();
+                      loading = true;
+//                    if (_formKey.currentState.validate()) {
+//                       _formKey.currentState.save();
                       signInWithMail(_email,_password);
 //                        if(userData != null){
 //                          loading = true;
@@ -451,7 +446,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 ////                             Navigator.push(context, route);
 //                        //  return AddProjet();
 //                        } else {}
-                    }},
+//                    }
+                    },
     ),
                 SizedBox(
                   height: 8.0,
@@ -460,13 +456,14 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                   title :('Sign Up'),
                   hasBorder: true,
                   onPressed: (){
-                    if (_formKey.currentState.validate()) {
-                      _formKey.currentState.save();
+//                    if (_formKey.currentState.validate()) {
+//                      _formKey.currentState.save();
                       signUpWithMail(_email,_password);
-                      setState((){
-                        error = 'Could not sign in with those credentials';
-                      });
-                  }},
+//                      setState((){
+//                        error = 'Could not sign in with those credentials';
+//                      });
+//                  }
+                    },
 
                   ),
                  Row(

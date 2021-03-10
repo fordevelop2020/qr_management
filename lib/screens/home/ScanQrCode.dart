@@ -110,7 +110,7 @@ class _ScanQrCodeState extends State<ScanQrCode> {
                 IconButton(
                   icon: Icon(Icons.remove_red_eye,color: Color(0xff3282b8),), onPressed: () {
                   Navigator.of(context).push( MaterialPageRoute(
-                    builder: (context) => ProjTile(qrResult : qrResultScan),
+                    builder: (context) => ProjTile(qrResult : qrResultScan,email: widget.user.email,googleSignIn: widget.googleSignIn,user: widget.user,),
                   ));
                 },
                 ),

@@ -69,6 +69,7 @@ dependencies:
       flutter_form_builder:
       curved_navigation_bar:
       url_encoder: ^0.0.3
+      syncfusion_flutter_pdf:
 
 
 

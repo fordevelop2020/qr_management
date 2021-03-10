@@ -1,6 +1,7 @@
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,6 +17,7 @@ import 'package:printing/printing.dart';
 import 'package:qr_management/models/project.dart';
 import 'package:qr_management/screens/home/ScanQrCode.dart';
 import 'package:qr_management/screens/home/myFiles.dart';
+import 'package:qr_management/screens/home/profile.dart';
 import 'package:qr_management/screens/home/proj_tile.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../main.dart';
@@ -47,6 +49,7 @@ class _HomeState extends State<Home> {
   String projectDet = "";
   TextEditingController _searchController = TextEditingController();
   List _allResults = [];
+  List _allResults2 = [];
   List _resultsList = [];
   Future resultsLoaded;
  int _currentIndex =0;
@@ -107,9 +110,15 @@ class _HomeState extends State<Home> {
     .where("email", isEqualTo: widget.user?.email)
 //    .orderBy('date')
     .getDocuments();
+//    var data2 = await Firestore.instance
+//    .collection('Profile')
+//    .where("email", isEqualTo: widget.user?.email)
+//    .getDocuments();
 
     setState(() {
       _allResults = data.documents;
+//      _allResults2 = data2.documents;
+
     });
     searchResultsList();
 
@@ -261,6 +270,14 @@ class _HomeState extends State<Home> {
       );
 
     }
+    _myProfile() async{
+      Navigator.of(context).push(
+          new MaterialPageRoute(
+              builder: (BuildContext context) => new MyProfile(email: widget.user.email,user: widget.user,googleSignIn: widget.googleSignIn,
+                  imageUrl:widget.user.photoUrl))
+      );
+
+    }
     Future<bool> confirm(DismissDirection direction, BuildContext context) async {
       return await showDialog(
           context: context,
@@ -366,33 +383,10 @@ class _HomeState extends State<Home> {
               },
             ),
             body: Container(
-//              child: Padding(
-//                padding: const EdgeInsets.all(8.0),
-//                child: Container(
-//                  padding: const EdgeInsets.all(10),
-//                  height: 70,
-//                  alignment: Alignment(0, 0),
-//                  color: Colors.orange,
-//                  child: Text(
-//                    "To remove a project, swipe the tile to the left",
-//                    style: TextStyle(color: Colors.white),
-//                  ),
-//                ),
-//              ),
               width: mediaQuery.width,
 
                 child: Stack(
                     children: <Widget>[
-//                      Row(
-//                        mainAxisSize: MainAxisSize.max,
-//                        children: <Widget>[
-//
-//                          Container(
-//                            height: 70.0,
-//                              color: Colors.orange,
-//                              child: Text("To remove a project, swipe the tile to the left",style: TextStyle(color: Colors.white),)),
-//                        ],
-//                      ),
                       _resultsList.length!= 0
                   ?
                       RefreshIndicator(
@@ -409,7 +403,7 @@ class _HomeState extends State<Home> {
                                   alignment: Alignment(0, 0),
                                   height: 50.0,
                                   color: Colors.orange.withOpacity(0.5),
-                                  child: Text("To remove a project, swipe the tile to the left                        ",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),textAlign: TextAlign.justify)),
+                                  child: Text("To remove a project, swipe the tile to the left",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),textAlign: TextAlign.justify)),
                             ],
                         ),
                           ),
@@ -452,8 +446,8 @@ class _HomeState extends State<Home> {
                                                     .delete().catchError((e){
                                                       print(e);
                                                     });
-                                                    final snackBar = SnackBar(content: Text('Project: ${_resultsList[index].data['name']} is deleted!'));
-                                                        Scaffold.of(context).showSnackBar(snackBar);
+//                                                    final snackBar = SnackBar(content: Text('Project: ${_resultsList[index].data['name']} is deleted!'));
+//                                                        Scaffold.of(context).showSnackBar(snackBar);
                                                     print(document.documentID);
                                                   },
                                                   child: SimpleFoldingCell.create(
@@ -479,7 +473,13 @@ class _HomeState extends State<Home> {
                                               },
                                             )),]),
               onRefresh: _getData,
-                      ): Center(child: CircularProgressIndicator(),),
+                      ): Center(child: Padding(
+                        padding: const EdgeInsets.all(30.0),
+                        child: Text("No data saved yet!, please add a project with the + icon", style: TextStyle(color:Color(0xff0f4c75).withOpacity(0.3),fontSize: 15, fontWeight: FontWeight.bold),maxLines: 3,textAlign: TextAlign.justify
+                          ,overflow: TextOverflow.ellipsis,),
+                      ),
+
+                      ),
 
 //                                          }),
 
@@ -578,13 +578,19 @@ class _HomeState extends State<Home> {
                                     child: Column(
                                       children: <Widget>[
                                         MyButton(
+                                          text: "My profile",
+                                          iconData: FontAwesomeIcons.personBooth,
+                                          textSize: getSize(0),
+                                          height: (menuContainerHeight)/8,
+                                          onPressed: _myProfile,
 
-                                          text: "Qui sommes-nous?",
+                                        ),
+                                        MyButton(
+                                          text: "About us?",
                                           iconData: Icons.work,
                                           textSize: getSize(0),
                                           height: (menuContainerHeight)/8,
                                           onPressed: _launchURL,
-
                                         ),
                                         MyButton(
                                           text: "My Files",
@@ -630,6 +636,7 @@ class _HomeState extends State<Home> {
 
 
 final pdf = pw.Document();
+ MemoryImage image;
 
 
 
@@ -649,175 +656,197 @@ String dataProj = document['name'].toString();
 DateTime _datePrj = document['date'].toDate();
 String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
 String email = document['email'].toString();
+String logo;
 
-  return Builder(
-    // ignore: missing_return
-    builder: (BuildContext context) {
-      return Container(
 
-            color: Color(0xffffffff),
-            alignment: Alignment.center,
-            child: Row(
+  return StreamBuilder<QuerySnapshot>(
+      stream: Firestore.instance.collection('Profile').where(
+          "email", isEqualTo: widget.user.email).snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.data == null) return CircularProgressIndicator();
 
-                children: <Widget>[
+        final docData = snapshot.data.documents;
+        for (var ind in docData) {
+           logo = ind.data['logo'];
 
-                  Expanded(
-                    flex: 1,
+        }print("my logo is:"+logo);
+//        String logo = docData['logo'];
 
-                    child: Container(
+        return Builder(
+          // ignore: missing_return
+            builder: (BuildContext context) {
+              return Container(
 
-                      width: 150.0,
-                      height: 200.0,
-                      decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.all(Radius.circular(40)),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.grey[500],
-                                offset: Offset(4.0, 4.0),
-                                blurRadius: 15.0,
-                                spreadRadius: 1.0 ),
+                  color: Color(0xffffffff),
+                  alignment: Alignment.center,
+                  child: Row(
 
-                            BoxShadow(
-                                color: Colors.white,
-                                offset: Offset(-4.0, -4.0),
-                                blurRadius: 15.0,
-                                spreadRadius: 1.0 ),
-                          ]),
+                      children: <Widget>[
+
+                        Expanded(
+                          flex: 1,
+
+                          child: Container(
+
+                            width: 150.0,
+                            height: 200.0,
+                            decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.all(Radius.circular(
+                                    40)),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.grey[500],
+                                      offset: Offset(4.0, 4.0),
+                                      blurRadius: 15.0,
+                                      spreadRadius: 1.0),
+
+                                  BoxShadow(
+                                      color: Colors.white,
+                                      offset: Offset(-4.0, -4.0),
+                                      blurRadius: 15.0,
+                                      spreadRadius: 1.0),
+                                ]),
 //
-                      child: Container(
+                            child: Container(
 
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Flexible(
-                              child: Column(
+                              child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
-                                  Container(
-                                      child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(21.0, 8.0, 8.0, 8.0),
-                                        child: Text(
-                                          dataProj,
+                                  Flexible(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment
+                                          .center,
+                                      children: <Widget>[
+                                        Container(
+                                            child: Padding(
+                                              padding: const EdgeInsets
+                                                  .fromLTRB(
+                                                  21.0, 8.0, 8.0, 8.0),
+                                              child: Text(
+                                                dataProj,
 //                                      document['name'].toString(),
-                                          overflow: TextOverflow.ellipsis,
+                                                overflow: TextOverflow.ellipsis,
 
-                                          maxLines: 5,
-                                          style: TextStyle(
-                                            color: Color(0xFF1b262c),
-                                            fontSize: 14.0,
-                                            fontWeight: FontWeight.bold,
-                                            // fontWeight: FontWeight.bold,
-                                          ),
+                                                maxLines: 5,
+                                                style: TextStyle(
+                                                  color: Color(0xFF1b262c),
+                                                  fontSize: 14.0,
+                                                  fontWeight: FontWeight.bold,
+                                                  // fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            )
                                         ),
-                                      )
-                                  ),
-                                  Container(
-                                      child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(21.0, 8.0, 8.0, 8.0),
-                                        child: Text(
+                                        Container(
+                                            child: Padding(
+                                              padding: const EdgeInsets
+                                                  .fromLTRB(
+                                                  21.0, 8.0, 8.0, 8.0),
+                                              child: Text(
 //                                        document['date'].toString(),
-                                          dueDate,
-                                          style: TextStyle(
-                                            color: Color(0xFF1b262c),
-                                            fontSize: 14.0,
-                                            fontWeight: FontWeight.bold,
-                                            // fontWeight: FontWeight.bold,
-                                          ),
+                                                dueDate,
+                                                style: TextStyle(
+                                                  color: Color(0xFF1b262c),
+                                                  fontSize: 14.0,
+                                                  fontWeight: FontWeight.bold,
+                                                  // fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            )
                                         ),
-                                      )
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],),
-                      ),
-
-                    ),
-                  ),
-
-                  Expanded(
-                      flex: 2,
-                      child: Container(
-                          height: 200.0,
-                          width: 150.0,
-                          decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: BorderRadius.all(Radius.circular(40)),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: Colors.grey[500],
-                                    offset: Offset(4.0, 4.0),
-                                    blurRadius: 15.0,
-                                    spreadRadius: 1.0 ),
-
-                                BoxShadow(
-                                    color: Colors.white,
-                                    offset: Offset(-4.0, -4.0),
-                                    blurRadius: 15.0,
-                                    spreadRadius: 1.0 ),
-                              ]),
-
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Container(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                        document['reference'].toString(),
-                                        style: TextStyle(
-                                          color: Color(0xff0f4c75),
-                                          fontSize: 14.0,
-                                          fontWeight: FontWeight.bold,
-                                        )
+                                      ],
                                     ),
                                   )
-                              ),
-                              Container(
-                                  child: Row(children: <Widget>[
-                                    Container(child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Icon(
-                                        FontAwesomeIcons.mapMarkerAlt,
-                                        color: new Color(0xffF7B928),
-                                        size: 20.0,),
-                                    ),),
-                                    Container(child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                          document['location'].toString(),
-                                          style: TextStyle(
-                                            color: Color(0xff0f4c75),
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.bold,
-                                          )),
-                                    ),),
-                                  ],)
-                              ),
+                                ],),
+                            ),
 
-                              Container(
-                                child: Row(children: <Widget>[
-                                  Container(child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: CircleAvatar(
-                                      radius: 30.0,
-                                      backgroundImage:
-                                      NetworkImage(
-                                        document['imagePlans'][0],
+                          ),
+                        ),
+
+                        Expanded(
+                            flex: 2,
+                            child: Container(
+                                height: 200.0,
+                                width: 150.0,
+                                decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    borderRadius: BorderRadius.all(Radius
+                                        .circular(40)),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.grey[500],
+                                          offset: Offset(4.0, 4.0),
+                                          blurRadius: 15.0,
+                                          spreadRadius: 1.0),
+
+                                      BoxShadow(
+                                          color: Colors.white,
+                                          offset: Offset(-4.0, -4.0),
+                                          blurRadius: 15.0,
+                                          spreadRadius: 1.0),
+                                    ]),
+
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Container(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                              document['reference'].toString(),
+                                              style: TextStyle(
+                                                color: Color(0xff0f4c75),
+                                                fontSize: 14.0,
+                                                fontWeight: FontWeight.bold,
+                                              )
+                                          ),
+                                        )
+                                    ),
+                                    Container(
+                                        child: Row(children: <Widget>[
+                                          Container(child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Icon(
+                                              FontAwesomeIcons.mapMarkerAlt,
+                                              color: new Color(0xffF7B928),
+                                              size: 20.0,),
+                                          ),),
+                                          Container(child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                                document['location'].toString(),
+                                                style: TextStyle(
+                                                  color: Color(0xff0f4c75),
+                                                  fontSize: 16.0,
+                                                  fontWeight: FontWeight.bold,
+                                                )),
+                                          ),),
+                                        ],)
+                                    ),
+
+                                    Container(
+                                      child: Row(children: <Widget>[
+                                        Container(child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: CircleAvatar(
+                                            radius: 30.0,
+                                            backgroundImage:
+                                            NetworkImage(
+                                              document['imagePlans'][0],
 //                                        height: 45,
 //                                        width: 55,
 //                                        fit: BoxFit.fill,
-                                      ),
+                                            ),
+                                          ),
+                                        ),),
+                                      ],),
                                     ),
-                                  ),),
-                                ],),
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: <Widget>[
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: <Widget>[
 
-                                  Positioned(
+                                        Positioned(
                                           right: 50,
                                           bottom: 0,
                                           child: IconButton(
@@ -825,80 +854,124 @@ String email = document['email'].toString();
                                             color: Color(0xff0f4c75),
                                             onPressed: () {
                                               final foldingCellState = context
-                                                  .findAncestorStateOfType<SimpleFoldingCellState>();
+                                                  .findAncestorStateOfType<
+                                                  SimpleFoldingCellState>();
                                               foldingCellState?.toggleFold();
                                             },
 //
                                           ),
                                         ),
-                                  Positioned(
-                                    right: 50,
-                                    bottom: 0,
-                                    child: IconButton(
-                                      icon: Icon(Icons.remove_red_eye),
-                                      color: Color(0xff0f4c75),
+                                        Positioned(
+                                          right: 50,
+                                          bottom: 0,
+                                          child: IconButton(
+                                            icon: Icon(Icons.remove_red_eye),
+                                            color: Color(0xff0f4c75),
 
-                                      onPressed: () {
-                                        Navigator.of(context).push(MaterialPageRoute(
-                                          builder: (context) => ProjTile(qrResultHome : dataProj,user: widget.user,googleSignIn: widget.googleSignIn,email: widget.user.email,),
-                                        ));
-                                      },
-                                    ),
-                                  ),
-                                  Positioned(
-                                    right: 70,
-                                    bottom: 0,
-                                    child: IconButton(
-                                      icon: Icon(Icons.print),
-                                      color: Color(0xff0f4c75),
-                                      onPressed: () async {
-                                        final PdfImage image = await pdfImageFromImageProvider(
-                                            pdf: pdf.document, image: const AssetImage('assets/oyalogo.png'));
+                                            onPressed: () {
+                                              Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ProjTile(
+                                                          qrResultHome: dataProj,
+                                                          user: widget.user,
+                                                          googleSignIn: widget
+                                                              .googleSignIn,
+                                                          email: widget.user
+                                                              .email,),
+                                                  ));
+                                            },
+                                          ),
+                                        ),
+                                        Positioned(
+                                          right: 70,
+                                          bottom: 0,
+                                          child: IconButton(
+                                            icon: Icon(Icons.print),
+                                            color: Color(0xff0f4c75),
+                                            onPressed: () async {
 
-                                          pdf.addPage(
+                                              final PdfImage image = await pdfImageFromImageProvider(
+                                                  pdf: pdf.document, image: Image.network(logo).image);
+                                              print(image);
+//                                              final PdfImage image = await pdfImageFromImageProvider(
+////                                            'assets/oyalogo.png'
+//                                                  pdf: pdf.document
+//                                                  , image: ""
+//                                              );
+
+                                              pdf.addPage(
 
 
                                                   pw.MultiPage(
-                                                      pageFormat: PdfPageFormat.a4,
+                                                      pageFormat: PdfPageFormat
+                                                          .a4,
 
-                                                      margin: pw.EdgeInsets.all(32),
-                                                      build: (pw.Context context) {
+                                                      margin: pw.EdgeInsets.all(
+                                                          32),
+                                                      build: (
+                                                          pw.Context context) {
                                                         return <pw.Widget>[
                                                           pw.Row(
-                                                            mainAxisAlignment: pw.MainAxisAlignment.center,
-                                                            children: [
-                                                              pw.Image(image),
-                                                            ]
+                                                              mainAxisAlignment: pw
+                                                                  .MainAxisAlignment
+                                                                  .center,
+                                                              children: [
+
+                                                                pw.Image(
+                                                                  image,height: 100,width: 300
+                                                                ),
+                                                              ]
                                                           ),
 
                                                           pw.SizedBox(
                                                               height: 30.0
                                                           ),
                                                           pw.Header(
-                                                          level: 0,
-                                                            child: pw.Text("project identifiers"),
+                                                            level: 0,
+                                                            child: pw.Text(
+                                                                "project identifiers"),
                                                           ),
 
-                                                          pw.Text("Name of the project: "+document['name']),
-                                                          pw.Text("Reference: "+document['reference']),
-                                                          pw.Text("Details: "+document['details']),
-                                                          pw.Text("Date of creation: "+_datePrj.toString()),
+                                                          pw.Text(
+                                                              "Name of the project: " +
+                                                                  document['name']),
+                                                          pw.Text(
+                                                              "Reference: " +
+                                                                  document['reference']),
+                                                          pw.Text("Details: " +
+                                                              document['details']),
+                                                          pw.Text(
+                                                              "Date of creation: " +
+                                                                  _datePrj
+                                                                      .toString()),
                                                           pw.SizedBox(
                                                               height: 30.0
                                                           ),
 
                                                           pw.Header(
                                                             level: 0,
-                                                            child: pw.Text("Project information"),
+                                                            child: pw.Text(
+                                                                "Project information"),
                                                           ),
-                                                          pw.Text("Type: "+document['typeP']),
-                                                          pw.Text("Customer: "+document['customer']),
-                                                          pw.Text("Location: "+document['location']),
-                                                          pw.Text("Phase: "+document['phase']),
-                                                          pw.Text("Project owner: "+document['mo']),
-                                                          pw.Text("Project owner delegate: "+document['moDelegate']),
-                                                          pw.Text("Clues: "+document['clues']),
-                                                          pw.Text("Comments: "+document['comments']),
+                                                          pw.Text("Type: " +
+                                                              document['typeP']),
+                                                          pw.Text("Customer: " +
+                                                              document['customer']),
+                                                          pw.Text("Location: " +
+                                                              document['location']),
+                                                          pw.Text("Phase: " +
+                                                              document['phase']),
+                                                          pw.Text(
+                                                              "Project owner: " +
+                                                                  document['mo']),
+                                                          pw.Text(
+                                                              "Project owner delegate: " +
+                                                                  document['moDelegate']),
+                                                          pw.Text("Clues: " +
+                                                              document['clues']),
+                                                          pw.Text("Comments: " +
+                                                              document['comments']),
 
                                                           pw.SizedBox(
                                                               height: 30.0
@@ -906,31 +979,42 @@ String email = document['email'].toString();
 
                                                           pw.Header(
                                                             level: 0,
-                                                            child: pw.Text("Project members"),
+                                                            child: pw.Text(
+                                                                "Project members"),
                                                           ),
-                                                          pw.Text("Manager: "+document['responsible']),
-                                                          pw.Text("Bureau d'études technique: "+document['bet']),
-                                                          pw.Text("Topographer: "+document['topo']),
+                                                          pw.Text("Manager: " +
+                                                              document['responsible']),
+                                                          pw.Text(
+                                                              "Bureau d'études technique: " +
+                                                                  document['bet']),
+                                                          pw.Text(
+                                                              "Topographer: " +
+                                                                  document['topo']),
 
                                                           pw.SizedBox(
                                                               height: 60.0
                                                           ),
 
                                                           pw.BarcodeWidget(
-                                                            barcode: pw.Barcode.qrCode(
-                                                              errorCorrectLevel: pw.BarcodeQRCorrectionLevel.high,
+                                                            barcode: pw.Barcode
+                                                                .qrCode(
+                                                              errorCorrectLevel: pw
+                                                                  .BarcodeQRCorrectionLevel
+                                                                  .high,
                                                             ),
-                                                            data: document['name'].toString(),
+                                                            data: document['name']
+                                                                .toString(),
 
                                                             height: 100.0,
                                                             width: 100.0,
                                                           ),
                                                         ];
                                                       }
-                                                  ));print(pw.Barcode.qrCode());
+                                                  ));
+                                              print(pw.Barcode.qrCode());
 //                                      writeOnPdf();
 
-                                        await savePdf();
+                                              await savePdf();
 //                                        Directory documentDirectory = await getApplicationDocumentsDirectory();
 //                                        String documentPath = documentDirectory.path;
 //                                        String fullPath = "$documentPath/example.pdf";
@@ -939,19 +1023,21 @@ String email = document['email'].toString();
 //                                          builder: (context) => pdfPreviewScreen(path: fullPath, name: name)
 //                                        ));
 
-                                      },
-                                    ),
-                                  )
-                                ],
-                              )
-                            ],
-                          )
+                                            },
+                                          ),
+                                        )
+                                      ],
+                                    )
+                                  ],
+                                )
 
-                      )),
-                ]));
+                            )),
+                      ]));
 //      );
 
-    });
+            });
+
+      });
 }
 
 

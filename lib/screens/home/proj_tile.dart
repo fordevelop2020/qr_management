@@ -258,32 +258,32 @@ class _ProjTileState extends State<ProjTile> with TickerProviderStateMixin  {
 
                     DateTime dateProject = dataQr['date'].toDate();
 
-                    editingSend(){
-                      Navigator.of(context).push(new MaterialPageRoute(
-                                                    builder: (BuildContext context) => new SettingsForm(
-                                                      name: choosen(),
-                                                      reference: dataQr['reference'],
-                                                      date: dataQr['date'].toDate(),
-                                                      index: dataQr.reference,
-                                                      docId: dataQr.documentID,
-                                                      localisation: dataQr['location'],
-                                                      mo: dataQr['mo'],
-                                                      moDelegate: dataQr['moDelegate'],
-                                                      bet: dataQr['bet'],
-                                                      topograph: dataQr['topo'],
-                                                      customer: dataQr['customer'],
-                                                      phase1: dataQr['phase'],
-                                                      clues: dataQr['clues'],
-                                                      comments: dataQr['comments'],
-                                                      manager: dataQr['responsible'],
-                                                      details: dataQr['details'],
-                                                      imagesNotif: dataQr['imagePlans']+ dataQr['image3d'],
-                                                      documents: dataQr['documents'],
-
-
-                                                    )
-                                                ));
-                    }
+//                    editingSend(){
+//                      Navigator.of(context).push(new MaterialPageRoute(
+//                                                    builder: (BuildContext context) => new SettingsForm(
+//                                                      name: choosen(),
+//                                                      reference: dataQr['reference'],
+//                                                      date: dataQr['date'].toDate(),
+//                                                      index: dataQr.reference,
+//                                                      docId: dataQr.documentID,
+//                                                      localisation: dataQr['location'],
+//                                                      mo: dataQr['mo'],
+//                                                      moDelegate: dataQr['moDelegate'],
+//                                                      bet: dataQr['bet'],
+//                                                      topograph: dataQr['topo'],
+//                                                      customer: dataQr['customer'],
+//                                                      phase1: dataQr['phase'],
+//                                                      clues: dataQr['clues'],
+//                                                      comments: dataQr['comments'],
+//                                                      manager: dataQr['responsible'],
+//                                                      details: dataQr['details'],
+//                                                      imagesNotif: dataQr['imagePlans']+ dataQr['image3d'],
+//                                                      documents: dataQr['documents'],
+//
+//
+//                                                    )
+//                                                ));
+//                    }
 
 
                                      return Expanded(

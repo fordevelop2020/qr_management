@@ -89,8 +89,8 @@ class _MyAddPageState extends State<MyAddPage> {
   String details ='';
   String comments ='';
   var _typesProjet=['Select project type','Public','Private','Deco','Other'];
-  var _phases = ['Select phase','Esquisse','Aps','Apd','Pac','Pe','dce','exe','Reception'];
-  var _selectedPhase = 'Select phase';
+  var _phases = ['Esquisse','Aps','Apd','Pac','Pe','dce','exe','Reception'];
+  var _selectedPhase = 'Esquisse';
   var _selectedTypeProjet ='Select project type';
 
   List<Asset> imagePlans = List<Asset>();
