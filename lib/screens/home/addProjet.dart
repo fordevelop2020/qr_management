@@ -397,73 +397,95 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
               .of(context)
               .showSnackBar(SnackBar(content: Text(message)));
         }
+        _addingData(){
+          String documentID = DateTime
+              .now()
+              .millisecondsSinceEpoch
+              .toString();
+          Firestore.instance.collection('Projet')
+              .document(documentID)
+              .setData({
+
+            "email": widget.email,
+            "typeP": _selectedTypeProjet,
+            "name": _name,
+            "reference": reference,
+            "customer": customer,
+            "location": location,
+            "mo": mo,
+            "moDelegate": moDelegate,
+            "bet": bet,
+            "topo": topo,
+            "date": _datePrj,
+            "phase": _selectedPhase,
+            "clues": clues,
+            "responsible": responsible,
+            "imagePlans": imageUrls,
+            "details": details,
+            "image3d": imageUrls3d,
+            "comments": comments,
+            "documents": fileUrls,
+          })
+              .then((_) {
+            setState(() {
+              imagePlans = [];
+              imageUrls = [];
+              image3d = [];
+              imageUrls3d = [];
+              fileUrls = [];
+            });
+            //uploadImages();
+          });
+        }
+
+        _addDocs(){
+        for (String dwnlfile in documents.values) {
+          postFile(dwnlfile).then((downloadUrl) {
+            fileUrls.add(downloadUrl.toString());
+            if (fileUrls.length == documents.length) {
+              _addingData();
+            }
+    }).catchError((err) {
+        print(err);
+        });
+      }
+    }
+
+    _addImgP(){
+      for (var imageFile in imagePlans) {
+        postImage(imageFile).then((downloadUrl) {
+          imageUrls.add(downloadUrl.toString());
+          if (imageUrls.length == imagePlans.length) {
+            _addingData();
+          }
+        }).catchError((err) {
+          print(err);
+        });
+      }
+    }
+
+    _adImg3D(){
+      for (var imageFile2 in image3d) {
+        postImage(imageFile2).then((downloadUrl2) {
+          imageUrls3d.add(downloadUrl2.toString());
+          if (imageUrls3d.length == image3d.length) {
+            _addingData();
+          }
+
+        }).catchError((err) {
+          print(err);
+        });
+      }
+    }
 
 
         Future<void> _addData() async {
-          for(String dwnlfile in documents.values){
-            postFile(dwnlfile).then((downloadUrl){
-              fileUrls.add(downloadUrl.toString());
-          for (var imageFile in imagePlans) {
-            postImage(imageFile).then((downloadUrl) {
-              imageUrls.add(downloadUrl.toString());
-              for(var imageFile2 in image3d) {
-                postImage(imageFile2).then((downloadUrl2){
-                  imageUrls3d.add(downloadUrl2.toString());
+                        _addImgP();
+                        _adImg3D();
+                        _addDocs();
 
-              if (imageUrls.length == imagePlans.length) {
-                if (imageUrls3d.length == image3d.length) {
-                  if (fileUrls.length == documents.length) {
+          }
 
-                String documentID = DateTime
-                    .now()
-                    .millisecondsSinceEpoch
-                    .toString();
-                Firestore.instance.collection('Projet')
-                    .document(documentID)
-                    .setData({
-
-                  "email": widget.email,
-                  "typeP": _selectedTypeProjet,
-                  "name": _name,
-                  "reference": reference,
-                  "customer": customer,
-                  "location": location,
-                  "mo": mo,
-                  "moDelegate": moDelegate,
-                  "bet": bet,
-                  "topo": topo,
-                  "date": _datePrj,
-                  "phase": _selectedPhase,
-                  "clues": clues,
-                  "responsible": responsible,
-                  "imagePlans": imageUrls,
-                  "details": details,
-                  "image3d" : imageUrls3d,
-                  "comments": comments,
-                  "documents" : fileUrls,
-                })
-                    .then((_) {
-                  setState(() {
-                    imagePlans = [];
-                    imageUrls = [];
-                    image3d = [];
-                    imageUrls3d = [];
-                    fileUrls = [];
-
-                  });
-                  //uploadImages();
-                });
-              }}}
-            }).catchError((err) {
-              print(err);
-            });
-          } }).catchError((err) {
-              print(err);
-              });
-          } }).catchError((err) {
-              print(err);
-            });
-          }}
 
         final List<Widget> _children = [
           Home(user: widget.user, googleSignIn: widget.googleSignIn,email: widget.user.email,),

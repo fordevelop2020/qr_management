@@ -411,50 +411,63 @@ class _SettingsFormState extends State<SettingsForm> {
             }
           }
 
-
-
-          Future<void> _editProject() async{
-      for (var imageFile in imagePlans2) {
-          postImage(imageFile).then((downloadUrl) {
-            imageUrls.add(downloadUrl.toString());
-            for (var imageFile3d in image3d) {
-              postImage(imageFile3d).then((downloadUrl2) {
-                imageUrls3d.add(downloadUrl2.toString());
-                if (imageUrls.length == imagePlans2.length) {
-                  if (imageUrls3d.length == image3d.length) {
-
-                  Firestore.instance.runTransaction((
-                      Transaction transaction) async {
-                    DocumentSnapshot snapshot = await transaction.get(
-                        widget.index);
-                    await transaction.update(snapshot.reference, {
-                      "imagePlans": imagePlans + imageUrls,
-                      "image3d":  image3Dss + imageUrls3d,
-                      "reference": reference,
-                      "date": _datePrj,
-                      "location": localisation,
-                      "bet": bet,
-                      "clues": clues,
-                      "comments": comments,
-                      "customer": customer,
-                      "responsible": manager,
-                      "mo": mo,
-                      "moDelegate": moDelegate,
-                      "phase": _selectedPhase,
-                      "topo": topograph,
-                      "details": details,
-                    });
-                  });
-
-                }}
-              }).catchError((err) {
-                print(err);
+          _editingDT(){
+            Firestore.instance.runTransaction((
+                Transaction transaction) async {
+              DocumentSnapshot snapshot = await transaction.get(
+                  widget.index);
+              await transaction.update(snapshot.reference, {
+                "imagePlans": imagePlans + imageUrls,
+                "image3d":  image3Dss + imageUrls3d,
+                "reference": reference,
+                "date": _datePrj,
+                "location": localisation,
+                "bet": bet,
+                "clues": clues,
+                "comments": comments,
+                "customer": customer,
+                "responsible": manager,
+                "mo": mo,
+                "moDelegate": moDelegate,
+                "phase": _selectedPhase,
+                "topo": topograph,
+                "details": details,
               });
-              }
+            });
+
+          }
+
+          _addImgP(){
+            for (var imageFile in imagePlans2) {
+              postImage(imageFile).then((downloadUrl) {
+                imageUrls.add(downloadUrl.toString());
+                if (imageUrls.length == imagePlans2.length) {
+                  _editingDT();
+                }
               }).catchError((err) {
                 print(err);
               });
             }
+          }
+
+          _adImg3D(){
+            for (var imageFile3d in image3d) {
+              postImage(imageFile3d).then((downloadUrl2) {
+                imageUrls3d.add(downloadUrl2.toString());
+                if (imageUrls3d.length == image3d.length) {
+                  _editingDT();
+                }
+
+              }).catchError((err) {
+                print(err);
+              });
+            }
+          }
+
+          Future<void> _editProject() async{
+
+                 _addImgP();
+                 _adImg3D();
             Navigator.pop(context);
           }
 
@@ -592,6 +605,8 @@ class _SettingsFormState extends State<SettingsForm> {
                                                                       ),
                                                                       onPressed: () => setState(() {
                                                                         imagesTotal.removeAt(i);
+
+
                                                                       })))
                                                             ] ));
 

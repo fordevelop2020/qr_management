@@ -102,15 +102,9 @@ flutter:
   assets:
       - assets/dp_default.png
       - assets/oyalogo.png
-      - assets/plans.png
-      - assets/maison.png
-      - assets/unnamed.png
-      - assets/building.png
       - assets/webInterFace.png
       - assets/updatePrj.jpg
       - assets/imgFiles.jpg
-      - assets/pl.png
-      - img/bgprpl.png
       - assets/Wavy.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see

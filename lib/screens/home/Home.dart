@@ -669,7 +669,7 @@ String logo;
         for (var ind in docData) {
            logo = ind.data['logo'];
 
-        }print("my logo is:"+logo);
+        }
 //        String logo = docData['logo'];
 
         return Builder(
@@ -832,15 +832,10 @@ String logo;
                                           child: CircleAvatar(
                                             radius: 30.0,
                                             backgroundImage:
-                                            NetworkImage(
-                                              document['imagePlans'][0],
-//                                        height: 45,
-//                                        width: 55,
-//                                        fit: BoxFit.fill,
-                                            ),
-                                          ),
+                                              document['imagePlans'][0]!= null ? NetworkImage(document['imagePlans'][0]) : null,
+                                                      child: document['imagePlans']== null ?Icon(Icons.account_circle,size: 40): Container(),
                                         ),),
-                                      ],),
+                                        )],),
                                     ),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
