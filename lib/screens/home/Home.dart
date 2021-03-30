@@ -22,6 +22,7 @@ import 'package:qr_management/screens/home/profile.dart';
 import 'package:qr_management/screens/home/proj_tile.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../main.dart';
+import 'Help.dart';
 import 'addProjet.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -333,6 +334,14 @@ class _HomeState extends State<Home> {
           new MaterialPageRoute(
               builder: (BuildContext context) => new MyProfile(email: widget.user.email,user: widget.user,googleSignIn: widget.googleSignIn,
                   imageUrl:widget.user.photoUrl))
+      );
+
+    }
+
+    _myHelp() async{
+      Navigator.of(context).push(
+          new MaterialPageRoute(
+              builder: (BuildContext context) => new Help())
       );
 
     }
@@ -677,7 +686,8 @@ class _HomeState extends State<Home> {
                                           text: "Help",
                                           iconData: Icons.help_outline,
                                           textSize: getSize(3),
-                                          height: (menuContainerHeight)/8,),
+                                          height: (menuContainerHeight)/8,
+                                          onPressed: _myHelp,),
                                         MyButton(
                                           text: "Rate the app",
                                           iconData: Icons.star_half,
