@@ -114,45 +114,6 @@ class _ProjTileCltState extends State<ProjTileClt> with TickerProviderStateMixin
             color: Color(0xff0f4c75)
         ),
       ),
-//      bottomNavigationBar: CurvedNavigationBar(
-//        color: Color(0xff0f4c75) ,
-//        backgroundColor: Colors.white,
-//        buttonBackgroundColor: Color(0xff0f4c75),
-//        height: 50,
-//
-////              currentIndex: _currentIndex,
-//        items: <Widget>[
-//          Icon(Icons.home,size: 20,color: Colors.white,),
-//          Icon(FontAwesomeIcons.qrcode,size: 20,color: Colors.white,),
-//          Icon(FontAwesomeIcons.fileDownload,size: 20,color: Colors.white,),
-//          Icon(Icons.add_circle,size: 20,color: Colors.white,),
-//
-//        ] ,
-//        index: _currentIndex,
-//        animationDuration: Duration(milliseconds: 200),
-//        animationCurve: Curves.bounceInOut,
-//        onTap: (index){
-//          setState(() {
-//            _currentIndex = index;
-//          });
-//          _onTap();
-//        },
-//      ),
-//      bottomNavigationBar: BottomAppBar(
-//        elevation: 8.0,
-//        color: Colors.white,
-//        shape: CircularNotchedRectangle(),
-//        notchMargin: 12.0,
-//        child: Row(
-//          children: [
-//            IconButton(icon: Icon(FontAwesomeIcons.qrcode,color: Color(0xff3282b8),), onPressed: () {
-//              Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context)=>
-//                  ScanQrClt()));
-//
-//            }),
-//          ],
-//        ),
-//      ),
 
       body: Stack(
           children : <Widget>[
@@ -210,7 +171,7 @@ class _ProjTileCltState extends State<ProjTileClt> with TickerProviderStateMixin
                                                     stream: Firestore.instance.collection('Projet').where(
                                                         "name", isEqualTo: widget.qrResult).snapshots(),
                                                     builder: (context, snapshot) {
-                                                      if (snapshot.data == null) return CircularProgressIndicator();
+                                                      if (snapshot.data == null) return Text("no data created for this Qr Code");
 
                                                       return ListView.builder(
                                                           itemCount: snapshot.data.documents.length,

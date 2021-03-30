@@ -70,6 +70,7 @@ dependencies:
       curved_navigation_bar:
       url_encoder: ^0.0.3
       syncfusion_flutter_pdf:
+      google_mobile_ads:
 
 
 

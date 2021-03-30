@@ -17,8 +17,14 @@ import 'package:qr_management/widgets/wave_widget.dart';
 import 'ForgotScreen.dart';
 import 'models/home_model.dart';
 import 'models/user.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-void main() => runApp(MyApp());
+void main(){
+  WidgetsFlutterBinding.ensureInitialized();
+  final initFuture = MobileAds.instance.initialize();
+
+  runApp(MyApp());
+}
 class MyApp extends StatelessWidget {
   @override
 
@@ -41,6 +47,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
+  @override
+  void initState(){
+    super.initState();
+    //load Ad
+  }
 
   final emailTextController =  TextEditingController();
   final passwordTextController =   TextEditingController();
@@ -247,7 +258,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                   children: <Widget>[
 
                    Text(
-                  'Think',
+                  'Archi',
                   style: TextStyle(
                     color: Global.white,
                     fontSize: 30.0,
@@ -263,7 +274,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                       ),
                     ),
                     Text(
-                      'OYA',
+                      'Viewer',
                       style: TextStyle(
                         color: Global.white,
                         fontSize: 30.0,

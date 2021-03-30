@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 // ignore: implementation_imports
 import 'package:flutter/src/material/stepper.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:multi_image_picker/multi_image_picker.dart';
@@ -112,6 +113,34 @@ class _MyAddPageState extends State<MyAddPage> {
   StorageUploadTask _uploadTask2;
 
   bool _isPressed = false;
+  //Instantiate Interstitial Ads admob
+  final InterstitialAd myInterstitial = InterstitialAd(
+    adUnitId: 'ca-app-pub-3940256099942544/8691691433',
+    request: AdRequest(),
+    listener: AdListener(),
+  );
+
+  //Interstitial Ad events
+  final AdListener listener1 = AdListener(
+    // Called when an ad is successfully received.
+    onAdLoaded: (Ad ad) => print('Ad loaded.'),
+    // Called when an ad request failed.
+    onAdFailedToLoad: (Ad ad, LoadAdError error) {
+      ad.dispose();
+      print('Ad failed to load: $error');
+    },
+    // Called when an ad opens an overlay that covers the screen.
+    onAdOpened: (Ad ad) => print('Ad opened.'),
+    // Called when an ad removes an overlay that covers the screen.
+    onAdClosed: (Ad ad) {
+      ad.dispose();
+      print('Ad closed.');
+    },
+    // Called when an ad is in the process of leaving the application.
+    onApplicationExit: (Ad ad) => print('Left application.'),
+  );
+
+
 
 //
   void _openFileExplorer() async {
@@ -352,6 +381,8 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
         // TODO: implement initState
         super.initState();
         _dateText = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
+        MobileAds.instance.initialize();
+        myInterstitial.load();
       }
 
       @override
@@ -536,6 +567,9 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                 _currentIndex = index;
               });
               _onTap();
+              if(_currentIndex == 3){
+                myInterstitial.show();
+              }
             },
           ),
           body: Column(

@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_full_pdf_viewer/flutter_full_pdf_viewer.dart';
 import 'package:folding_cell/folding_cell.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 // ignore: unused_import
 import 'package:path_provider/path_provider.dart';
@@ -53,6 +54,46 @@ class _HomeState extends State<Home> {
   List _resultsList = [];
   Future resultsLoaded;
  int _currentIndex =0;
+  static final _kAdIndex = 4;
+  NativeAd _ad;
+  bool _isLoaded = false;
+
+ static const adUnitIdNat = "ca-app-pub-3940256099942544/2247696110";
+
+ //Instantiate Interstitial Ads admob
+  final InterstitialAd myInterstitial = InterstitialAd(
+    adUnitId: 'ca-app-pub-3940256099942544/8691691433',
+    request: AdRequest(),
+    listener: AdListener(),
+  );
+
+  //Interstitial Ad events
+  final AdListener listener = AdListener(
+    // Called when an ad is successfully received.
+    onAdLoaded: (Ad ad) => print('Ad loaded.'),
+    // Called when an ad request failed.
+    onAdFailedToLoad: (Ad ad, LoadAdError error) {
+      ad.dispose();
+      print('Ad failed to load: $error');
+    },
+    // Called when an ad opens an overlay that covers the screen.
+    onAdOpened: (Ad ad) => print('Ad opened.'),
+    // Called when an ad removes an overlay that covers the screen.
+    onAdClosed: (Ad ad) {
+      ad.dispose();
+      print('Ad closed.');
+    },
+    // Called when an ad is in the process of leaving the application.
+    onApplicationExit: (Ad ad) => print('Left application.'),
+  );
+
+  int _getDestinitionItemIndex(int rawIndex){
+    if(rawIndex >= _kAdIndex && _isLoaded){
+      return rawIndex -1;
+    }
+    return rawIndex;
+  }
+
 
   @override
   void initState() {
@@ -60,13 +101,38 @@ class _HomeState extends State<Home> {
     WidgetsBinding.instance.addPostFrameCallback(getPosition);
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    MobileAds.instance.initialize();
+    myInterstitial.load();
+    _ad = NativeAd(
+      adUnitId: adUnitIdNat,
+      factoryId: 'listTile',
+      request: AdRequest(),
+      listener: AdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          // Releases an ad resource when it fails to load
+          ad.dispose();
+
+          print('Ad load failed (code=${error.code} message=${error.message})');       },
+      ),
+    );
+
+    _ad.load();
+    print("my ad");print(adUnitIdNat);
+
   }
 
   @override
   void dispose(){
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    _ad?.dispose();
     super.dispose();
+
   }
 
   @override
@@ -110,14 +176,9 @@ class _HomeState extends State<Home> {
     .where("email", isEqualTo: widget.user?.email)
 //    .orderBy('date')
     .getDocuments();
-//    var data2 = await Firestore.instance
-//    .collection('Profile')
-//    .where("email", isEqualTo: widget.user?.email)
-//    .getDocuments();
 
     setState(() {
       _allResults = data.documents;
-//      _allResults2 = data2.documents;
 
     });
     searchResultsList();
@@ -140,9 +201,6 @@ class _HomeState extends State<Home> {
     });
 
   }
-
-
-
 
   Offset _offset = Offset(0,0);
   GlobalKey globalKey = GlobalKey();
@@ -219,7 +277,7 @@ class _HomeState extends State<Home> {
       ),
     );
 
-    showDialog(context: context, child: alertDialog);
+    showDialog(context: context, builder: (_) => alertDialog);
   }
   Icon cusIcon = Icon(Icons.search);
   Widget cusSearchBar = Text("My Projects",style: TextStyle(color: Color(0xff0f4c75)),);
@@ -301,6 +359,7 @@ class _HomeState extends State<Home> {
     Future<void> _getData() async {
       setState(() {
         getDataProjectsStreamsSnapshots();
+
       });
     }
 
@@ -380,6 +439,9 @@ class _HomeState extends State<Home> {
                   _currentIndex = index;
                 });
                 _onTap();
+                if(_currentIndex == 3){
+                  myInterstitial.show();
+                }
               },
             ),
             body: Container(
@@ -408,19 +470,10 @@ class _HomeState extends State<Home> {
                         ),
                           ),
 
-                        Expanded(child: ListView.builder(
+                        Expanded(child: ListView.separated(
                          itemCount: _resultsList.length,
-//                      StreamBuilder(
-//                          stream: getDataProjectsStreamsSnapshots(context),
-////                          Firestore.instance
-////                    .collection('Projet')
-////                    .where("email", isEqualTo: widget.user.email)
-////                    .snapshots(),
-//                          builder: (context, snapshot) {
-//                            if (!snapshot.hasData) return const Text('loading ...');
-//                                          return ListView.builder(
-//                                            itemCount: snapshot.data.documents.length,
                           itemBuilder: (context, index) {
+
                                                   _listOfImages = [];
                                                   for (int i = 0;
                                                   i <
@@ -470,8 +523,28 @@ class _HomeState extends State<Home> {
                                                   )
 //
                                                 );
-                                              },
-                                            )),]),
+                                              }  ,
+                          // ignore: missing_return
+                          separatorBuilder: (context,index){
+                        if(_isLoaded){
+                        return Container(
+                          margin: EdgeInsets.fromLTRB(25.0,8.0,8.0,8.0),
+                          height: 150.0,
+                          alignment: Alignment.center,
+                         child: AdWidget(ad: _ad),
+
+
+                        );}
+                         else {
+                           return Container(
+                             margin: EdgeInsets.all(8.0),
+                             height: 10.0,
+                             alignment: Alignment.center,
+                           );
+                         }
+                          }
+
+                                            ),)]),
               onRefresh: _getData,
                       ): Center(child: Padding(
                         padding: const EdgeInsets.all(30.0),
@@ -610,11 +683,11 @@ class _HomeState extends State<Home> {
                                           iconData: Icons.star_half,
                                           textSize: getSize(4),
                                           height: (menuContainerHeight)/8,),
-                                        MyButton(
-                                          text: "Settings",
-                                          iconData: Icons.settings,
-                                          textSize: getSize(5),
-                                          height: (menuContainerHeight)/8,),
+//                                        MyButton(
+//                                          text: "Settings",
+//                                          iconData: Icons.settings,
+//                                          textSize: getSize(5),
+//                                          height: (menuContainerHeight)/8,),
 
                                       ],
                                     ),

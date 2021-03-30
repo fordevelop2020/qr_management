@@ -258,33 +258,6 @@ class _ProjTileState extends State<ProjTile> with TickerProviderStateMixin  {
 
                     DateTime dateProject = dataQr['date'].toDate();
 
-//                    editingSend(){
-//                      Navigator.of(context).push(new MaterialPageRoute(
-//                                                    builder: (BuildContext context) => new SettingsForm(
-//                                                      name: choosen(),
-//                                                      reference: dataQr['reference'],
-//                                                      date: dataQr['date'].toDate(),
-//                                                      index: dataQr.reference,
-//                                                      docId: dataQr.documentID,
-//                                                      localisation: dataQr['location'],
-//                                                      mo: dataQr['mo'],
-//                                                      moDelegate: dataQr['moDelegate'],
-//                                                      bet: dataQr['bet'],
-//                                                      topograph: dataQr['topo'],
-//                                                      customer: dataQr['customer'],
-//                                                      phase1: dataQr['phase'],
-//                                                      clues: dataQr['clues'],
-//                                                      comments: dataQr['comments'],
-//                                                      manager: dataQr['responsible'],
-//                                                      details: dataQr['details'],
-//                                                      imagesNotif: dataQr['imagePlans']+ dataQr['image3d'],
-//                                                      documents: dataQr['documents'],
-//
-//
-//                                                    )
-//                                                ));
-//                    }
-
 
                                      return Expanded(
                                        child: Column(
@@ -564,21 +537,24 @@ class _ProjTileState extends State<ProjTile> with TickerProviderStateMixin  {
                                             SizedBox(
                                               height: 20,
                                             ),
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: imgList.map((url) {
-                                                int index = imgList.indexOf(url);
-                                                return Container(
-                                                  width: 8.0,
-                                                  height: 8.0,
-                                                  margin: EdgeInsets.symmetric(
-                                                      vertical: 10.0, horizontal: 2.0),
-                                                  decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      color: _current == index ? Colors
-                                                          .blueAccent : Colors.grey),
-                                                );
-                                              }).toList(),
+                                            SizedBox(
+                                              width: MediaQuery.of(context).size.width,
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: imgList.map((url) {
+                                                  int index = imgList.indexOf(url);
+                                                  return Container(
+                                                    width: 8.0,
+                                                    height: 8.0,
+                                                    margin: EdgeInsets.symmetric(
+                                                        vertical: 10.0, horizontal: 2.0),
+                                                    decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: _current == index ? Colors
+                                                            .blueAccent : Colors.grey),
+                                                  );
+                                                }).toList(),
+                                              ),
                                             ),
 //                                    FloatingActionButton(
 //                                      onPressed: () =>{  editingSend()},
@@ -590,30 +566,6 @@ class _ProjTileState extends State<ProjTile> with TickerProviderStateMixin  {
 
 
                                      );
-
-
-//                                  ),
-//                              ),
-//                            )
-//                          ],
-//                        ),
-
-
-//                      decoration: new BoxDecoration(
-//                        boxShadow: [
-//                          BoxShadow(
-//                            color: Colors.grey.withOpacity(.5),
-//                            blurRadius: 20.0, // soften the shadow
-//                            spreadRadius: 0.0, //extend the shadow
-//                            offset: Offset(
-//                              5.0, // Move to right 10  horizontally
-//                              5.0, // Move to bottom 10 Vertically
-//                            ),
-//                          )
-//                        ],
-//                      ),
-
-//                    );
                   }
               );
 
