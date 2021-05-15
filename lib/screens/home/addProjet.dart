@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:math';
+import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:email_validator/email_validator.dart';
@@ -22,6 +24,7 @@ import 'package:qr_management/widgets/button_widget.dart';
 
 import 'ScanQrCode.dart';
 import 'myFiles.dart';
+import 'package:qr_management/api.dart';
 
 class AddProjet extends StatelessWidget {
   @override
@@ -99,6 +102,7 @@ class _MyAddPageState extends State<MyAddPage> {
   List<String> imageUrls = <String>[];
   List<String> fileUrls = <String>[];
   List<String> imageUrls3d = <String>[];
+  CloudApi api;
   String _error = 'No Error Dectected';
   bool isUploading = false;
   VoidCallback listener;
@@ -115,12 +119,12 @@ class _MyAddPageState extends State<MyAddPage> {
   bool _isPressed = false;
   //Instantiate Interstitial Ads admob
   final InterstitialAd myInterstitial = InterstitialAd(
-    adUnitId: 'ca-app-pub-3940256099942544/8691691433',
+    adUnitId: 'ca-app-pub-7514857792356108/6439031018',
     request: AdRequest(),
     listener: AdListener(),
   );
 
-  //Interstitial Ad events
+//  Interstitial Ad events
   final AdListener listener1 = AdListener(
     // Called when an ad is successfully received.
     onAdLoaded: (Ad ad) => print('Ad loaded.'),
@@ -162,11 +166,6 @@ class _MyAddPageState extends State<MyAddPage> {
 //      if (_multiPick) {
         _paths.forEach((fileName, filePath) => {
           upload(fileName, filePath)});
-//      } else {
-//        String fileName = _path.split('/').last;
-//        String filePath = _path;
-//        upload(fileName, filePath);
-//      }
     }
 
 
@@ -278,7 +277,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
     String error = 'No Error Dectected';
     try {
       resultList = await MultiImagePicker.pickImages(
-        maxImages: 10,
+        maxImages: 4,
         enableCamera: false,
         selectedAssets: imagePlans,
       cupertinoOptions  : CupertinoOptions(takePhotoIcon: "chat"),
@@ -297,9 +296,16 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
 
     if (!mounted) return;
 
-    setState(() {
+    setState((){
       imagePlans = resultList;
       _error = error;
+//      if(resultList != null){
+//        for( var i in resultList){
+//            _image = File(i.getByteData());
+//         _imagesBytes = _image.readAsBytesSync();
+//      }}else {
+//        print('No image selected');
+//      }
     });
   }
   Future<void> loadAssets3D() async {
@@ -310,7 +316,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
     String error = 'No Error Dectected';
     try {
       resultList = await MultiImagePicker.pickImages(
-        maxImages: 10,
+        maxImages: 4,
         enableCamera: false,
         selectedAssets: image3d,
         cupertinoOptions  : CupertinoOptions(takePhotoIcon: "chat"),
@@ -334,16 +340,26 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
       _error = error;
     });
   }
-  Future<dynamic> postImage(Asset imageFile) async {
-//    await imageFile.requestOriginal();
+
+  Future<dynamic> postImage(Asset imageFile) async{
     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
-    StorageUploadTask uploadTask = reference.putData(( await imageFile.getByteData()).buffer.asUint8List());
-    StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
-//    print(storageTaskSnapshot.ref.getDownloadURL());
-    return storageTaskSnapshot.ref.getDownloadURL();
+    final response = await api.save(fileName, (await imageFile.getByteData()).buffer.asUint8List());
+    print(response.downloadLink);
+    return response.downloadLink;
 
   }
+
+//  Future<dynamic> postImage(Asset imageFile) async {
+////    await imageFile.requestOriginal();
+//    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+//    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
+//    StorageUploadTask uploadTask = reference.putData(( await imageFile.getByteData()).buffer.asUint8List());
+//
+//    StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
+////    print(storageTaskSnapshot.ref.getDownloadURL());
+//    return storageTaskSnapshot.ref.getDownloadURL();
+//
+//  }
 
   Future<dynamic> postFile(fileName) async {
     _extension = fileName.toString().split('.').last;
@@ -381,7 +397,11 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
         // TODO: implement initState
         super.initState();
         _dateText = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
-        MobileAds.instance.initialize();
+        rootBundle.loadString('assets/credentials.json').then((json){
+          api = CloudApi(json);
+        });
+
+                MobileAds.instance.initialize();
         myInterstitial.load();
       }
 
@@ -428,94 +448,70 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
               .of(context)
               .showSnackBar(SnackBar(content: Text(message)));
         }
-        _addingData(){
-          String documentID = DateTime
-              .now()
-              .millisecondsSinceEpoch
-              .toString();
-          Firestore.instance.collection('Projet')
-              .document(documentID)
-              .setData({
 
-            "email": widget.email,
-            "typeP": _selectedTypeProjet,
-            "name": _name,
-            "reference": reference,
-            "customer": customer,
-            "location": location,
-            "mo": mo,
-            "moDelegate": moDelegate,
-            "bet": bet,
-            "topo": topo,
-            "date": _datePrj,
-            "phase": _selectedPhase,
-            "clues": clues,
-            "responsible": responsible,
-            "imagePlans": imageUrls,
-            "details": details,
-            "image3d": imageUrls3d,
-            "comments": comments,
-            "documents": fileUrls,
-          })
-              .then((_) {
-            setState(() {
-              imagePlans = [];
-              imageUrls = [];
-              image3d = [];
-              imageUrls3d = [];
-              fileUrls = [];
+
+        String documentID = DateTime
+            .now()
+            .millisecondsSinceEpoch.toString();
+
+               Future<void> _addImgP() async {
+                 for (var imageFile in imagePlans) {
+                   postImage(imageFile).then((downloadUrl3) {
+                     imageUrls.add(downloadUrl3.toString());
+                     if (imageUrls.length == imagePlans.length){
+                       for (var imageFile2 in image3d) {
+                         postImage(imageFile2).then((downloadUrl2) {
+                           imageUrls3d.add(downloadUrl2.toString());
+                           if(imageUrls3d.length == image3d.length){
+                           for (String dwnlfile in documents.values) {
+                             postFile(dwnlfile).then((downloadUrl) {
+                               fileUrls.add(downloadUrl.toString());
+                               if(fileUrls.length == documents.length) {
+                    Firestore.instance.collection('Projet')
+                        .document(documentID)
+                        .setData({
+                      "email": widget.email,
+                      "typeP": _selectedTypeProjet,
+                      "name": _name,
+                      "reference": reference,
+                      "customer": customer,
+                      "location": location,
+                      "mo": mo,
+                      "moDelegate": moDelegate,
+                      "bet": bet,
+                      "topo": topo,
+                      "date": _datePrj,
+                      "phase": _selectedPhase,
+                      "clues": clues,
+                      "responsible": responsible,
+                      "imagePlans": imageUrls,
+                      "details": details,
+                      "image3d": imageUrls3d,
+                      "comments": comments,
+                      "documents": fileUrls,
+                    })
+                        .then((_) {
+
+                      setState(() {
+
+                      });
+                      //uploadImages();
+                    });
+                  }
+                }).catchError((err) {
+                  print(err);
+                });
+              }}
+            }).catchError((err) {
+              print(err);
             });
-            //uploadImages();
-          });
-        }
-
-        _addDocs(){
-        for (String dwnlfile in documents.values) {
-          postFile(dwnlfile).then((downloadUrl) {
-            fileUrls.add(downloadUrl.toString());
-            if (fileUrls.length == documents.length) {
-              _addingData();
-            }
-    }).catchError((err) {
-        print(err);
-        });
-      }
-    }
-
-    _addImgP(){
-      for (var imageFile in imagePlans) {
-        postImage(imageFile).then((downloadUrl) {
-          imageUrls.add(downloadUrl.toString());
-          if (imageUrls.length == imagePlans.length) {
-            _addingData();
-          }
+          }}
         }).catchError((err) {
           print(err);
         });
       }
+
     }
-
-    _adImg3D(){
-      for (var imageFile2 in image3d) {
-        postImage(imageFile2).then((downloadUrl2) {
-          imageUrls3d.add(downloadUrl2.toString());
-          if (imageUrls3d.length == image3d.length) {
-            _addingData();
-          }
-
-        }).catchError((err) {
-          print(err);
-        });
-      }
-    }
-
-
-        Future<void> _addData() async {
-                        _addImgP();
-                        _adImg3D();
-                        _addDocs();
-
-          }
 
 
         final List<Widget> _children = [
@@ -528,8 +524,24 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
           Navigator.of(context)
               .push(MaterialPageRoute(builder: (BuildContext context) => _children[_currentIndex])); // this has changed
         }
+
+        _displaySnackBar(BuildContext context) {
+          final snackBar = SnackBar(content: Text('Project: ${_name} is added successfully!'));
+          Scaffold.of(context).showSnackBar(snackBar);
+          Timer(Duration(seconds: 3),(){
+            _currentStep = 0;
+            Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) =>
+            new Home(user: widget.user,googleSignIn: widget.googleSignIn,email: widget.user.email,)),
+            );
+          });
+
+
+
+        }
+        
+        
         return Scaffold(
-//          key: _scaffoldKey,
+//          key: _scaffoldKey2,
           backgroundColor: Colors.white,
           appBar: AppBar(
             automaticallyImplyLeading: false,
@@ -567,71 +579,79 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                 _currentIndex = index;
               });
               _onTap();
-              if(_currentIndex == 3){
+              if(_currentIndex == 2){
                 myInterstitial.show();
               }
             },
           ),
-          body: Column(
+          body: Builder(
+            builder: (context) =>
+             Column(
 
-              children: <Widget>[
-                Theme(
-                  data: ThemeData(
-                      primaryColor: Color(0xff3282b8)
-                  ),
-                  child: Form(
+                children: <Widget>[
+                  Theme(
+                    data: ThemeData(
+                        primaryColor: Color(0xff3282b8)
+                    ),
+                    child: Form(
 //                    key: _formKey,
-                  key: _scaffoldKey,
-                    child: Expanded(
-                      child: Stepper(
-                        steps: _stepper(),
-                        physics: ClampingScrollPhysics(),
-                        type: _stepperType,
-                        currentStep: this._currentStep,
+                    key: _scaffoldKey,
+                      child: Expanded(
+                        child: Stepper(
+                          steps: _stepper(),
+                          physics: ClampingScrollPhysics(),
+                          type: _stepperType,
+                          currentStep: this._currentStep,
 
-                        onStepTapped: (step) {
-                          setState(() {
-                            this._currentStep = step;
-                          });
-                        },
-                        onStepContinue: () {
-                          setState(() {
-                            if (formKeys[_currentStep].currentState
-                                .validate()) {
-                              if (_currentStep < _stepper().length - 1) {
-                                _currentStep = _currentStep + 1;
-                                //  _addData();
-                              } else {
-                                _addData();
-                                _currentStep = 0;
-                                showAlertDialog(context);
-                                Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) =>
-                                new Home(user: widget.user,googleSignIn: widget.googleSignIn,email: widget.user.email,)),
-                                );
+                          onStepTapped: (step) {
+                            setState(() {
+                              this._currentStep = step;
+                            });
+                          },
+                          onStepContinue: () {
+                            setState(() {
+                              if (formKeys[_currentStep].currentState
+                                  .validate()) {
+                                if (_currentStep < _stepper().length - 1) {
+                                  _currentStep = _currentStep + 1;
 
+                                } else {
+//                                _addData();
+                                _addImgP();
+                                _displaySnackBar(context);
+//                                final snackBar = SnackBar(content: Text('Project: ${_name} is added successfully!'));
+//                                Scaffold.of(context).showSnackBar(snackBar);
+
+//                                showAlertDialog(context);
+//                                  _currentStep = 0;
+//                                  Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) =>
+//                                  new Home(user: widget.user,googleSignIn: widget.googleSignIn,email: widget.user.email,)),
+//                                  );
+
+                                }
                               }
-                            }
-                          });
-                        },
-                        onStepCancel: () {
-                          setState(() {
-                            if (this._currentStep > 0) {
-                              this._currentStep = this._currentStep - 1;
-                            } else {
-                              this._currentStep = 0;
-                            }
-                          });
-                        },
+                            });
+                          },
+                          onStepCancel: () {
+                            setState(() {
+                              if (this._currentStep > 0) {
+                                this._currentStep = this._currentStep - 1;
+                              } else {
+                                this._currentStep = 0;
+                              }
+                            });
+                          },
+
+
+                        ),
 
 
                       ),
 
-
                     ),
-
                   ),
-                ),
-              ]),
+                ]),
+          ),
 
           floatingActionButton: FloatingActionButton(onPressed: switchStepType,
             backgroundColor: Color(0xff0f4c75),
@@ -865,10 +885,13 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                     SizedBox(
                       height: 10.0,
                     ),
+                    Text("* please add at least 1 document ..", style: TextStyle(color: Colors.redAccent),),
+                    SizedBox(height: 10.0),
                   Row(
                     children: <Widget>[
                       Icon(Icons.blur_on,color:Colors.grey[600]),
                       SizedBox(width: 20),
+
                       ButtonWidget(
                         title: ('Add documents'),
                         hasBorder: true,
@@ -885,7 +908,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                         validator: ( bool _pressed){
 
                           if(_pressed = !_isPressed){
-                            return Text(" add doc plz");
+                            return Text(" add doc please");
                           }
                         },
                       ),
@@ -963,7 +986,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
 
 
                                    SizedBox(
-                                       height: 180.0,
+                                       height: 190.0,
                                   child: Column(
                                     children: <Widget>[
 //                                    Expanded(
@@ -972,6 +995,9 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                                         Wrap(
                                          crossAxisAlignment: WrapCrossAlignment.start,
                                                 children: <Widget>[
+                                                  SizedBox(width: 30,),
+                                                  Text("* please add at least 1 image plan & 1 image 3D", style: TextStyle(color: Colors.redAccent),),
+                                                  SizedBox(height: 15.0),
                                                   Row(
                                                     children: <Widget>[
                                                       Icon(Icons.blur_on,color: Colors.grey[600],),
@@ -989,6 +1015,7 @@ String _bytesTransferred(StorageTaskSnapshot snapshot) {
                                         ),
 //                                      )
 //                                    ),
+
                                     Row(
                                         children: <Widget>[
                                           new IconButton(icon: new Icon(Icons.add_photo_alternate), onPressed: loadAssets),

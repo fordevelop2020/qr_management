@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:qr_management/screens/home/Home.dart';
 import 'package:qr_management/screens/home/proj_tile.dart';
@@ -20,6 +21,7 @@ class ScanQrCode extends StatefulWidget {
   final String email;
   final GoogleSignIn googleSignIn;
 
+
   ScanQrCode({this.user, this.googleSignIn,this.email,});
 
 
@@ -30,8 +32,69 @@ class ScanQrCode extends StatefulWidget {
 
 class _ScanQrCodeState extends State<ScanQrCode> {
  String qrResultScan = "Not Yet Scanned!";
+ BannerAd _bannerAd;
+ bool _isBannerAdReady = false;
  int _currentIndex =1;
+ final InterstitialAd myInterstitial = InterstitialAd(
+   adUnitId: 'ca-app-pub-7514857792356108/6439031018',
+   request: AdRequest(),
+   listener: AdListener(),
+ );
 
+//  Interstitial Ad events
+  final AdListener listener1 = AdListener(
+    // Called when an ad is successfully received.
+    onAdLoaded: (Ad ad) => print('Ad loaded.'),
+    // Called when an ad request failed.
+    onAdFailedToLoad: (Ad ad, LoadAdError error) {
+      ad.dispose();
+      print('Ad failed to load: $error');
+    },
+    // Called when an ad opens an overlay that covers the screen.
+    onAdOpened: (Ad ad) => print('Ad opened.'),
+    // Called when an ad removes an overlay that covers the screen.
+    onAdClosed: (Ad ad) {
+      ad.dispose();
+      print('Ad closed.');
+    },
+    // Called when an ad is in the process of leaving the application.
+    onApplicationExit: (Ad ad) => print('Left application.'),
+  );
+
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    MobileAds.instance.initialize();
+    myInterstitial.load();
+    _bannerAd = BannerAd(
+      adUnitId: 'ca-app-pub-7514857792356108/2297523297',
+      request: AdRequest(),
+      size: AdSize.banner,
+      listener: AdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBannerAdReady = true;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('Failed to load a banner ad: ${err.message}');
+          _isBannerAdReady = false;
+          ad.dispose();
+        },
+      ),
+    );
+
+    _bannerAd.load();
+}
+
+@override
+  void dispose() {
+    // TODO: implement dispose
+  _bannerAd.dispose();
+    super.dispose();
+
+  }
   @override
   Widget build(BuildContext context) {
     final List<Widget> _children = [
@@ -78,6 +141,9 @@ class _ScanQrCodeState extends State<ScanQrCode> {
             _currentIndex = index;
           });
           _onTap();
+          if(_currentIndex == 1){
+            myInterstitial.show();
+          }
         },
       ),
 
@@ -154,6 +220,17 @@ class _ScanQrCodeState extends State<ScanQrCode> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.0),
                 side: BorderSide(color: Color(0xff3282b8), width: 3.0)),
+              ),
+            SizedBox(height: 20,),
+
+            if (_isBannerAdReady)
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  width: _bannerAd.size.width.toDouble(),
+                  height: _bannerAd.size.height.toDouble(),
+                  child: AdWidget(ad: _bannerAd),
+                ),
               ),
           ],
         ),

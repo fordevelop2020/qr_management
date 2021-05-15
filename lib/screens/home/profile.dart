@@ -12,6 +12,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 
+import 'Home.dart';
+
 
 class MyProfile extends StatefulWidget {
   final FirebaseUser user;
@@ -82,6 +84,13 @@ class _MyProfileState extends State<MyProfile>{
                         }).catchError((err) {
                   print(err);
                 });
+        final snackBar = SnackBar(content: Text('Your profile is updated!'));
+        Scaffold.of(context).showSnackBar(snackBar);
+        Route route = MaterialPageRoute(builder: (context) =>
+        new Home(user: widget.user,googleSignIn: widget.googleSignIn,email: widget.user.email,));
+        Navigator.pushReplacement(context, route);
+
+//        Navigator.pop(context);
 
     }
 
@@ -186,13 +195,14 @@ class _MyProfileState extends State<MyProfile>{
               Container(
                 child: RaisedButton(
                   child: Text("Submit", style: TextStyle(color: Colors.white)),color: Color(0xff0f4c75),
-                  onPressed:
-
-                      _addData,
-
-
-
-
+                  onPressed:(){
+                    _addData();
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) =>
+                    new Home(user: widget.user,googleSignIn: widget.googleSignIn,email: widget.user.email,)),
+                    );
+                  }
 
                 ),
               ),

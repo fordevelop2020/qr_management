@@ -173,14 +173,14 @@ class Help extends StatelessWidget {
               ),
               Icon(Icons.remove_red_eye),
               SizedBox(height: 15.0,),
-            Text("PS: as a client, you cannot modify, add or delete a project,"
-                " you have the right to consult the given project through a QR code from your architect (admin).",
-              overflow:TextOverflow.ellipsis,
-              maxLines: 50,textAlign: TextAlign.justify,style:TextStyle(color: Colors.redAccent,fontWeight: FontWeight.bold,fontSize: 14.0) ,
-            ),
-              SizedBox(height: 25.0,),
+//            Text("PS: as a client, you cannot modify, add or delete a project,"
+//                " you have the right to consult the given project through a QR code from your architect (admin).",
+//              overflow:TextOverflow.ellipsis,
+//              maxLines: 50,textAlign: TextAlign.justify,style:TextStyle(color: Colors.redAccent,fontWeight: FontWeight.bold,fontSize: 14.0) ,
+//            ),
+//              SizedBox(height: 25.0,),
 
-            Text("For any information or suggestion please contact us by email via: fordevelop2020@gmail.com",
+            Text("For any informations or suggestions please contact us by email via: fordevelop2020@gmail.com",
               overflow:TextOverflow.ellipsis,
               maxLines: 50,textAlign: TextAlign.justify,style:TextStyle(color: Colors.blueGrey,fontWeight: FontWeight.bold,fontSize: 14.0) ,
             ),

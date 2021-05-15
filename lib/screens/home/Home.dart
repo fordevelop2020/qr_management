@@ -7,15 +7,18 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_full_pdf_viewer/flutter_full_pdf_viewer.dart';
 import 'package:folding_cell/folding_cell.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
 // ignore: unused_import
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
 import 'package:qr_management/models/project.dart';
+import 'package:qr_management/screens/home/Reviews.dart';
 import 'package:qr_management/screens/home/ScanQrCode.dart';
 import 'package:qr_management/screens/home/myFiles.dart';
 import 'package:qr_management/screens/home/profile.dart';
@@ -26,6 +29,7 @@ import 'Help.dart';
 import 'addProjet.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:qr_management/api.dart';
 
 class Home extends StatefulWidget {
 
@@ -55,15 +59,19 @@ class _HomeState extends State<Home> {
   List _resultsList = [];
   Future resultsLoaded;
  int _currentIndex =0;
-  static final _kAdIndex = 4;
+  static final _kAdIndex = 2;
   NativeAd _ad;
   bool _isLoaded = false;
+//  CloudApi api;
+  WidgetBuilder builder = buildProgressIndicator;
 
- static const adUnitIdNat = "ca-app-pub-3940256099942544/2247696110";
+ static const adUnitIdNat = "ca-app-pub-7514857792356108/8873622662";
+// static const adUnitIdNat = 'ca-app-pub-3940256099942544/1044960115';
+
 
  //Instantiate Interstitial Ads admob
   final InterstitialAd myInterstitial = InterstitialAd(
-    adUnitId: 'ca-app-pub-3940256099942544/8691691433',
+    adUnitId: 'ca-app-pub-7514857792356108/6439031018',
     request: AdRequest(),
     listener: AdListener(),
   );
@@ -77,14 +85,14 @@ class _HomeState extends State<Home> {
       ad.dispose();
       print('Ad failed to load: $error');
     },
-    // Called when an ad opens an overlay that covers the screen.
+//    // Called when an ad opens an overlay that covers the screen.
     onAdOpened: (Ad ad) => print('Ad opened.'),
-    // Called when an ad removes an overlay that covers the screen.
+//    // Called when an ad removes an overlay that covers the screen.
     onAdClosed: (Ad ad) {
       ad.dispose();
       print('Ad closed.');
     },
-    // Called when an ad is in the process of leaving the application.
+//    // Called when an ad is in the process of leaving the application.
     onApplicationExit: (Ad ad) => print('Left application.'),
   );
 
@@ -95,12 +103,24 @@ class _HomeState extends State<Home> {
     return rawIndex;
   }
 
+//  RateMyApp _rateMyApp = RateMyApp(
+//    preferencesPrefix: 'rateMyApp_',
+//    minDays: 3,
+//    minLaunches: 7,
+//    remindDays: 2,
+//    remindLaunches: 5,
+//    googlePlayIdentifier: 'com.fordevelop.qr_management',
+//  );
+
 
   @override
   void initState() {
     limits= [0, 0, 0, 0, 0, 0,0,0];
     WidgetsBinding.instance.addPostFrameCallback(getPosition);
     super.initState();
+//    rootBundle.loadString('assets/credentials.json').then((json){
+//      api = CloudApi(json);
+//    });
     _searchController.addListener(_onSearchChanged);
     MobileAds.instance.initialize();
     myInterstitial.load();
@@ -124,6 +144,24 @@ class _HomeState extends State<Home> {
 
     _ad.load();
     print("my ad");print(adUnitIdNat);
+//   _rateMyApp.init().then((_){
+//     if(_rateMyApp.shouldOpenDialog){
+//       _rateMyApp.showStarRateDialog(
+//           context,
+//           title: 'Enjoying Archi Viewer App?',
+//           message: 'Please leave a rating!',
+//
+//           dialogStyle: DialogStyle(
+//             titleAlign: TextAlign.center,
+//             messageAlign: TextAlign.center,
+//             messagePadding: EdgeInsets.only(bottom: 20.0),
+//           ),
+//         starRatingOptions: StarRatingOptions(),
+//       );
+//     }
+//   });
+
+
 
   }
 
@@ -135,6 +173,14 @@ class _HomeState extends State<Home> {
     super.dispose();
 
   }
+
+//
+//  Future<dynamic> deleteImage(Asset imageFile) async{
+//    final response = await api.delete(imageFile);
+//    print(response.downloadLink);
+//    return response.downloadLink;
+//
+//  }
 
   @override
   void didChangeDependencies(){
@@ -283,12 +329,13 @@ class _HomeState extends State<Home> {
   Icon cusIcon = Icon(Icons.search);
   Widget cusSearchBar = Text("My Projects",style: TextStyle(color: Color(0xff0f4c75)),);
 
-
+  static Widget buildProgressIndicator(BuildContext context) =>
+      const Center(child: CircularProgressIndicator());
 
 
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
 
 
     Size mediaQuery = MediaQuery.of(context).size;
@@ -326,6 +373,14 @@ class _HomeState extends State<Home> {
       Navigator.of(context).push(
           new MaterialPageRoute(
               builder: (BuildContext context) => new MyFiles(email: widget.user.email,user: widget.user,googleSignIn: widget.googleSignIn,))
+      );
+
+    }
+
+    _reviews() async{
+      Navigator.of(context).push(
+          new MaterialPageRoute(
+              builder: (BuildContext context) => new Reviews())
       );
 
     }
@@ -451,269 +506,269 @@ class _HomeState extends State<Home> {
                 if(_currentIndex == 3){
                   myInterstitial.show();
                 }
+                if(_currentIndex == 2){
+                  myInterstitial.show();
+                }
               },
             ),
             body: Container(
-              width: mediaQuery.width,
+                width: mediaQuery.width,
 
-                child: Stack(
-                    children: <Widget>[
-                      _resultsList.length!= 0
-                  ?
-                      RefreshIndicator(
-                        child:Column(
-                          children : [
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(20.0,8.0,2.0,0.0),
-                            child: Row(
-                              mainAxisAlignment : MainAxisAlignment.center,
-                            children: <Widget>[
+                  child: Stack(
+                      children: <Widget>[
+                        _resultsList.length!= 0
+                    ?
+                        RefreshIndicator(
+                          child:Column(
+                            children : [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(20.0,8.0,2.0,0.0),
+                              child: Row(
+                                mainAxisAlignment : MainAxisAlignment.center,
+                              children: <Widget>[
 
-                              Container(
-                                padding: EdgeInsets.all(10.0),
-                                  alignment: Alignment(0, 0),
-                                  height: 50.0,
-                                  color: Colors.orange.withOpacity(0.5),
-                                  child: Text("To remove a project, swipe the tile to the left",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),textAlign: TextAlign.justify)),
-                            ],
-                        ),
+                                Container(
+                                  padding: EdgeInsets.all(10.0),
+                                    alignment: Alignment(0, 0),
+                                    height: 50.0,
+                                    color: Colors.orange.withOpacity(0.5),
+                                    child: Text("To remove a project, swipe the tile to the left",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),textAlign: TextAlign.justify)),
+                              ],
                           ),
+                            ),
 
-                        Expanded(child: ListView.separated(
-                         itemCount: _resultsList.length,
-                          itemBuilder: (context, index) {
+                          Expanded(child: ListView.builder(
+                           itemCount: _resultsList.length
+                           + (_isLoaded ? 1 : 0),
+                            itemBuilder: (context, index) {
+                              if ( _isLoaded && index == _kAdIndex){
+                                return
+                                 Container(
+                            margin: EdgeInsets.fromLTRB(25.0,8.0,8.0,8.0),
+                            height: 150.0,
+                            alignment: Alignment.center,
+                           child: AdWidget(ad: _ad),);
+                              } else {
+                                final item = _resultsList[_getDestinitionItemIndex(index)];
 
-                                                  _listOfImages = [];
-                                                  for (int i = 0;
-                                                  i <
-                                                  _resultsList[index].data['imagePlans']
-                                                      .length;
-                                                  i++) {
-                                                  _listOfImages.add(NetworkImage(_resultsList[index].data['imagePlans'][i]));}
+                                                    _listOfImages = [];
+                                                    for (int i = 0;
+                                                    i <
+                                                        item.data['imagePlans']
+                                                        .length;
+                                                    i++) {
+                                                    _listOfImages.add(NetworkImage(item.data['imagePlans'][i]));}
 
-                                                return
-                                                  Dismissible(
-                                                  key: Key(_resultsList[index].toString()),
-                                                  confirmDismiss: (direction) async => await confirm(direction,context),
-                                                  background: Container(
-                                                    alignment: AlignmentDirectional.centerEnd,
-                                                    color: Colors.redAccent,
-                                                    child: Icon(Icons.delete, color: Colors.white,),
-                                                  ),
-                                                     onDismissed: (direction){
-                                                    DocumentSnapshot document = _resultsList[index];
-                                                    _resultsList.remove(_resultsList.removeAt(index));
-                                                    Firestore.instance.collection("Projet")
-                                                    .document(document.documentID)
-                                                    .delete().catchError((e){
-                                                      print(e);
-                                                    });
-//                                                    final snackBar = SnackBar(content: Text('Project: ${_resultsList[index].data['name']} is deleted!'));
-//                                                        Scaffold.of(context).showSnackBar(snackBar);
-                                                    print(document.documentID);
-                                                  },
-                                                  child: SimpleFoldingCell.create(
+                                                  return
+                                                    Dismissible(
+//                                                  key: Key(_resultsList[index].toString()),
+                                                    key: UniqueKey(),
+                                                    confirmDismiss: (direction) async => await confirm(direction,context),
+                                                    background: Container(
+                                                      alignment: AlignmentDirectional.centerEnd,
+                                                      color: Colors.redAccent,
+                                                      child: Icon(Icons.delete, color: Colors.white,),
+                                                    ),
+                                                       onDismissed: (direction){
+                                                      DocumentSnapshot document = item;
+                                                      _resultsList.remove(_resultsList.removeAt(index));
+                                                      Firestore.instance.collection("Projet")
+                                                      .document(document.documentID)
+                                                      .delete().catchError((e){
+                                                        print(e);
+                                                      });
+                                                      final snackBar = SnackBar(content: Text('Project: ${item.data['name']} is deleted!'));
+                                                          Scaffold.of(context).showSnackBar(snackBar);
+                                                      print(document.documentID);
+                                                    },
+                                                    child: SimpleFoldingCell.create(
 
-                                                    frontWidget: _buildFrontWidget(context,_resultsList[index]),
-                                                    innerWidget: _buildInnerWidget(context,_resultsList[index]),
+                                                      frontWidget: _buildFrontWidget(context,item),
+                                                      innerWidget: _buildInnerWidget(context,item),
 
 
-                                                    cellSize: Size(MediaQuery
-                                                        .of(context)
-                                                        .size.width, 220),
-                                                    padding: EdgeInsets.all(0),
-                                                    animationDuration: Duration(
-                                                        milliseconds: 300),
-                                                    borderRadius: 10,
-                                                    onOpen: () =>
-                                                        print('$index cell opened'),
-                                                    onClose: () =>
-                                                        print('$index cell closed'),
-                                                  )
+                                                      cellSize: Size(MediaQuery
+                                                          .of(context)
+                                                          .size.width, 220),
+                                                      padding: EdgeInsets.all(0),
+                                                      animationDuration: Duration(
+                                                          milliseconds: 300),
+                                                      borderRadius: 10,
+                                                      onOpen: () =>
+                                                          print('$index cell opened'),
+                                                      onClose: () =>
+                                                          print('$index cell closed'),
+                                                    )
 //
-                                                );
-                                              }  ,
-                          // ignore: missing_return
-                          separatorBuilder: (context,index){
-                        if(_isLoaded){
-                        return Container(
-                          margin: EdgeInsets.fromLTRB(25.0,8.0,8.0,8.0),
-                          height: 150.0,
-                          alignment: Alignment.center,
-                         child: AdWidget(ad: _ad),
+                                                  );
+                                                 }} ,
+                            // ignore: missing_return
 
 
-                        );}
-                         else {
-                           return Container(
-                             margin: EdgeInsets.all(8.0),
-                             height: 10.0,
-                             alignment: Alignment.center,
-                           );
-                         }
-                          }
+                                              ),)]),
+                onRefresh: _getData,
+                        ): Center(child: Padding(
+                          padding: const EdgeInsets.all(30.0),
+                          child: Text("No data saved yet!, please add a project with the + icon", style: TextStyle(color:Color(0xff0f4c75).withOpacity(0.3),fontSize: 15, fontWeight: FontWeight.bold),maxLines: 3,textAlign: TextAlign.justify
+                            ,overflow: TextOverflow.ellipsis,),
+                        ),
 
-                                            ),)]),
-              onRefresh: _getData,
-                      ): Center(child: Padding(
-                        padding: const EdgeInsets.all(30.0),
-                        child: Text("No data saved yet!, please add a project with the + icon", style: TextStyle(color:Color(0xff0f4c75).withOpacity(0.3),fontSize: 15, fontWeight: FontWeight.bold),maxLines: 3,textAlign: TextAlign.justify
-                          ,overflow: TextOverflow.ellipsis,),
-                      ),
-
-                      ),
+                        ),
 
 //                                          }),
 
 
 
-                  AnimatedPositioned(
-                    duration: Duration(milliseconds: 1500),
-                    left: isMenuOpen?0: -sidebarSize+20,
-                    top: 0,
-                    curve: Curves.elasticOut,
-                    child: SizedBox(
-                      width: sidebarSize,
-                      child: GestureDetector(
-                        onPanUpdate: (details){
-                          if(details.localPosition.dx <=sidebarSize){
+                    AnimatedPositioned(
+                      duration: Duration(milliseconds: 1500),
+                      left: isMenuOpen?0: -sidebarSize+20,
+                      top: 0,
+                      curve: Curves.elasticOut,
+                      child: SizedBox(
+                        width: sidebarSize,
+                        child: GestureDetector(
+                          onPanUpdate: (details){
+                            if(details.localPosition.dx <=sidebarSize){
+                              setState(() {
+                                _offset = details.localPosition;
+                              });
+                            }
+
+                            if(details.localPosition.dx>sidebarSize-20 && details.delta.distanceSquared>2){
+                              setState(() {
+                                isMenuOpen = true;
+                              });
+                            }
+
+                          },
+                          onPanEnd: (details){
                             setState(() {
-                              _offset = details.localPosition;
+                              _offset = Offset(0,0);
                             });
-                          }
+                          },
+                          child: Stack(
+                            children: <Widget>[
+                              CustomPaint(
+                                size: Size(sidebarSize, mediaQuery.height),
+                                painter: DrawerPainter(offset: _offset),
+                              ),
+                              Container(
+                                height: mediaQuery.height,
+                                width: sidebarSize,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: <Widget>[
+                                    Container(
+                                      height: mediaQuery.height*0.25,
+                                      child: Center(
+                                        child: Column(
+                                          children: <Widget>[
+                                            Expanded(
+                                              child: Row(
+                                              mainAxisAlignment : MainAxisAlignment.spaceBetween,
+                                               children: <Widget>[
+                                                 new IconButton(
 
-                          if(details.localPosition.dx>sidebarSize-20 && details.delta.distanceSquared>2){
-                            setState(() {
-                              isMenuOpen = true;
-                            });
-                          }
+                                                   icon: Icon(Icons.directions_run, color: Colors.white,size: 20.0,),
+                                                   onPressed: (){
+                                                     _signOut();
+                                                   },
+                                                 ),
 
-                        },
-                        onPanEnd: (details){
-                          setState(() {
-                            _offset = Offset(0,0);
-                          });
-                        },
-                        child: Stack(
-                          children: <Widget>[
-                            CustomPaint(
-                              size: Size(sidebarSize, mediaQuery.height),
-                              painter: DrawerPainter(offset: _offset),
-                            ),
-                            Container(
-                              height: mediaQuery.height,
-                              width: sidebarSize,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  Container(
-                                    height: mediaQuery.height*0.25,
-                                    child: Center(
-                                      child: Column(
-                                        children: <Widget>[
-                                          Expanded(
-                                            child: Row(
-                                            mainAxisAlignment : MainAxisAlignment.spaceBetween,
-                                             children: <Widget>[
-                                               new IconButton(
-
-                                                 icon: Icon(Icons.directions_run, color: Colors.white,size: 20.0,),
-                                                 onPressed: (){
-                                                   _signOut();
-                                                 },
-                                               ),
-
-                                             Divider(),
+                                               Divider(),
 //                                               SizedBox(width: 150.0),
-                                               new IconButton(
-                                                 enableFeedback: true,
-                                                 icon: Icon(Icons.keyboard_backspace,color: Colors.white,size: 20,),
-                                                 onPressed: (){
-                                                   this.setState(() {
-                                                     isMenuOpen = false;
-                                                   });
-                                                 },),
+                                                 new IconButton(
+                                                   enableFeedback: true,
+                                                   icon: Icon(Icons.keyboard_backspace,color: Colors.white,size: 20,),
+                                                   onPressed: (){
+                                                     this.setState(() {
+                                                       isMenuOpen = false;
+                                                     });
+                                                   },),
 
-                                             ],),
-                                          ),
-                                          CircleAvatar(
-                                            backgroundImage: imageUrl != null? NetworkImage(imageUrl): null,
-                                              child: imageUrl == null? Icon(Icons.account_circle,size: 40): Container(),
+                                               ],),
+                                            ),
+                                            CircleAvatar(
+                                              backgroundImage: imageUrl != null? NetworkImage(imageUrl): null,
+                                                child: imageUrl == null? Icon(Icons.account_circle,size: 40): Container(),
 
 //                                              child: Image.network(widget.user.photoUrl,width: sidebarSize/2,),
-                                            radius: 40.0,
-                                            backgroundColor: Colors.transparent,
-                                          ),
-                                          SizedBox(height: 20.0,),
-                                          Text(name ?? email,style: TextStyle(color: Colors.white),),
-                                          ],
+                                              radius: 40.0,
+                                              backgroundColor: Colors.transparent,
+                                            ),
+                                            SizedBox(height: 20.0,),
+                                            Text(name ?? email,style: TextStyle(color: Colors.white),),
+                                            ],
+                                        ),
+
                                       ),
-
                                     ),
-                                  ),
-                                  Divider(thickness: 1,),
-                                  Container(
-                                    key: globalKey,
-                                    width: double.infinity,
-                                    height: menuContainerHeight,
-                                    child: Column(
-                                      children: <Widget>[
-                                        MyButton(
-                                          text: "My profile",
-                                          iconData: FontAwesomeIcons.personBooth,
-                                          textSize: getSize(0),
-                                          height: (menuContainerHeight)/8,
-                                          onPressed: _myProfile,
+                                    Divider(thickness: 1,),
+                                    Container(
+                                      key: globalKey,
+                                      width: double.infinity,
+                                      height: menuContainerHeight,
+                                      child: Column(
+                                        children: <Widget>[
+                                          MyButton(
+                                            text: "My profile",
+                                            iconData: FontAwesomeIcons.personBooth,
+                                            textSize: getSize(0),
+                                            height: (menuContainerHeight)/8,
+                                            onPressed: _myProfile,
 
-                                        ),
-                                        MyButton(
-                                          text: "About us?",
-                                          iconData: Icons.work,
-                                          textSize: getSize(0),
-                                          height: (menuContainerHeight)/8,
-                                          onPressed: _launchURL,
-                                        ),
-                                        MyButton(
-                                          text: "My Files",
-                                          iconData: Icons.attach_file,
-                                          textSize: getSize(1),
-                                          height: (menuContainerHeight)/8,
-                                          onPressed: _myFiles,
-                                        ),
+                                          ),
+                                          MyButton(
+                                            text: "About us?",
+                                            iconData: Icons.work,
+                                            textSize: getSize(0),
+                                            height: (menuContainerHeight)/8,
+                                            onPressed: _launchURL,
+                                          ),
+                                          MyButton(
+                                            text: "My Files",
+                                            iconData: Icons.attach_file,
+                                            textSize: getSize(1),
+                                            height: (menuContainerHeight)/8,
+                                            onPressed: _myFiles,
+                                          ),
 
-                                        MyButton(
-                                          text: "Help",
-                                          iconData: Icons.help_outline,
-                                          textSize: getSize(3),
-                                          height: (menuContainerHeight)/8,
-                                          onPressed: _myHelp,),
-                                        MyButton(
-                                          text: "Rate the app",
-                                          iconData: Icons.star_half,
-                                          textSize: getSize(4),
-                                          height: (menuContainerHeight)/8,),
+                                          MyButton(
+                                            text: "Help",
+                                            iconData: Icons.help_outline,
+                                            textSize: getSize(3),
+                                            height: (menuContainerHeight)/8,
+                                            onPressed: _myHelp,),
+                                          MyButton(
+                                            text: "Rate the app",
+                                            iconData: Icons.star_half,
+                                            textSize: getSize(4),
+                                            height: (menuContainerHeight)/8,
+                                            onPressed: _reviews,
+                                          ),
 //                                        MyButton(
 //                                          text: "Settings",
 //                                          iconData: Icons.settings,
 //                                          textSize: getSize(5),
 //                                          height: (menuContainerHeight)/8,),
 
-                                      ],
-                                    ),
-                                  )
-                                ],
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
-            )
-        ));
+            ));
+//        ));
 
   }
 
@@ -740,6 +795,7 @@ DateTime _datePrj = document['date'].toDate();
 String dueDate = "${_datePrj.day}/${_datePrj.month}/${_datePrj.year}";
 String email = document['email'].toString();
 String logo;
+String sign;
 
 
   return StreamBuilder<QuerySnapshot>(
@@ -751,111 +807,36 @@ String logo;
         final docData = snapshot.data.documents;
         for (var ind in docData) {
            logo = ind.data['logo'];
+           sign = ind.data['signature'];
 
         }
 //        String logo = docData['logo'];
 
-        return Builder(
-          // ignore: missing_return
-            builder: (BuildContext context) {
-              return Container(
+        return SizedBox(
+          height: MediaQuery.of(context).size.height,
+//          child: Expanded(
+            child: Builder(
+              // ignore: missing_return
+                builder: (BuildContext context) {
+                  return Container(
 
-                  color: Color(0xffffffff),
-                  alignment: Alignment.center,
-                  child: Row(
+                      color: Color(0xffffffff),
+                      alignment: Alignment.center,
+                      child: Row(
 
-                      children: <Widget>[
+                          children: <Widget>[
 
-                        Expanded(
-                          flex: 1,
+                            Expanded(
+                              flex: 1,
 
-                          child: Container(
+                              child: Container(
 
-                            width: 150.0,
-                            height: 200.0,
-                            decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: BorderRadius.all(Radius.circular(
-                                    40)),
-                                boxShadow: [
-                                  BoxShadow(
-                                      color: Colors.grey[500],
-                                      offset: Offset(4.0, 4.0),
-                                      blurRadius: 15.0,
-                                      spreadRadius: 1.0),
-
-                                  BoxShadow(
-                                      color: Colors.white,
-                                      offset: Offset(-4.0, -4.0),
-                                      blurRadius: 15.0,
-                                      spreadRadius: 1.0),
-                                ]),
-//
-                            child: Container(
-
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Flexible(
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment
-                                          .center,
-                                      children: <Widget>[
-                                        Container(
-                                            child: Padding(
-                                              padding: const EdgeInsets
-                                                  .fromLTRB(
-                                                  21.0, 8.0, 8.0, 8.0),
-                                              child: Text(
-                                                dataProj,
-//                                      document['name'].toString(),
-                                                overflow: TextOverflow.ellipsis,
-
-                                                maxLines: 5,
-                                                style: TextStyle(
-                                                  color: Color(0xFF1b262c),
-                                                  fontSize: 14.0,
-                                                  fontWeight: FontWeight.bold,
-                                                  // fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            )
-                                        ),
-                                        Container(
-                                            child: Padding(
-                                              padding: const EdgeInsets
-                                                  .fromLTRB(
-                                                  21.0, 8.0, 8.0, 8.0),
-                                              child: Text(
-//                                        document['date'].toString(),
-                                                dueDate,
-                                                style: TextStyle(
-                                                  color: Color(0xFF1b262c),
-                                                  fontSize: 14.0,
-                                                  fontWeight: FontWeight.bold,
-                                                  // fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            )
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ],),
-                            ),
-
-                          ),
-                        ),
-
-                        Expanded(
-                            flex: 2,
-                            child: Container(
-                                height: 200.0,
                                 width: 150.0,
+                                height: 200.0,
                                 decoration: BoxDecoration(
                                     color: Colors.grey[300],
-                                    borderRadius: BorderRadius.all(Radius
-                                        .circular(40)),
+                                    borderRadius: BorderRadius.all(Radius.circular(
+                                        40)),
                                     boxShadow: [
                                       BoxShadow(
                                           color: Colors.grey[500],
@@ -869,230 +850,326 @@ String logo;
                                           blurRadius: 15.0,
                                           spreadRadius: 1.0),
                                     ]),
-
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Container(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text(
-                                              document['reference'].toString(),
-                                              style: TextStyle(
-                                                color: Color(0xff0f4c75),
-                                                fontSize: 14.0,
-                                                fontWeight: FontWeight.bold,
-                                              )
-                                          ),
-                                        )
-                                    ),
-                                    Container(
-                                        child: Row(children: <Widget>[
-                                          Container(child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Icon(
-                                              FontAwesomeIcons.mapMarkerAlt,
-                                              color: new Color(0xffF7B928),
-                                              size: 20.0,),
-                                          ),),
-                                          Container(child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(
-                                                document['location'].toString(),
-                                                style: TextStyle(
-                                                  color: Color(0xff0f4c75),
-                                                  fontSize: 16.0,
-                                                  fontWeight: FontWeight.bold,
-                                                )),
-                                          ),),
-                                        ],)
-                                    ),
-
-                                    Container(
-                                      child: Row(children: <Widget>[
-                                        Container(child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: CircleAvatar(
-                                            radius: 30.0,
-                                            backgroundImage:
-                                              document['imagePlans'][0]!= null ? NetworkImage(document['imagePlans'][0]) : null,
-                                                      child: document['imagePlans']== null ?Icon(Icons.account_circle,size: 40): Container(),
-                                        ),),
-                                        )],),
-                                    ),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: <Widget>[
-
-                                        Positioned(
-                                          right: 50,
-                                          bottom: 0,
-                                          child: IconButton(
-                                            icon: Icon(Icons.list),
-                                            color: Color(0xff0f4c75),
-                                            onPressed: () {
-                                              final foldingCellState = context
-                                                  .findAncestorStateOfType<
-                                                  SimpleFoldingCellState>();
-                                              foldingCellState?.toggleFold();
-                                            },
 //
-                                          ),
-                                        ),
-                                        Positioned(
-                                          right: 50,
-                                          bottom: 0,
-                                          child: IconButton(
-                                            icon: Icon(Icons.remove_red_eye),
-                                            color: Color(0xff0f4c75),
+                                child: Container(
 
-                                            onPressed: () {
-                                              Navigator.of(context).push(
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        ProjTile(
-                                                          qrResultHome: dataProj,
-                                                          user: widget.user,
-                                                          googleSignIn: widget
-                                                              .googleSignIn,
-                                                          email: widget.user
-                                                              .email,),
-                                                  ));
-                                            },
-                                          ),
-                                        ),
-                                        Positioned(
-                                          right: 70,
-                                          bottom: 0,
-                                          child: IconButton(
-                                            icon: Icon(Icons.print),
-                                            color: Color(0xff0f4c75),
-                                            onPressed: () async {
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Flexible(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment
+                                              .center,
+                                          children: <Widget>[
+                                            Container(
+                                                child: Padding(
+                                                  padding: const EdgeInsets
+                                                      .fromLTRB(
+                                                      21.0, 8.0, 8.0, 8.0),
+                                                  child: Text(
+                                                    dataProj,
+//                                      document['name'].toString(),
+                                                    overflow: TextOverflow.ellipsis,
 
-                                              final PdfImage image = await pdfImageFromImageProvider(
-                                                  pdf: pdf.document, image: Image.network(logo).image);
-                                              print(image);
+                                                    maxLines: 5,
+                                                    style: TextStyle(
+                                                      color: Color(0xFF1b262c),
+                                                      fontSize: 14.0,
+                                                      fontWeight: FontWeight.bold,
+                                                      // fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                )
+                                            ),
+                                            Container(
+                                                child: Padding(
+                                                  padding: const EdgeInsets
+                                                      .fromLTRB(
+                                                      21.0, 8.0, 8.0, 8.0),
+                                                  child: Text(
+//                                        document['date'].toString(),
+                                                    dueDate,
+                                                    style: TextStyle(
+                                                      color: Color(0xFF1b262c),
+                                                      fontSize: 14.0,
+                                                      fontWeight: FontWeight.bold,
+                                                      // fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                )
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    ],),
+                                ),
+
+                              ),
+                            ),
+
+                            Expanded(
+                                flex: 2,
+                                child: Container(
+                                    height: 200.0,
+                                    width: 150.0,
+                                    decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        borderRadius: BorderRadius.all(Radius
+                                            .circular(40)),
+                                        boxShadow: [
+                                          BoxShadow(
+                                              color: Colors.grey[500],
+                                              offset: Offset(4.0, 4.0),
+                                              blurRadius: 15.0,
+                                              spreadRadius: 1.0),
+
+                                          BoxShadow(
+                                              color: Colors.white,
+                                              offset: Offset(-4.0, -4.0),
+                                              blurRadius: 15.0,
+                                              spreadRadius: 1.0),
+                                        ]),
+
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Container(
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                  document['reference'].toString(),
+                                                  style: TextStyle(
+                                                    color: Color(0xff0f4c75),
+                                                    fontSize: 14.0,
+                                                    fontWeight: FontWeight.bold,
+                                                  )
+                                              ),
+                                            )
+                                        ),
+                                        Container(
+                                            child: Row(children: <Widget>[
+                                              Container(child: Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: Icon(
+                                                  FontAwesomeIcons.mapMarkerAlt,
+                                                  color: new Color(0xffF7B928),
+                                                  size: 20.0,),
+                                              ),),
+                                              Container(child: Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: Text(
+                                                    document['location'].toString(),
+                                                    style: TextStyle(
+                                                      color: Color(0xff0f4c75),
+                                                      fontSize: 16.0,
+                                                      fontWeight: FontWeight.bold,
+                                                    )),
+                                              ),),
+                                            ],)
+                                        ),
+
+                                        Container(
+                                          child: Row(children: <Widget>[
+                                            Container(child: Padding(
+                                              padding: const EdgeInsets.all(8.0),
+                                              child: CircleAvatar(
+                                                radius: 30.0,
+                                                backgroundImage:
+                                                  document['imagePlans'][0]!= null ? NetworkImage(document['imagePlans'][0]): Icon(Icons.account_circle,size: 40) ,
+//                                                          child: document['imagePlans']== null ?Icon(Icons.account_circle,size: 40): Container(),
+                                            ),),
+                                            )],),
+                                        ),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: <Widget>[
+
+                                            Positioned(
+                                              right: 50,
+                                              bottom: 0,
+                                              child: IconButton(
+                                                icon: Icon(Icons.list),
+                                                color: Color(0xff0f4c75),
+                                                onPressed: () {
+                                                  final foldingCellState = context
+                                                      .findAncestorStateOfType<
+                                                      SimpleFoldingCellState>();
+                                                  foldingCellState?.toggleFold();
+                                                },
+//
+                                              ),
+                                            ),
+                                            Positioned(
+                                              right: 50,
+                                              bottom: 0,
+                                              child: IconButton(
+                                                icon: Icon(Icons.remove_red_eye),
+                                                color: Color(0xff0f4c75),
+
+                                                onPressed: () {
+                                                  Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ProjTile(
+                                                              qrResultHome: dataProj,
+                                                              user: widget.user,
+                                                              googleSignIn: widget
+                                                                  .googleSignIn,
+                                                              email: widget.user
+                                                                  .email,),
+                                                      ));
+                                                },
+                                              ),
+                                            ),
+                                            Positioned(
+                                              right: 70,
+                                              bottom: 0,
+                                              child: IconButton(
+                                                icon: Icon(Icons.print),
+                                                color: Color(0xff0f4c75),
+                                                onPressed: () async {
+
+                                                  final PdfImage image = await pdfImageFromImageProvider(
+                                                      pdf: pdf.document, image: Image.network(logo).image);
+                                                  final PdfImage signat = await pdfImageFromImageProvider(
+                                                      pdf: pdf.document, image: Image.network(sign).image);
+                                                  print(signat);
 //                                              final PdfImage image = await pdfImageFromImageProvider(
 ////                                            'assets/oyalogo.png'
 //                                                  pdf: pdf.document
 //                                                  , image: ""
 //                                              );
 
-                                              pdf.addPage(
+                                                  pdf.addPage(
 
 
-                                                  pw.MultiPage(
-                                                      pageFormat: PdfPageFormat
-                                                          .a4,
+                                                      pw.MultiPage(
+                                                          pageFormat: PdfPageFormat
+                                                              .a4,
 
-                                                      margin: pw.EdgeInsets.all(
-                                                          32),
-                                                      build: (
-                                                          pw.Context context) {
-                                                        return <pw.Widget>[
-                                                          pw.Row(
-                                                              mainAxisAlignment: pw
-                                                                  .MainAxisAlignment
-                                                                  .center,
-                                                              children: [
+                                                          margin: pw.EdgeInsets.all(
+                                                              32),
+                                                          build: (
+                                                              pw.Context context) {
+                                                            return <pw.Widget>[
+                                                              pw.Row(
+                                                                  mainAxisAlignment: pw
+                                                                      .MainAxisAlignment
+                                                                      .center,
+                                                                  children: [
 
-                                                                pw.Image(
-                                                                  image,height: 100,width: 300
-                                                                ),
-                                                              ]
-                                                          ),
+                                                                    pw.Image(
+                                                                      image,height: 100,width: 300
+                                                                    ),
+                                                                  ]
+                                                              ),
 
-                                                          pw.SizedBox(
-                                                              height: 30.0
-                                                          ),
-                                                          pw.Header(
-                                                            level: 0,
-                                                            child: pw.Text(
-                                                                "project identifiers"),
-                                                          ),
+                                                              pw.SizedBox(
+                                                                  height: 30.0
+                                                              ),
+                                                              pw.Header(
+                                                                level: 0,
+                                                                child: pw.Text(
+                                                                    "project identifiers"),
+                                                              ),
 
-                                                          pw.Text(
-                                                              "Name of the project: " +
-                                                                  document['name']),
-                                                          pw.Text(
-                                                              "Reference: " +
-                                                                  document['reference']),
-                                                          pw.Text("Details: " +
-                                                              document['details']),
-                                                          pw.Text(
-                                                              "Date of creation: " +
-                                                                  _datePrj
-                                                                      .toString()),
-                                                          pw.SizedBox(
-                                                              height: 30.0
-                                                          ),
+                                                              pw.Text(
+                                                                  "Name of the project: " +
+                                                                      document['name']),
+                                                              pw.Text(
+                                                                  "Reference: " +
+                                                                      document['reference']),
+                                                              pw.Text("Details: " +
+                                                                  document['details']),
+                                                              pw.Text(
+                                                                  "Date of creation: " +
+                                                                      _datePrj
+                                                                          .toString()),
+                                                              pw.SizedBox(
+                                                                  height: 30.0
+                                                              ),
 
-                                                          pw.Header(
-                                                            level: 0,
-                                                            child: pw.Text(
-                                                                "Project information"),
-                                                          ),
-                                                          pw.Text("Type: " +
-                                                              document['typeP']),
-                                                          pw.Text("Customer: " +
-                                                              document['customer']),
-                                                          pw.Text("Location: " +
-                                                              document['location']),
-                                                          pw.Text("Phase: " +
-                                                              document['phase']),
-                                                          pw.Text(
-                                                              "Project owner: " +
-                                                                  document['mo']),
-                                                          pw.Text(
-                                                              "Project owner delegate: " +
-                                                                  document['moDelegate']),
-                                                          pw.Text("Clues: " +
-                                                              document['clues']),
-                                                          pw.Text("Comments: " +
-                                                              document['comments']),
+                                                              pw.Header(
+                                                                level: 0,
+                                                                child: pw.Text(
+                                                                    "Project information"),
+                                                              ),
+                                                              pw.Text("Type: " +
+                                                                  document['typeP']),
+                                                              pw.Text("Customer: " +
+                                                                  document['customer']),
+                                                              pw.Text("Location: " +
+                                                                  document['location']),
+                                                              pw.Text("Phase: " +
+                                                                  document['phase']),
+                                                              pw.Text(
+                                                                  "Project owner: " +
+                                                                      document['mo']),
+                                                              pw.Text(
+                                                                  "Project owner delegate: " +
+                                                                      document['moDelegate']),
+                                                              pw.Text("Clues: " +
+                                                                  document['clues']),
+                                                              pw.Text("Comments: " +
+                                                                  document['comments']),
 
-                                                          pw.SizedBox(
-                                                              height: 30.0
-                                                          ),
+                                                              pw.SizedBox(
+                                                                  height: 30.0
+                                                              ),
 
-                                                          pw.Header(
-                                                            level: 0,
-                                                            child: pw.Text(
-                                                                "Project members"),
-                                                          ),
-                                                          pw.Text("Manager: " +
-                                                              document['responsible']),
-                                                          pw.Text(
-                                                              "Bureau d'études technique: " +
-                                                                  document['bet']),
-                                                          pw.Text(
-                                                              "Topographer: " +
-                                                                  document['topo']),
+                                                              pw.Header(
+                                                                level: 0,
+                                                                child: pw.Text(
+                                                                    "Project members"),
+                                                              ),
+                                                              pw.Text("Manager: " +
+                                                                  document['responsible']),
+                                                              pw.Text(
+                                                                  "Bureau d'études technique: " +
+                                                                      document['bet']),
+                                                              pw.Text(
+                                                                  "Topographer: " +
+                                                                      document['topo']),
 
-                                                          pw.SizedBox(
-                                                              height: 60.0
-                                                          ),
+                                                              pw.SizedBox(
+                                                                  height: 60.0
+                                                              ),
+                                                              pw.Row(
+                                                                  mainAxisAlignment: pw
+                                                                      .MainAxisAlignment
+                                                                      .center,
+                                                                  children: [
 
-                                                          pw.BarcodeWidget(
-                                                            barcode: pw.Barcode
-                                                                .qrCode(
-                                                              errorCorrectLevel: pw
-                                                                  .BarcodeQRCorrectionLevel
-                                                                  .high,
-                                                            ),
-                                                            data: document['name']
-                                                                .toString(),
 
-                                                            height: 100.0,
-                                                            width: 100.0,
-                                                          ),
-                                                        ];
-                                                      }
-                                                  ));
-                                              print(pw.Barcode.qrCode());
+                                                                    pw.BarcodeWidget(
+                                                                      barcode: pw.Barcode
+                                                                          .qrCode(
+                                                                        errorCorrectLevel: pw
+                                                                            .BarcodeQRCorrectionLevel
+                                                                            .high,
+                                                                      ),
+                                                                      data: document['name']
+                                                                          .toString(),
+
+                                                                      height: 100.0,
+                                                                      width: 100.0,
+                                                                    ),
+                                                                    pw.SizedBox(width: 200.0),
+                                                                    pw.Image(
+                                                                        signat,height: 100,width: 300
+                                                                    ),
+                                                                  ]
+                                                              ),
+
+//                                                          pw.SizedBox(height: 60.0),
+
+                                                            ];
+                                                          }
+                                                      ));
+                                                  print(pw.Barcode.qrCode());
 //                                      writeOnPdf();
 
-                                              await savePdf();
+                                                  await savePdf();
 //                                        Directory documentDirectory = await getApplicationDocumentsDirectory();
 //                                        String documentPath = documentDirectory.path;
 //                                        String fullPath = "$documentPath/example.pdf";
@@ -1101,19 +1178,21 @@ String logo;
 //                                          builder: (context) => pdfPreviewScreen(path: fullPath, name: name)
 //                                        ));
 
-                                            },
-                                          ),
+                                                },
+                                              ),
+                                            )
+                                          ],
                                         )
                                       ],
                                     )
-                                  ],
-                                )
 
-                            )),
-                      ]));
+                                )),
+                          ]));
 //      );
 
-            });
+                }),
+//          ),
+        );
 
       });
 }

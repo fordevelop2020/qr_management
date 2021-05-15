@@ -1,3 +1,8 @@
+
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +15,7 @@ import 'package:qr_management/screens/home/Home.dart';
 
 import 'package:qr_management/screens/home/ScanQrClt.dart';
 import 'package:qr_management/screens/home/ScanQrCode.dart';
+import 'package:qr_management/screens/home/content.dart';
 import 'package:qr_management/shared/globals.dart';
 import 'package:qr_management/widgets/button_widget.dart';
 import 'package:qr_management/widgets/textfield_widget.dart';
@@ -24,7 +30,15 @@ void main(){
   final initFuture = MobileAds.instance.initialize();
 
   runApp(MyApp());
+
+
 }
+enum Availability { LOADING, AVAILABLE, UNAVAILABLE }
+
+extension on Availability {
+  String stringify() => this.toString().split('.').last;
+}
+
 class MyApp extends StatelessWidget {
   @override
 
@@ -47,11 +61,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
+
   @override
   void initState(){
     super.initState();
     //load Ad
   }
+
 
   final emailTextController =  TextEditingController();
   final passwordTextController =   TextEditingController();
@@ -227,109 +243,111 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     return new Scaffold(
       backgroundColor: Global.white,
       body: Stack(
-        children: <Widget>[
+          children: <Widget>[
 
-          Container(
+            Container(
 
-            height: size.height - 200,
-            //color: Global.mediumBlue,
-            color: Color(0xff3282b8),
+              height: size.height - 200,
+              //color: Global.mediumBlue,
+              color: Color(0xff3282b8),
 
-          ),
-          AnimatedPositioned(
 
-            duration: Duration(milliseconds: 500),
-            curve: Curves.easeOutQuad,
-            top: keyboardOpen ? -size.height / 3.7 : 0.0,
-            child: WaveWidget(
-              size: size,
-              yOffset: size.height / 3.0,
-              color: Global.white,
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 95.0),
+            AnimatedPositioned(
+
+              duration: Duration(milliseconds: 500),
+              curve: Curves.easeOutQuad,
+              top: keyboardOpen ? -size.height / 3.7 : 0.0,
+              child: WaveWidget(
+                size: size,
+                yOffset: size.height / 3.0,
+                color: Global.white,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 95.0),
 
 
 //              mainAxisAlignment: MainAxisAlignment.center,
 //              children: <Widget>[
-                child : new Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
+                  child : new Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
 
-                   Text(
-                  'Archi',
-                  style: TextStyle(
-                    color: Global.white,
-                    fontSize: 30.0,
-                    fontWeight: FontWeight.w900,
+                     Text(
+                    'Archi',
+                    style: TextStyle(
+                      color: Global.white,
+                      fontSize: 50.0,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
-                ),
-                    Text(
-                      '+',
-                      style: TextStyle(
-                        color: Global.white,
-                        fontSize: 80.0,
-                        fontWeight: FontWeight.w100,
-                      ),
-                    ),
-                    Text(
-                      'Viewer',
-                      style: TextStyle(
-                        color: Global.white,
-                        fontSize: 30.0,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-           // ]),
 
-            ]),
+//                    Text(
+//                      '+',
+//                      style: TextStyle(
+//                        color: Global.white,
+//                        fontSize: 80.0,
+//                        fontWeight: FontWeight.w100,
+//                      ),
+//                    ),
+                      Text(
+                        'Viewer',
+                        style: TextStyle(
+                          color: Global.white,
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+             // ]),
+
+              ]),
     ),
 
-          Padding(
-            padding: const EdgeInsets.all(30.0),
-                child: new Form(
-                key: _formKey,
-            child:new Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                TextFormField(
-                  validator: (val) => !val.contains('@')?'Invalid Email': null,
-                  obscureText: false,
-                  cursorColor: Color(0xff3282b8),
-                  style: TextStyle(
-                    color: Color(0xff3282b8),
-                    fontSize: 14.0,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: 'Email',
-                    labelStyle: TextStyle(color:Color(0xff3282b8)),
-                    focusColor: Color(0xff3282b8),
-                    filled: true,
-                    enabledBorder: UnderlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Color(0xff3282b8)),
-                    ),
-                    prefixIcon: Icon(
-                        Icons.mail_outline,
-                      size: 18,
+            Padding(
+              padding: const EdgeInsets.all(30.0),
+                  child: new Form(
+                  key: _formKey,
+              child:new Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  TextFormField(
+                    validator: (val) => !val.contains('@')?'Invalid Email': null,
+                    obscureText: false,
+                    cursorColor: Color(0xff3282b8),
+                    style: TextStyle(
                       color: Color(0xff3282b8),
+                      fontSize: 14.0,
                     ),
-                    suffixIcon: GestureDetector(
-                      onTap: () {
-                        model.isVisible = !model.isVisible;
-                      },
-                      child: Icon(
-                        model.isValid ? Icons.check : null,
+                    decoration: InputDecoration(
+                      hintText: 'Email',
+                      labelStyle: TextStyle(color:Color(0xff3282b8)),
+                      focusColor: Color(0xff3282b8),
+                      filled: true,
+                      enabledBorder: UnderlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: Color(0xff3282b8)),
+                      ),
+                      prefixIcon: Icon(
+                          Icons.mail_outline,
                         size: 18,
                         color: Color(0xff3282b8),
                       ),
+                      suffixIcon: GestureDetector(
+                        onTap: () {
+                          model.isVisible = !model.isVisible;
+                        },
+                        child: Icon(
+                          model.isValid ? Icons.check : null,
+                          size: 18,
+                          color: Color(0xff3282b8),
+                        ),
+                      ),
                     ),
-                  ),
 //                 validator: (email)=>EmailValidator.validate(email)? null:"Invalid email address",
 //                  validator: (value){ if (value.isEmpty){ return 'Email can\'t be empty';}
 //                  if(!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]").hasMatch(value)){
@@ -337,88 +355,88 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 //                 }
 //                  return  null; },
 //                  controller: emailTextController,
-                  onSaved: (value) => _email = value,
-               ),
-                 SizedBox(
-                          height: 16.0,
-                        ),
-                 TextFormField(
+                    onSaved: (value) => _email = value,
+                 ),
+                   SizedBox(
+                            height: 16.0,
+                          ),
+                   TextFormField(
 
-                  validator: (value) => value.length < 6 ? 'Password too short' : null,
-                   obscureText: model.isVisible ? false : true,
-                   cursorColor: Color(0xff3282b8),
-                   style: TextStyle(
-                     color: Color(0xff3282b8),
-                     fontSize: 14.0,
-                   ),
-                   decoration: InputDecoration(
-                     hintText: 'Password',
-                     labelStyle: TextStyle(color:Color(0xff3282b8)),
-                     focusColor: Color(0xff3282b8),
-                     filled: true,
-                     enabledBorder: UnderlineInputBorder(
-                       borderRadius: BorderRadius.circular(10),
-                       borderSide: BorderSide.none,
-                     ),
-                     focusedBorder: OutlineInputBorder(
-                       borderRadius: BorderRadius.circular(10),
-                       borderSide: BorderSide(color: Color(0xff3282b8)),
-                     ),
-                     prefixIcon: Icon(
-                       Icons.lock_outline,
-                       size: 18,
+                    validator: (value) => value.length < 6 ? 'Password too short' : null,
+                     obscureText: model.isVisible ? false : true,
+                     cursorColor: Color(0xff3282b8),
+                     style: TextStyle(
                        color: Color(0xff3282b8),
+                       fontSize: 14.0,
                      ),
-                     suffixIcon: GestureDetector(
-                       onTap: () {
-                         model.isVisible = !model.isVisible;
-                       },
-                       child: Icon(
-                         model.isVisible
-                             ? Icons.visibility
-                             : Icons.visibility_off,
+                     decoration: InputDecoration(
+                       hintText: 'Password',
+                       labelStyle: TextStyle(color:Color(0xff3282b8)),
+                       focusColor: Color(0xff3282b8),
+                       filled: true,
+                       enabledBorder: UnderlineInputBorder(
+                         borderRadius: BorderRadius.circular(10),
+                         borderSide: BorderSide.none,
+                       ),
+                       focusedBorder: OutlineInputBorder(
+                         borderRadius: BorderRadius.circular(10),
+                         borderSide: BorderSide(color: Color(0xff3282b8)),
+                       ),
+                       prefixIcon: Icon(
+                         Icons.lock_outline,
                          size: 18,
                          color: Color(0xff3282b8),
                        ),
+                       suffixIcon: GestureDetector(
+                         onTap: () {
+                           model.isVisible = !model.isVisible;
+                         },
+                         child: Icon(
+                           model.isVisible
+                               ? Icons.visibility
+                               : Icons.visibility_off,
+                           size: 18,
+                           color: Color(0xff3282b8),
+                         ),
+                       ),
                      ),
-                   ),
 
-                  onSaved: (value) => _password = value,
-                ),
-                    Column(
-                      children: <Widget>[
-                        Align(
-                          alignment: Alignment.topRight,
-                          child: InkWell(
-                            onTap: (){
-                              Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context)=> ForgotScreen()));
-                            },
-                          child :Text('Forgot password?', style: TextStyle(color: Color(0xff3282b8)),
-                            ),
-                          )),
-                      ],
-                    ),
-                (errorMessage != ''
-                    ? Text(
-                  errorMessage,
-                  style: TextStyle(color: Colors.red),
-                )
+                    onSaved: (value) => _password = value,
+                  ),
+                      Column(
+                        children: <Widget>[
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: InkWell(
+                              onTap: (){
+                                Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context)=> ForgotScreen()));
+                              },
+                            child :Text('Forgot password?', style: TextStyle(color: Color(0xff3282b8)),
+                              ),
+                            )),
+                        ],
+                      ),
+                  (errorMessage != ''
+                      ? Text(
+                    errorMessage,
+                    style: TextStyle(color: Colors.red),
+                  )
 
-                    : Container()),
+                      : Container()),
 
-                SizedBox(
-                  height: 17.0,
-                ),
-              ButtonWidget(
-                  title: 'Sign in with Google',
-                    hasBorder: false,
-                onPressed: ()  {
+                  SizedBox(
+                    height: 17.0,
+                  ),
+                ButtonWidget(
+                    title: 'Sign in with Google',
+                      hasBorder: false,
+                  onPressed: ()  {
 //                  if (_formKey.currentState.validate()) {
 //                    _formKey.currentState.save();
 //                    toastMessage("Email: $_email\nPassword: $_password");
-                   loading = true;
+                     loading = true;
 //                   showdialog(context);
-                    _signIn();
+                      _signIn();
 
 //                    if(userData != null){
 //                      loading = true;
@@ -430,21 +448,21 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 //                      );
 //                    } else {}
 //                  }
-                  }
+                    }
 //                  },
-              ),
-                SizedBox(
-                  height: 8.0,
                 ),
-                ButtonWidget(
-                  title: 'Login',
-                  hasBorder: true,
-                    // ignore: missing_return
-                    onPressed: ()  {
-                      loading = true;
+                  SizedBox(
+                    height: 8.0,
+                  ),
+                  ButtonWidget(
+                    title: 'Login',
+                    hasBorder: true,
+                      // ignore: missing_return
+                      onPressed: ()  {
+                        loading = true;
 //                    if (_formKey.currentState.validate()) {
 //                       _formKey.currentState.save();
-                      signInWithMail(_email,_password);
+                        signInWithMail(_email,_password);
 //                        if(userData != null){
 //                          loading = true;
 //                          Navigator.of(context).push(
@@ -458,43 +476,43 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 //                        //  return AddProjet();
 //                        } else {}
 //                    }
-                    },
+                      },
     ),
-                SizedBox(
-                  height: 8.0,
-                ),
-                ButtonWidget(
-                  title :('Sign Up'),
-                  hasBorder: true,
-                  onPressed: (){
+                  SizedBox(
+                    height: 8.0,
+                  ),
+                  ButtonWidget(
+                    title :('Sign Up'),
+                    hasBorder: true,
+                    onPressed: (){
 //                    if (_formKey.currentState.validate()) {
 //                      _formKey.currentState.save();
-                      signUpWithMail(_email,_password);
+                        signUpWithMail(_email,_password);
 //                      setState((){
 //                        error = 'Could not sign in with those credentials';
 //                      });
 //                  }
-                    },
+                      },
 
+                    ),
+                   Row(
+                    children: [
+                      IconButton(icon: Icon(FontAwesomeIcons.qrcode,color: Color(0xff3282b8),), onPressed: () {
+                        Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context)=>
+                            ScanQrClt()));
+
+                      }), Text("Client Area",style: TextStyle(
+                        color: Color(0xff3282b8),
+                        fontSize: 14.0,
+                      ),)
+                    ],
                   ),
-                 Row(
-                  children: [
-                    IconButton(icon: Icon(FontAwesomeIcons.qrcode,color: Color(0xff3282b8),), onPressed: () {
-                      Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context)=>
-                          ScanQrClt()));
 
-                    }), Text("Client Area",style: TextStyle(
-                      color: Color(0xff3282b8),
-                      fontSize: 14.0,
-                    ),)
-                  ],
-                ),
-
-
-              ],
+                ],
     )),
     )],
-    ));
+    ),
+      );
   }
 
 }

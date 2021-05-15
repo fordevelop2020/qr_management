@@ -18,6 +18,7 @@ import 'package:qr_management/screens/home/utils.dart';
 import 'package:qr_management/widgets/button_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:qr_management/api.dart';
 import 'addProjet.dart';
 
 class SettingsForm extends StatefulWidget {
@@ -72,6 +73,7 @@ class _SettingsFormState extends State<SettingsForm> {
    String details;
    String docId;
    File imgFile;
+  CloudApi api;
   var _phases = ['Esquisse','Aps','Apd','Pac','Pe','dce','exe','Reception'];
   var _selectedPhase = 'Esquisse';
 
@@ -151,6 +153,11 @@ class _SettingsFormState extends State<SettingsForm> {
     imagesTotal = imagePlans + image3Dss;
     docId = widget.docId;
     docs = widget.documents;
+
+    rootBundle.loadString('assets/credentials.json').then((json){
+      api = CloudApi(json);
+    });
+
   }
 
   Future<Null> _selectDatePrj(BuildContext context) async {
@@ -296,14 +303,17 @@ class _SettingsFormState extends State<SettingsForm> {
 
 
   Future<dynamic> postImage(Asset imageFile) async {
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
-    StorageUploadTask uploadTask = reference.putData(( await imageFile.getByteData()).buffer.asUint8List());
-    StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
-    return storageTaskSnapshot.ref.getDownloadURL();
+    String fileName = DateTime
+        .now()
+        .millisecondsSinceEpoch
+        .toString();
+    final response = await api.save(
+        fileName, (await imageFile.getByteData()).buffer.asUint8List());
+    print(response.downloadLink);
+    return response.downloadLink;
   }
 
-  Future<dynamic> postFile(fileName) async {
+    Future<dynamic> postFile(fileName) async {
     _extension = fileName.toString().split('.').last;
     StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
     StorageUploadTask uploadTask2 = reference.putFile(File(fileName),StorageMetadata(contentType: '$FileType.custom/$_extension'));
@@ -411,14 +421,16 @@ class _SettingsFormState extends State<SettingsForm> {
             }
           }
 
+
+
           _editingDT(){
             Firestore.instance.runTransaction((
                 Transaction transaction) async {
               DocumentSnapshot snapshot = await transaction.get(
                   widget.index);
               await transaction.update(snapshot.reference, {
-                "imagePlans": imagePlans + imageUrls,
-                "image3d":  image3Dss + imageUrls3d,
+//                "imagePlans":imagePlans + imageUrls,
+//                "image3d":  image3Dss + imageUrls3d,
                 "reference": reference,
                 "date": _datePrj,
                 "location": localisation,
@@ -442,7 +454,16 @@ class _SettingsFormState extends State<SettingsForm> {
               postImage(imageFile).then((downloadUrl) {
                 imageUrls.add(downloadUrl.toString());
                 if (imageUrls.length == imagePlans2.length) {
-                  _editingDT();
+                  Firestore.instance.runTransaction((
+                      Transaction transaction) async {
+                    DocumentSnapshot snapshot = await transaction.get(
+                        widget.index);
+                    await transaction.update(snapshot.reference, {
+
+                      "imagePlans":imagePlans + imageUrls,
+                    });
+                  });
+//                  _editingDT();
                 }
               }).catchError((err) {
                 print(err);
@@ -455,7 +476,15 @@ class _SettingsFormState extends State<SettingsForm> {
               postImage(imageFile3d).then((downloadUrl2) {
                 imageUrls3d.add(downloadUrl2.toString());
                 if (imageUrls3d.length == image3d.length) {
-                  _editingDT();
+                  Firestore.instance.runTransaction((
+                      Transaction transaction) async {
+                    DocumentSnapshot snapshot = await transaction.get(
+                        widget.index);
+                    await transaction.update(snapshot.reference, {
+                      "image3d":  image3Dss + imageUrls3d,
+                    });
+                  });
+//                  _editingDT();
                 }
 
               }).catchError((err) {
@@ -465,9 +494,11 @@ class _SettingsFormState extends State<SettingsForm> {
           }
 
           Future<void> _editProject() async{
-
-                 _addImgP();
+            _editingDT();
+            _addImgP();
                  _adImg3D();
+
+
             Navigator.pop(context);
           }
 
@@ -565,7 +596,7 @@ class _SettingsFormState extends State<SettingsForm> {
                                       height: 80.0,
                                       child: ListView(
                                         scrollDirection: Axis.horizontal,
-                                        children: imagesTotal.asMap().map((i, item) =>
+                                        children: imagePlans.asMap().map((i, item) =>
                                             MapEntry(
                                               i,
                                               Builder(
@@ -587,7 +618,7 @@ class _SettingsFormState extends State<SettingsForm> {
                                                                       width: 50,
                                                                       height: 50,
                                                                       errorBuilder: (BuildContext context, Object exception, StackTrace stackTrace) {
-                                                                        return Text('Your error widget...');
+                                                                        return Text('error widget...');
                                                                       },
                                                                     ),
 
@@ -604,7 +635,7 @@ class _SettingsFormState extends State<SettingsForm> {
                                                                         size: 18,
                                                                       ),
                                                                       onPressed: () => setState(() {
-                                                                        imagesTotal.removeAt(i);
+                                                                        imagePlans.removeAt(i);
 
 
                                                                       })))
@@ -616,8 +647,63 @@ class _SettingsFormState extends State<SettingsForm> {
                                       ),
                                     ),
 
+
                                   ]),
                             ])),
+                      SizedBox(
+                        height: 80.0,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: image3Dss.asMap().map((i, item) =>
+                              MapEntry(
+                                i,
+                                Builder(
+                                    builder: (BuildContext context) {
+                                      return Container(
+                                          child: Stack(
+                                              alignment: AlignmentDirectional.bottomCenter,
+                                              children: <Widget>[
+                                                Container(
+//                                                                margin: EdgeInsets.all(8.0),
+                                                  child: Card(
+                                                    elevation: 3.5,
+                                                    child: ClipRRect(
+                                                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                      child: Image.network(
+                                                        item,
+                                                        fit: BoxFit.fill,
+//                                                              BorderRadius.all(Radius.circular(10)),
+                                                        width: 50,
+                                                        height: 50,
+                                                        errorBuilder: (BuildContext context, Object exception, StackTrace stackTrace) {
+                                                          return Text('error widget...');
+                                                        },
+                                                      ),
+
+                                                    ),
+                                                  ),
+                                                ),
+                                                Positioned(
+                                                    right: -16,
+                                                    top: 2,
+                                                    child: IconButton(
+                                                        icon: Icon(
+                                                          Icons.cancel,
+                                                          color: Colors.red.withOpacity(0.7),
+                                                          size: 18,
+                                                        ),
+                                                        onPressed: () => setState(() {
+                                                          image3Dss.removeAt(i);
+
+
+                                                        })))
+                                              ] ));
+
+                                    }),
+                              )).values.toList(),
+
+                        ),
+                      ),
 //                      ),
                       Card(
                         elevation: 4.0,
@@ -640,7 +726,7 @@ class _SettingsFormState extends State<SettingsForm> {
                             ),
                             child: SizedBox(
                                 height: 178.0,
-                                width: 180.0,
+                                width: 174,
 
                                   child: Column(
 //                          crossAxisAlignment: CrossAxisAlignment.end,
@@ -671,7 +757,7 @@ class _SettingsFormState extends State<SettingsForm> {
                                 ),
                                 child: SizedBox(
                                   height: 178.0,
-                                  width: 180.0,
+                                  width: 174,
                                   child: Column(
 //                          crossAxisAlignment: CrossAxisAlignment.end,
                                     children: <Widget>[

@@ -13,7 +13,7 @@
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="qr_management"
+        android:label="ArchiViewer"
         android:requestLegacyExternalStorage="true"
         android:icon="@mipmap/ic_launcher">
         <activity

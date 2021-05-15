@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -27,6 +28,32 @@ class MyFiles extends StatefulWidget {
     double opacity2 = 0.0;
     double opacity3 = 0.0;
     int _currentIndex =2;
+    //Instantiate Interstitial Ads admob
+    final InterstitialAd myInterstitial = InterstitialAd(
+      adUnitId: 'ca-app-pub-7514857792356108/6439031018',
+      request: AdRequest(),
+      listener: AdListener(),
+    );
+
+    //Interstitial Ad events
+    final AdListener listener1 = AdListener(
+      // Called when an ad is successfully received.
+      onAdLoaded: (Ad ad) => print('Ad loaded.'),
+      // Called when an ad request failed.
+      onAdFailedToLoad: (Ad ad, LoadAdError error) {
+        ad.dispose();
+        print('Ad failed to load: $error');
+      },
+      // Called when an ad opens an overlay that covers the screen.
+      onAdOpened: (Ad ad) => print('Ad opened.'),
+      // Called when an ad removes an overlay that covers the screen.
+      onAdClosed: (Ad ad) {
+        ad.dispose();
+        print('Ad closed.');
+      },
+      // Called when an ad is in the process of leaving the application.
+      onApplicationExit: (Ad ad) => print('Left application.'),
+    );
 
     @override
     void initState() {
@@ -36,6 +63,8 @@ class MyFiles extends StatefulWidget {
           parent: animationController,
           curve: Interval(0, 1.0, curve: Curves.fastOutSlowIn)));
       setData();
+      MobileAds.instance.initialize();
+      myInterstitial.load();
       super.initState();
     }
 
@@ -112,6 +141,9 @@ class MyFiles extends StatefulWidget {
             _currentIndex = index;
           });
           _onTap();
+          if(_currentIndex == 3){
+            myInterstitial.show();
+          }
         },
       ),
 
